@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MentorLagbe — Smart Tuition & Mentorship Platform
 
-## Getting Started
+MentorLagbe is a full-stack, role-based EdTech tuition and 1-on-1 mentorship platform built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**. It connects Students searching for subject-wise academic guidance with Tutors offering Online or Offline tuition batches, backed by Admin moderation and Stripe Pro subscriptions.
 
-First, run the development server:
+## Live Links
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Frontend (Live Site):** _[Add your deployed Vercel client URL here]_
+- **Backend API:** https://mentor-lagbe-server.vercel.app
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Admin & Test Credentials
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> Replace the placeholders below with your verified test accounts before submission.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Admin Email:** _[Add Admin email]_
+- **Admin Password:** _[Add Admin password]_
+- **Tutor Test Account:** _[Add Tutor email & password]_
 
-## Learn More
+## Key Features
 
-To learn more about Next.js, take a look at the following resources:
+- **Role-Based Authentication (BetterAuth + MongoDB + JWT):**
+  - Email/password sign-up with Student or Tutor role selection (`plan: "free"` by default) writing directly to the shared `users` collection in `mentorlagbe`.
+  - Session persistence across route reloads and JWT token sync (`POST /api/auth/jwt`) for protected Express API endpoints.
+- **Public Discovery & Search:**
+  - Landing page with Hero section, 6 latest Admin-approved active Featured Tuitions, Pricing overview, 4-step How It Works workflow, and Popular Subject categories.
+  - Browse Tuitions (`/tuitions`) with server-side Search (by title/subject) and Filter dropdowns (Subject, Class Level, Online/Offline Mode).
+  - Tuition Details (`/tuitions/[id]`) with complete schedule, fee, tutor profile summary, and a **Student-only** application modal (duplicate applications blocked).
+- **Student Dashboard (`/dashboard/student`):**
+  - Real-time stats cards (Total Applied, Accepted, Pending, Current Plan).
+  - My Applications table with status badges and Cancel/Delete support for pending applications.
+- **Tutor Dashboard (`/dashboard/tutor`):**
+  - Overview metrics (Total Posted, Active/Approved, Total Applicants, Current Plan).
+  - Post a Tuition form with **direct ImgBB image upload** (Free plan limited to 2 posts; Pro plan unlimited).
+  - Full CRUD on My Created Tuitions (Edit modal, Delete, Toggle Active/Closed).
+  - Manage Applicants view to Accept or Reject incoming student requests.
+- **Admin Dashboard (`/dashboard/admin`):**
+  - Platform overview (Total Users, Total Tutors, Pending vs. Approved Tuitions, Total Stripe Revenue).
+  - User Management to update roles (`student` | `tutor` | `admin`).
+  - Tuition Approval moderation queue (Approve / Reject).
+  - Stripe Transactions log from the `payments` collection.
+- **Shared Profile & Stripe Pro Plans:**
+  - Update Profile (`/dashboard/profile`) for all roles with direct ImgBB profile photo upload.
+  - Stripe Checkout trigger on `/pricing` (Pro Student \$10, Pro Tutor \$15) plus `/payment/success` and `/payment/cancel` landing pages.
+- **Polished UX:**
+  - Sage Studio design system (`#EFF3EC` background, `#1E3A2F` deep forest, `#C2703D` clay accent) with Plus Jakarta Sans typography.
+  - Custom skeleton loaders (`loading.tsx`), 404 page (`not-found.tsx`), Error Boundary (`error.tsx`), and `sonner` toast notifications.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack & npm Packages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Framework:** `next` (v16 App Router), `react` (v19), `react-dom`, `typescript`
+- **Styling & UI:** `tailwindcss` (v4), `@tailwindcss/turbopack`, `lucide-react`, `clsx`, `tailwind-merge`, `class-variance-authority`
+- **Authentication & Database:** `better-auth`, `mongodb`
+- **Notifications:** `sonner`
+- **External Services:** Express/MongoDB Backend API, ImgBB Image Upload API, Stripe Checkout
 
-## Deploy on Vercel
+## Local Development Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Install dependencies:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm install
+   ```
+
+2. Create `.env.local` in the project root (never commit this file):
+
+   ```env
+   MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/mentorlagbe?retryWrites=true&w=majority
+   BETTER_AUTH_SECRET=<same-secret-as-server-jwt-secret>
+   BETTER_AUTH_URL=http://localhost:3000
+   NEXT_PUBLIC_SERVER_URL=https://mentor-lagbe-server.vercel.app
+   NEXT_PUBLIC_IMGBB_API_KEY=<your-imgbb-api-key>
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<your-stripe-publishable-key>
+   ```
+
+3. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Build for production:
+
+   ```bash
+   npm run build
+   ```
