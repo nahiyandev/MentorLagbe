@@ -41,11 +41,13 @@ export default function TuitionDetailsPage({
   const { data: session, isPending: sessionLoading } = useSession();
 
   const [tuition, setTuition] = React.useState<Tuition | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [loadedId, setLoadedId] = React.useState<string | null>(null);
   const [notFoundError, setNotFoundError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [applyOpen, setApplyOpen] = React.useState(false);
   const [applied, setApplied] = React.useState(false);
+
+  const loading = loadedId !== id;
 
   const user = session?.user as
     | {
@@ -59,9 +61,6 @@ export default function TuitionDetailsPage({
 
   React.useEffect(() => {
     let active = true;
-    setLoading(true);
-    setNotFoundError(false);
-    setErrorMessage(null);
 
     async function load() {
       try {
@@ -77,16 +76,23 @@ export default function TuitionDetailsPage({
 
         if (active) {
           if (!item) {
+            setTuition(null);
             setNotFoundError(true);
+            setErrorMessage(null);
           } else {
             setTuition(item);
+            setNotFoundError(false);
+            setErrorMessage(null);
           }
         }
       } catch (err) {
         if (active) {
+          setTuition(null);
           if (err instanceof ApiError && err.status === 404) {
             setNotFoundError(true);
+            setErrorMessage(null);
           } else {
+            setNotFoundError(false);
             setErrorMessage(
               err instanceof Error
                 ? err.message
@@ -95,7 +101,7 @@ export default function TuitionDetailsPage({
           }
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) setLoadedId(id);
       }
     }
 

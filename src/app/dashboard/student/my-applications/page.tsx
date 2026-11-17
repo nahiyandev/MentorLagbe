@@ -18,32 +18,38 @@ export default function StudentMyApplicationsPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
-  const fetchApplications = React.useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiFetch<unknown>("/api/applications/my-applications");
-      setApplications(extractList<Application>(res, "applications"));
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        setError(
-          "Backend JWT token is missing or expired. Once POST /api/auth/jwt is live on the server, sign in again to load your applications."
-        );
-      } else {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to load your applications."
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   React.useEffect(() => {
-    void fetchApplications();
-  }, [fetchApplications]);
+    let active = true;
+    async function load() {
+      try {
+        const res = await apiFetch<unknown>("/api/applications/my-applications");
+        if (active) {
+          setApplications(extractList<Application>(res, "applications"));
+          setError(null);
+        }
+      } catch (err) {
+        if (active) {
+          if (err instanceof ApiError && err.status === 401) {
+            setError(
+              "Backend JWT token is missing or expired. Once POST /api/auth/jwt is live on the server, sign in again to load your applications."
+            );
+          } else {
+            setError(
+              err instanceof Error
+                ? err.message
+                : "Failed to load your applications."
+            );
+          }
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleCancel = async (app: Application) => {
     if (app.status !== "pending") return;

@@ -26,21 +26,17 @@ export function ApplyModal({
   defaultPhone = "",
   onSuccess,
 }: ApplyModalProps) {
-  const [studentPhone, setStudentPhone] = React.useState(defaultPhone);
+  const [studentPhone, setStudentPhone] = React.useState<string | null>(null);
   const [preferredSchedule, setPreferredSchedule] = React.useState("");
   const [studentNote, setStudentNote] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
-  React.useEffect(() => {
-    if (defaultPhone && !studentPhone) {
-      setStudentPhone(defaultPhone);
-    }
-  }, [defaultPhone, studentPhone]);
+  const phoneValue = studentPhone ?? defaultPhone;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!studentPhone.trim() || studentPhone.trim().length < 7) {
+    if (!phoneValue.trim() || phoneValue.trim().length < 7) {
       toast.error("Please enter a valid phone number.");
       return;
     }
@@ -59,7 +55,7 @@ export function ApplyModal({
         method: "POST",
         body: JSON.stringify({
           tuitionId: tuition._id,
-          studentPhone: studentPhone.trim(),
+          studentPhone: phoneValue.trim(),
           preferredSchedule: preferredSchedule.trim(),
           studentNote: studentNote.trim(),
         }),
@@ -105,7 +101,7 @@ export function ApplyModal({
             id="studentPhone"
             type="tel"
             placeholder="e.g., +880 1711-000000"
-            value={studentPhone}
+            value={phoneValue}
             onChange={(e) => setStudentPhone(e.target.value)}
             required
           />

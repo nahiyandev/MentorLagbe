@@ -42,7 +42,7 @@ function BrowseTuitionsContent() {
   const [mode, setMode] = React.useState(searchParams.get("mode") || "");
 
   const [tuitions, setTuitions] = React.useState<Tuition[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loadedQuery, setLoadedQuery] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -52,18 +52,20 @@ function BrowseTuitionsContent() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  React.useEffect(() => {
-    let active = true;
-    setLoading(true);
-    setError(null);
-
+  const queryString = React.useMemo(() => {
     const params = new URLSearchParams();
     if (debouncedSearch) params.set("search", debouncedSearch);
     if (subject) params.set("subject", subject);
     if (classLevel) params.set("classLevel", classLevel);
     if (mode) params.set("mode", mode);
+    return params.toString();
+  }, [debouncedSearch, subject, classLevel, mode]);
 
-    const queryString = params.toString();
+  const loading = loadedQuery !== queryString;
+
+  React.useEffect(() => {
+    let active = true;
+
     const targetUrl = queryString ? `/tuitions?${queryString}` : "/tuitions";
     router.replace(targetUrl, { scroll: false });
 
@@ -75,6 +77,7 @@ function BrowseTuitionsContent() {
         const list = extractList<Tuition>(res, "tuitions");
         if (active) {
           setTuitions(list);
+          setError(null);
         }
       } catch (err) {
         if (active) {
@@ -86,7 +89,7 @@ function BrowseTuitionsContent() {
           toast.error(msg);
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) setLoadedQuery(queryString);
       }
     }
 
@@ -94,7 +97,7 @@ function BrowseTuitionsContent() {
     return () => {
       active = false;
     };
-  }, [debouncedSearch, subject, classLevel, mode, router]);
+  }, [queryString, router]);
 
   const hasFilters = Boolean(searchInput || subject || classLevel || mode);
 

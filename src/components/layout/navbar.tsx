@@ -59,11 +59,6 @@ export function Navbar() {
   const dashboardHref = getDashboardPath(role);
 
   React.useEffect(() => {
-    setMobileOpen(false);
-    setMenuOpen(false);
-  }, [pathname]);
-
-  React.useEffect(() => {
     const handleOutside = (e: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -194,6 +189,7 @@ export function Navbar() {
                     <div className="py-1">
                       <Link
                         href={dashboardHref}
+                        onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink hover:bg-sage-subtle/70"
                       >
                         <LayoutDashboard className="h-4 w-4 text-forest" />
@@ -201,6 +197,7 @@ export function Navbar() {
                       </Link>
                       <Link
                         href="/dashboard/profile"
+                        onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink hover:bg-sage-subtle/70"
                       >
                         <UserPen className="h-4 w-4 text-forest" />
@@ -261,6 +258,7 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => setMobileOpen(false)}
                   className={cn(
                     "rounded-xl px-3.5 py-2.5 text-sm font-semibold",
                     isActive

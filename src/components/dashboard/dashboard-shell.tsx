@@ -126,10 +126,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const requiredRole = getRequiredRoleForPath(pathname);
 
   React.useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
-  React.useEffect(() => {
     const token = session?.session?.token;
     if (token && !getStoredJwt()) {
       void exchangeSessionForJwt(token);
@@ -280,6 +276,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => isMobile && setMobileOpen(false)}
               title={collapsed && !isMobile ? item.label : undefined}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors",

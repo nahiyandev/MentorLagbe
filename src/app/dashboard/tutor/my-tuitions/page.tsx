@@ -54,30 +54,38 @@ export default function TutorMyTuitionsPage() {
     bannerImage: "",
   });
 
-  const loadTuitions = React.useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiFetch<unknown>("/api/tuitions/my-tuitions");
-      setTuitions(extractList<Tuition>(res, "tuitions"));
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        setError(
-          "Backend JWT token is missing or expired. Once POST /api/auth/jwt is live on the server, sign in again to manage your tuitions."
-        );
-      } else {
-        setError(
-          err instanceof Error ? err.message : "Failed to load your tuitions."
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   React.useEffect(() => {
-    void loadTuitions();
-  }, [loadTuitions]);
+    let active = true;
+    async function load() {
+      try {
+        const res = await apiFetch<unknown>("/api/tuitions/my-tuitions");
+        if (active) {
+          setTuitions(extractList<Tuition>(res, "tuitions"));
+          setError(null);
+        }
+      } catch (err) {
+        if (active) {
+          if (err instanceof ApiError && err.status === 401) {
+            setError(
+              "Backend JWT token is missing or expired. Once POST /api/auth/jwt is live on the server, sign in again to manage your tuitions."
+            );
+          } else {
+            setError(
+              err instanceof Error
+                ? err.message
+                : "Failed to load your tuitions."
+            );
+          }
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const openEditModal = (t: Tuition) => {
     setEditing(t);

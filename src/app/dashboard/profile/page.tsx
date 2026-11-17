@@ -37,23 +37,19 @@ export default function UpdateProfilePage() {
       }
     | undefined;
 
-  const [name, setName] = React.useState(sessionUser?.name || "");
-  const [phone, setPhone] = React.useState(sessionUser?.phone || "");
-  const [bio, setBio] = React.useState(sessionUser?.bio || "");
-  const [image, setImage] = React.useState(sessionUser?.image || "");
+  const [draftName, setDraftName] = React.useState<string | null>(null);
+  const [draftPhone, setDraftPhone] = React.useState<string | null>(null);
+  const [draftBio, setDraftBio] = React.useState<string | null>(null);
+  const [draftImage, setDraftImage] = React.useState<string | null>(null);
 
   const [loadingProfile, setLoadingProfile] = React.useState(true);
   const [uploadingPhoto, setUploadingPhoto] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
 
-  React.useEffect(() => {
-    if (sessionUser) {
-      setName((prev) => prev || sessionUser.name || "");
-      setPhone((prev) => prev || sessionUser.phone || "");
-      setBio((prev) => prev || sessionUser.bio || "");
-      setImage((prev) => prev || sessionUser.image || "");
-    }
-  }, [sessionUser]);
+  const name = draftName ?? sessionUser?.name ?? "";
+  const phone = draftPhone ?? sessionUser?.phone ?? "";
+  const bio = draftBio ?? sessionUser?.bio ?? "";
+  const image = draftImage ?? sessionUser?.image ?? "";
 
   React.useEffect(() => {
     let active = true;
@@ -70,10 +66,10 @@ export default function UpdateProfilePage() {
               null;
 
         if (active && profile) {
-          setName(profile.name || "");
-          setPhone(profile.phone || "");
-          setBio(profile.bio || "");
-          setImage(profile.image || "");
+          setDraftName(profile.name || "");
+          setDraftPhone(profile.phone || "");
+          setDraftBio(profile.bio || "");
+          setDraftImage(profile.image || "");
         }
       } catch (err) {
         if (active) {
@@ -102,7 +98,7 @@ export default function UpdateProfilePage() {
     setUploadingPhoto(true);
     try {
       const url = await uploadImageToImgBB(file);
-      setImage(url);
+      setDraftImage(url);
       toast.success("Profile picture uploaded to ImgBB. Click Save Changes to apply.");
     } catch (err) {
       toast.error(
@@ -243,7 +239,7 @@ export default function UpdateProfilePage() {
               <Input
                 id="profile-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setDraftName(e.target.value)}
                 placeholder="Your full name"
                 disabled={loadingProfile && !name}
                 required
@@ -256,7 +252,7 @@ export default function UpdateProfilePage() {
                 id="profile-phone"
                 type="tel"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setDraftPhone(e.target.value)}
                 placeholder="e.g., +880 1711-000000"
               />
             </div>
@@ -267,7 +263,7 @@ export default function UpdateProfilePage() {
                 id="profile-bio"
                 rows={4}
                 value={bio}
-                onChange={(e) => setBio(e.target.value)}
+                onChange={(e) => setDraftBio(e.target.value)}
                 placeholder="Tell students or tutors about your academic background, subjects of interest, or teaching experience..."
               />
             </div>
