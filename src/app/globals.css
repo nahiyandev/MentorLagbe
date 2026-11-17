@@ -1,2 +1,44 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-sage-bg: #EFF3EC;
+  --color-sage-surface: #FFFFFF;
+  --color-sage-subtle: #E4ECE0;
+  --color-forest: #1E3A2F;
+  --color-forest-hover: #162B23;
+  --color-forest-soft: #2A4F40;
+  --color-clay: #C2703D;
+  --color-clay-hover: #A85E31;
+  --color-clay-soft: #F7EAE2;
+  --color-ink: #1C2B23;
+  --color-muted: #5C6B60;
+  --color-sage-border: #DCE5DB;
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-sage-bg);
+    color: var(--color-ink);
+  }
+
+  body {
+    background-color: var(--color-sage-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4 {
+    color: var(--color-forest);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background-color: #D5E2D3;
+    color: #1E3A2F;
+  }
+}
