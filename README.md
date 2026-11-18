@@ -4,7 +4,7 @@ MentorLagbe is a full-stack, role-based EdTech tuition and 1-on-1 mentorship pla
 
 ## Live Links
 
-- **Frontend (Live Site):** _[Add your deployed Vercel client URL here]_
+- **Frontend (Live Site):** https://mentor-lagbe.vercel.app
 - **Backend API:** https://mentor-lagbe-server.vercel.app
 
 ## Admin & Test Credentials
