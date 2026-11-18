@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Camera, Loader2, Save } from "lucide-react";
+import { Camera, Link2, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import type { UserRecord } from "@/types";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -198,7 +198,7 @@ export default function UpdateProfilePage() {
                 </span>
               )}
 
-              <div className="space-y-2">
+              <div className="flex-1 space-y-2 w-full">
                 <p className="text-sm font-bold text-forest">
                   Profile Picture
                 </p>
@@ -231,6 +231,20 @@ export default function UpdateProfilePage() {
                     </>
                   )}
                 </Button>
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted">
+                    <Link2 className="h-3.5 w-3.5" />
+                    Or image link:
+                  </span>
+                  <Input
+                    id="profile-image-url"
+                    type="url"
+                    placeholder="https://example.com/avatar.jpg"
+                    value={image}
+                    onChange={(e) => setDraftImage(e.target.value)}
+                    className="h-8.5 text-xs"
+                  />
+                </div>
               </div>
             </div>
 

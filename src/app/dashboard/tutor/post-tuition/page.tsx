@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   ImagePlus,
+  Link2,
   Loader2,
   PlusCircle,
   Sparkles,
@@ -20,6 +21,7 @@ import {
 } from "@/types";
 import { ApiError, apiFetch } from "@/lib/api";
 import { uploadImageToImgBB } from "@/lib/imgbb";
+import { isValidImageUrl } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import {
@@ -111,8 +113,8 @@ export default function TutorPostTuitionPage() {
       return;
     }
 
-    if (!bannerImage) {
-      toast.error("Please upload a tuition banner image first.");
+    if (!bannerImage.trim() || !isValidImageUrl(bannerImage)) {
+      toast.error("Please upload a banner image or provide a valid image link (https://...).");
       return;
     }
 
@@ -327,18 +329,18 @@ export default function TutorPostTuitionPage() {
                 className="hidden"
               />
 
-              {bannerImage ? (
+              {isValidImageUrl(bannerImage) ? (
                 <div className="overflow-hidden rounded-2xl border border-sage-border bg-sage-bg">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={bannerImage}
-                    alt="Uploaded tuition banner preview"
+                    alt="Tuition banner preview"
                     className="h-52 w-full object-cover"
                   />
                   <div className="flex items-center justify-between gap-3 bg-white px-4 py-3 border-t border-sage-border">
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
                       <CheckCircle2 className="h-4 w-4" />
-                      Uploaded to ImgBB
+                      Banner ready
                     </span>
                     <div className="flex items-center gap-2">
                       <Button
@@ -392,6 +394,21 @@ export default function TutorPostTuitionPage() {
                   )}
                 </button>
               )}
+
+              <div className="flex items-center gap-2 pt-1">
+                <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted">
+                  <Link2 className="h-3.5 w-3.5" />
+                  Or image link:
+                </span>
+                <Input
+                  id="bannerUrl"
+                  type="url"
+                  placeholder="https://example.com/banner.jpg"
+                  value={bannerImage}
+                  onChange={(e) => setBannerImage(e.target.value)}
+                  className="h-8.5 text-xs"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">

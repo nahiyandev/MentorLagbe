@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import {
   ImagePlus,
+  Link2,
   Loader2,
   Pencil,
   PlusCircle,
@@ -540,6 +541,24 @@ export default function TutorMyTuitionsPage() {
                 )}
                 {editForm.bannerImage ? "Replace Banner" : "Upload Banner"}
               </Button>
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-muted">
+                <Link2 className="h-3.5 w-3.5" />
+                Or image link:
+              </span>
+              <Input
+                type="url"
+                placeholder="https://example.com/banner.jpg"
+                value={editForm.bannerImage}
+                onChange={(e) =>
+                  setEditForm((prev) => ({
+                    ...prev,
+                    bannerImage: e.target.value,
+                  }))
+                }
+                className="h-8.5 text-xs"
+              />
             </div>
           </div>
 
