@@ -5,6 +5,7 @@ import {
   CalendarDays,
   MapPin,
   Monitor,
+  Star,
   User,
 } from "lucide-react";
 import type { Tuition } from "@/types";
@@ -63,12 +64,28 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
           <span className="truncate rounded-md bg-sage-subtle dark:bg-[#1C2B22] px-2 py-0.5 font-semibold text-forest dark:text-[#8EE0BA]">
             {tuition.classLevel}
           </span>
-          {tuition.daysPerWeek ? (
-            <span className="inline-flex shrink-0 items-center gap-1">
-              <CalendarDays className="h-3.5 w-3.5 text-clay" />
-              {tuition.daysPerWeek} days/wk
-            </span>
-          ) : null}
+          <div className="flex items-center gap-2 shrink-0">
+            {typeof tuition.totalReviews === "number" && tuition.totalReviews > 0 ? (
+              <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-400">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                {tuition.averageRating?.toFixed(1)}
+                <span className="text-[10px] font-normal text-muted dark:text-[#9DB3A6]">
+                  ({tuition.totalReviews})
+                </span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[11px] text-muted dark:text-[#9DB3A6]">
+                <Star className="h-3 w-3 text-sage-border dark:text-[#23352B]" />
+                New
+              </span>
+            )}
+            {tuition.daysPerWeek ? (
+              <span className="inline-flex shrink-0 items-center gap-1">
+                <CalendarDays className="h-3.5 w-3.5 text-clay" />
+                {tuition.daysPerWeek}d/wk
+              </span>
+            ) : null}
+          </div>
         </div>
 
         <h3 className="line-clamp-2 text-lg font-bold leading-snug text-forest dark:text-[#8EE0BA] group-hover:text-clay dark:group-hover:text-[#E58E58] transition-colors">

@@ -9,7 +9,6 @@ import {
   Code2,
   FlaskConical,
   Globe,
-  GraduationCap,
   Languages,
   Layers,
   Quote,
@@ -18,11 +17,11 @@ import {
   Sparkles,
   Star,
   UserPlus,
-  Users,
 } from "lucide-react";
 import { SiteShell } from "@/components/layout/site-shell";
 import { FeaturedTuitions } from "@/components/home/featured-tuitions";
 import { HeroSearch } from "@/components/home/hero-search";
+import { PlatformStats } from "@/components/home/platform-stats";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -261,62 +260,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Platform Real Stats Section */}
+      {/* 2. Platform Real Dynamic Stats Section */}
       <section className="border-b border-sage-border bg-sage-subtle/50 dark:bg-[#0E1712] py-10 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-forest dark:text-[#8EE0BA]">
-                <BookOpen className="h-5 w-5 text-clay" />
-                <p className="text-3xl font-extrabold sm:text-4xl">32+</p>
-              </div>
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
-                Verified Tuitions
-              </p>
-              <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
-                Active batches &amp; 1-on-1 programs
-              </p>
-            </div>
-
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-clay">
-                <GraduationCap className="h-5 w-5 text-forest dark:text-[#8EE0BA]" />
-                <p className="text-3xl font-extrabold sm:text-4xl">8+</p>
-              </div>
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
-                Core Subjects
-              </p>
-              <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
-                Math, Physics, IELTS, Science &amp; more
-              </p>
-            </div>
-
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-forest dark:text-[#8EE0BA]">
-                <ShieldCheck className="h-5 w-5 text-emerald-500" />
-                <p className="text-3xl font-extrabold sm:text-4xl">100%</p>
-              </div>
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
-                Admin Verified
-              </p>
-              <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
-                Vetted tutors and transparent fees
-              </p>
-            </div>
-
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-clay">
-                <Users className="h-5 w-5 text-amber-500" />
-                <p className="text-3xl font-extrabold sm:text-4xl">4.9/5</p>
-              </div>
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
-                Learner Satisfaction
-              </p>
-              <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
-                High ratings from enrolled students
-              </p>
-            </div>
-          </div>
+          <PlatformStats />
         </div>
       </section>
 

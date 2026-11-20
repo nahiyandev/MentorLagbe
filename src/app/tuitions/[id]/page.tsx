@@ -257,16 +257,29 @@ export default function TuitionDetailsPage({
 
                 <div className="p-6 sm:p-8">
                   <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-sage-bg px-3 py-1 text-forest">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-sage-bg dark:bg-[#1C2B22] px-3 py-1 text-forest dark:text-[#8EE0BA]">
                       <GraduationCap className="h-3.5 w-3.5 text-clay" />
                       {tuition.classLevel}
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-emerald-800 border border-emerald-200">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/60">
                       <ShieldCheck className="h-3.5 w-3.5" />
                       Admin Approved
                     </span>
+                    {totalReviews > 0 ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-950/40 px-3 py-1 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/60 font-bold">
+                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                        {averageRating.toFixed(1)} ({totalReviews} review{totalReviews > 1 ? "s" : ""})
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-sage-bg dark:bg-[#1C2B22] px-3 py-1 text-muted dark:text-[#9DB3A6] border border-sage-border">
+                        <Star className="h-3.5 w-3.5 text-sage-border" />
+                        New Batch
+                      </span>
+                    )}
                     {tuition.createdAt && (
-                      <span>Posted {formatDate(tuition.createdAt)}</span>
+                      <span className="text-muted dark:text-[#9DB3A6]">
+                        Posted {formatDate(tuition.createdAt)}
+                      </span>
                     )}
                   </div>
 

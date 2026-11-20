@@ -33,6 +33,8 @@ export interface Tuition {
   approvalStatus: ApprovalStatus;
   isActive: boolean;
   createdAt?: string;
+  averageRating?: number;
+  totalReviews?: number;
 }
 
 export interface Application {
