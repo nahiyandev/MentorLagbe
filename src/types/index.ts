@@ -113,6 +113,31 @@ export const CLASS_LEVEL_OPTIONS = [
 
 export const MODE_OPTIONS: TuitionMode[] = ["Online", "Offline"];
 
+export const BANGLADESH_DISTRICTS = [
+  "Dhaka",
+  "Chittagong",
+  "Rajshahi",
+  "Khulna",
+  "Sylhet",
+  "Barisal",
+  "Rangpur",
+  "Mymensingh",
+  "Cumilla",
+  "Gazipur",
+  "Narayanganj",
+  "Bogra",
+  "Cox's Bazar",
+  "Jessore",
+  "Dinajpur",
+  "Pabna",
+  "Kushtia",
+  "Tangail",
+  "Faridpur",
+  "Brahmanbaria",
+  "Noakhali",
+  "Feni",
+] as const;
+
 export interface Review {
   _id: string;
   tuitionId: string;

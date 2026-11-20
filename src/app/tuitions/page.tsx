@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  Banknote,
   BookOpenCheck,
   Filter,
   RotateCcw,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
+  BANGLADESH_DISTRICTS,
   CLASS_LEVEL_OPTIONS,
   MODE_OPTIONS,
   SUBJECT_OPTIONS,
@@ -41,6 +43,15 @@ function BrowseTuitionsContent() {
     searchParams.get("classLevel") || ""
   );
   const [mode, setMode] = React.useState(searchParams.get("mode") || "");
+  const [district, setDistrict] = React.useState(
+    searchParams.get("district") || ""
+  );
+  const [minFee, setMinFee] = React.useState(
+    searchParams.get("minFee") || ""
+  );
+  const [maxFee, setMaxFee] = React.useState(
+    searchParams.get("maxFee") || ""
+  );
 
   const ITEMS_PER_PAGE = 6;
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -50,7 +61,7 @@ function BrowseTuitionsContent() {
   const [error, setError] = React.useState<string | null>(null);
 
   const [filterKey, setFilterKey] = React.useState("");
-  const currentFilterKey = `${debouncedSearch}|${subject}|${classLevel}|${mode}`;
+  const currentFilterKey = `${debouncedSearch}|${subject}|${classLevel}|${mode}|${district}|${minFee}|${maxFee}`;
   if (filterKey !== currentFilterKey) {
     setFilterKey(currentFilterKey);
     setCurrentPage(1);
@@ -69,8 +80,11 @@ function BrowseTuitionsContent() {
     if (subject) params.set("subject", subject);
     if (classLevel) params.set("classLevel", classLevel);
     if (mode) params.set("mode", mode);
+    if (district) params.set("district", district);
+    if (minFee) params.set("minFee", minFee);
+    if (maxFee) params.set("maxFee", maxFee);
     return params.toString();
-  }, [debouncedSearch, subject, classLevel, mode]);
+  }, [debouncedSearch, subject, classLevel, mode, district, minFee, maxFee]);
 
   const loading = loadedQuery !== queryString;
 
@@ -110,7 +124,15 @@ function BrowseTuitionsContent() {
     };
   }, [queryString, router]);
 
-  const hasFilters = Boolean(searchInput || subject || classLevel || mode);
+  const hasFilters = Boolean(
+    searchInput ||
+      subject ||
+      classLevel ||
+      mode ||
+      district ||
+      minFee ||
+      maxFee
+  );
 
   const resetFilters = () => {
     setSearchInput("");
@@ -118,6 +140,9 @@ function BrowseTuitionsContent() {
     setSubject("");
     setClassLevel("");
     setMode("");
+    setDistrict("");
+    setMinFee("");
+    setMaxFee("");
     setCurrentPage(1);
   };
 
@@ -172,12 +197,12 @@ function BrowseTuitionsContent() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <Input
               type="search"
-              placeholder="Search by title or subject..."
+              placeholder="Search by title, subject..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="pl-10"
@@ -216,13 +241,95 @@ function BrowseTuitionsContent() {
             onChange={(e) => setMode(e.target.value)}
             aria-label="Filter by mode"
           >
-            <option value="">All Modes (Online &amp; Offline)</option>
+            <option value="">All Modes</option>
             {MODE_OPTIONS.map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>
             ))}
           </Select>
+
+          {/* District (জেলা) Filter */}
+          <Select
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+            aria-label="Filter by district"
+          >
+            <option value="">All Districts (সব জেলা)</option>
+            {BANGLADESH_DISTRICTS.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        {/* Fee Range / Budget Filter Bar */}
+        <div className="mt-4 pt-3.5 border-t border-sage-border flex flex-col md:flex-row md:items-center justify-between gap-3">
+          {/* Quick preset chips */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-bold text-forest dark:text-[#8EE0BA] flex items-center gap-1 mr-1">
+              <Banknote className="h-3.5 w-3.5 text-clay" />
+              Budget:
+            </span>
+            {[
+              { label: "All Fees", min: "", max: "" },
+              { label: "< ৳3,000", min: "", max: "3000" },
+              { label: "৳3,000 – ৳6,000", min: "3000", max: "6000" },
+              { label: "৳6,000 – ৳10,000", min: "6000", max: "10000" },
+              { label: "৳10,000+", min: "10000", max: "" },
+            ].map((preset) => {
+              const isSelected = minFee === preset.min && maxFee === preset.max;
+              return (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => {
+                    setMinFee(preset.min);
+                    setMaxFee(preset.max);
+                  }}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold cursor-pointer transition-colors ${
+                    isSelected
+                      ? "bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] shadow-2xs"
+                      : "border border-sage-border bg-sage-bg/40 dark:bg-[#18261E] text-ink dark:text-[#EFF5F0] hover:bg-sage-subtle"
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Custom Min / Max inputs */}
+          <div className="flex items-center gap-2">
+            <div className="relative w-28 sm:w-32">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted font-bold">
+                ৳
+              </span>
+              <Input
+                type="number"
+                placeholder="Min Fee"
+                value={minFee}
+                onChange={(e) => setMinFee(e.target.value)}
+                className="pl-6 h-8 text-xs"
+                aria-label="Minimum fee"
+              />
+            </div>
+            <span className="text-xs text-muted font-bold">—</span>
+            <div className="relative w-28 sm:w-32">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted font-bold">
+                ৳
+              </span>
+              <Input
+                type="number"
+                placeholder="Max Fee"
+                value={maxFee}
+                onChange={(e) => setMaxFee(e.target.value)}
+                className="pl-6 h-8 text-xs"
+                aria-label="Maximum fee"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
