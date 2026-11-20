@@ -35,13 +35,13 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-sage-border bg-forest text-white">
+    <footer className="mt-auto border-t border-sage-border bg-forest dark:bg-[#08100B] dark:border-[#1A2820] text-white dark:text-[#EFF5F0]">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand & Tagline */}
           <div className="space-y-4">
             <BrandLogo inverted />
-            <p className="text-sm leading-relaxed text-white/75">
+            <p className="text-sm leading-relaxed text-white/75 dark:text-white/75">
               Smart tuition and 1-on-1 mentorship platform connecting dedicated
               students with verified tutors across online and offline batches.
             </p>
@@ -51,7 +51,7 @@ export function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Follow MentorLagbe on X"
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-clay transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 dark:bg-white/10 text-white hover:bg-clay dark:hover:bg-clay transition-colors"
               >
                 <XBrandIcon className="h-4 w-4" />
               </a>
@@ -60,7 +60,7 @@ export function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Follow MentorLagbe on LinkedIn"
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-clay transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 dark:bg-white/10 text-white hover:bg-clay dark:hover:bg-clay transition-colors"
               >
                 <LinkedInIcon className="h-4 w-4" />
               </a>
@@ -69,7 +69,7 @@ export function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Follow MentorLagbe on Facebook"
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-clay transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 dark:bg-white/10 text-white hover:bg-clay dark:hover:bg-clay transition-colors"
               >
                 <FacebookIcon className="h-4 w-4" />
               </a>
@@ -83,14 +83,17 @@ export function Footer() {
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm text-white/75">
               <li>
-                <Link href="/" className="hover:text-white transition-colors">
+                <Link
+                  href="/"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
+                >
                   Home
                 </Link>
               </li>
               <li>
                 <Link
                   href="/tuitions"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
                 >
                   Browse Tuitions
                 </Link>
@@ -98,7 +101,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/pricing"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
                 >
                   Pricing &amp; Pro Plans
                 </Link>
@@ -106,7 +109,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/#how-it-works"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
                 >
                   How It Works
                 </Link>
@@ -123,7 +126,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/sign-up"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
                 >
                   Join as a Student
                 </Link>
@@ -131,7 +134,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/sign-up?role=tutor"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
                 >
                   Teach as a Tutor
                 </Link>
@@ -139,7 +142,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/sign-in"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
                 >
                   Sign In
                 </Link>
@@ -147,7 +150,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/dashboard"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
                 >
                   Dashboard
                 </Link>

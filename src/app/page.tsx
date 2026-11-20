@@ -393,7 +393,7 @@ export default function HomePage() {
           </Card>
 
           {/* Pro Tutor Plan */}
-          <Card className="flex h-full flex-col bg-forest text-white border-forest">
+          <Card className="flex h-full flex-col bg-forest dark:bg-[#15231B] text-white border-forest dark:border-[#233A2D]">
             <CardContent className="flex flex-1 flex-col p-7">
               <Badge className="w-fit bg-clay text-white">For Tutors</Badge>
               <h3 className="mt-4 text-xl font-extrabold text-white">
