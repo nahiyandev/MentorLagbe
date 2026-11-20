@@ -35,7 +35,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-sage-border bg-forest dark:bg-[#08100B] dark:border-[#1A2820] text-white dark:text-[#EFF5F0]">
+    <footer className="mt-auto border-t border-sage-border bg-[#1E3A2F] dark:bg-[#08100B] dark:border-[#1A2820] text-white dark:text-[#EFF5F0]">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand & Tagline */}
