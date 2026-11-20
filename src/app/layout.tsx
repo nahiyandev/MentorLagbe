@@ -31,8 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             __html: `
               try {
                 const stored = localStorage.getItem('mentorlagbe_theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (stored === 'dark' || (!stored && prefersDark)) {
+                if (stored === 'dark') {
                   document.documentElement.classList.add('dark');
                 } else {
                   document.documentElement.classList.remove('dark');

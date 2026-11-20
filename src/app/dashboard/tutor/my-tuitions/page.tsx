@@ -590,7 +590,7 @@ export default function TutorMyTuitionsPage() {
                 return (
                   <div
                     key={t._id}
-                    className="group relative flex flex-col justify-between gap-4 rounded-2xl border border-sage-border bg-white dark:bg-[#141F18] p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-forest/40 dark:hover:border-forest/50 lg:flex-row lg:items-center"
+                    className="group relative flex flex-col justify-between gap-4 rounded-2xl border border-sage-border bg-sage-bg/30 dark:bg-[#1A2821] p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-forest/40 dark:hover:border-forest/50 lg:flex-row lg:items-center"
                   >
                     {/* Left: Thumbnail & Badges */}
                     <div className="flex items-start gap-4 min-w-0">
