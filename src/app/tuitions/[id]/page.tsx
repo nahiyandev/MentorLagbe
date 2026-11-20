@@ -32,6 +32,7 @@ import { ApplyModal } from "@/components/tuitions/apply-modal";
 import { TuitionChatDialog } from "@/components/chat/tuition-chat-dialog";
 import { ReviewDialog } from "@/components/reviews/review-dialog";
 import { ReviewList } from "@/components/reviews/review-list";
+import { TutorAvailabilityCalendar } from "@/components/tutors/tutor-availability-calendar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -331,6 +332,15 @@ export default function TuitionDetailsPage({
                     <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink dark:text-[#EFF5F0] sm:text-base">
                       {tuition.description}
                     </p>
+                  </div>
+
+                  {/* Tutor Availability Calendar */}
+                  <div className="mt-8 border-t border-sage-border pt-6">
+                    <TutorAvailabilityCalendar
+                      availability={tuition.tutorAvailability}
+                      daysPerWeek={tuition.daysPerWeek}
+                      tutorName={tuition.tutorName}
+                    />
                   </div>
 
                   {/* Student Reviews & Ratings */}

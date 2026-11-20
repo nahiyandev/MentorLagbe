@@ -4,6 +4,12 @@ export type TuitionMode = "Online" | "Offline";
 export type ApprovalStatus = "pending" | "approved" | "rejected";
 export type ApplicationStatus = "pending" | "accepted" | "rejected";
 
+export interface TutorAvailabilitySlot {
+  day: string;
+  isAvailable: boolean;
+  slots: string[];
+}
+
 export interface UserRecord {
   _id: string;
   id?: string;
@@ -14,6 +20,7 @@ export interface UserRecord {
   phone?: string;
   bio?: string;
   plan: UserPlan;
+  availability?: TutorAvailabilitySlot[];
   createdAt?: string;
 }
 
@@ -35,6 +42,7 @@ export interface Tuition {
   createdAt?: string;
   averageRating?: number;
   totalReviews?: number;
+  tutorAvailability?: TutorAvailabilitySlot[];
 }
 
 export interface Application {
@@ -146,6 +154,7 @@ export interface TutorProfileData {
     phone?: string;
     role: UserRole;
     plan: UserPlan;
+    availability?: TutorAvailabilitySlot[];
     createdAt?: string;
   };
   tuitions: Tuition[];

@@ -39,6 +39,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TutorAvailabilityManager } from "@/components/dashboard/tutor-availability-manager";
 
 export default function UpdateProfilePage() {
   const { data: session, refetch } = useSession();
@@ -578,6 +579,20 @@ export default function UpdateProfilePage() {
           </Button>
         </div>
       </form>
+
+      {/* Tutor Availability Schedule Manager */}
+      {role === "tutor" && (
+        <div className="pt-2">
+          <TutorAvailabilityManager
+            initialAvailability={profileData?.availability}
+            onSaved={(updated) => {
+              setProfileData((prev) =>
+                prev ? { ...prev, availability: updated } : null
+              );
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

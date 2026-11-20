@@ -20,6 +20,7 @@ import { formatDate, getInitials, isValidImageUrl } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
 import { TuitionCard } from "@/components/tuitions/tuition-card";
 import { ReviewList } from "@/components/reviews/review-list";
+import { TutorAvailabilityCalendar } from "@/components/tutors/tutor-availability-calendar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -229,6 +230,12 @@ export default function TutorProfilePage() {
                 </div>
               </div>
             </div>
+
+            {/* Weekly Availability Calendar */}
+            <TutorAvailabilityCalendar
+              availability={data.tutor.availability}
+              tutorName={data.tutor.name}
+            />
 
             {/* Active Tuitions Section */}
             <div className="space-y-5">
