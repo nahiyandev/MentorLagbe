@@ -1,0 +1,10 @@
+{
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
+  "editor.quickSuggestions": {
+    "strings": true
+  }
+}

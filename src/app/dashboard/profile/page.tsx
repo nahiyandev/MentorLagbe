@@ -204,7 +204,7 @@ export default function UpdateProfilePage() {
       </div>
 
       {/* Profile Summary Card (Always Visible Header) */}
-      <Card className="overflow-hidden border-sage-border bg-gradient-to-r from-white via-white to-sage-bg/30 shadow-xs">
+      <Card className="overflow-hidden border-sage-border bg-linear-to-r from-white via-white to-sage-bg/30 shadow-xs">
         <CardContent className="p-6">
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
             {/* Avatar Display with ImgBB upload trigger */}

@@ -31,7 +31,7 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-forest to-forest-soft p-6 text-white">
+          <div className="flex h-full w-full flex-col items-center justify-center bg-linear-to-br from-forest to-forest-soft p-6 text-white">
             <BookOpen className="h-9 w-9 text-amber-200/90 mb-2" />
             <span className="text-xs font-semibold uppercase tracking-widest text-white/75">
               {tuition.subject}

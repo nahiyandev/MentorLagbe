@@ -162,7 +162,7 @@ export default function TuitionDetailsPage({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-forest to-forest-soft text-white p-8">
+                    <div className="flex h-full w-full flex-col items-center justify-center bg-linear-to-br from-forest to-forest-soft text-white p-8">
                       <BookOpen className="h-12 w-12 text-amber-200 mb-3" />
                       <span className="text-sm font-bold uppercase tracking-widest text-white/80">
                         {tuition.subject} — {tuition.classLevel}

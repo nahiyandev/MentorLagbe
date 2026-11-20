@@ -160,7 +160,7 @@ export function Navbar() {
                     </span>
                   )}
                   <div className="hidden lg:flex flex-col">
-                    <span className="max-w-[130px] truncate text-xs font-bold text-forest leading-tight">
+                    <span className="max-w-32.5 truncate text-xs font-bold text-forest leading-tight">
                       {user.name}
                     </span>
                     <Badge

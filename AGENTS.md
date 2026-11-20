@@ -7,3 +7,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Tailwind CSS v4 Canonical Rules
+- Always use Tailwind v4 canonical gradient utilities: `bg-linear-to-r`, `bg-linear-to-br`, `bg-linear-to-b`, `bg-linear-to-t` instead of legacy `bg-gradient-to-*`.
+- Prefer numeric scale classes (e.g. `max-w-32.5` for 130px) instead of arbitrary bracket values where applicable.
+- Never let VS Code `suggestCanonicalClasses` lint warnings appear in the project.
+

@@ -603,7 +603,7 @@ export default function TutorMyTuitionsPage() {
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-forest to-forest-soft dark:from-[#1A2821] dark:to-[#141F18] p-2 text-white text-center">
+                          <div className="flex h-full w-full flex-col items-center justify-center bg-linear-to-br from-forest to-forest-soft dark:from-[#1A2821] dark:to-[#141F18] p-2 text-white text-center">
                             <BookOpen className="h-6 w-6 text-amber-200/90 mb-1" />
                             <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 line-clamp-1">
                               {t.subject}
@@ -796,7 +796,7 @@ export default function TutorMyTuitionsPage() {
                 />
               </div>
             ) : (
-              <div className="flex h-36 w-full flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-forest to-forest-soft p-4 text-white">
+              <div className="flex h-36 w-full flex-col items-center justify-center rounded-2xl bg-linear-to-br from-forest to-forest-soft p-4 text-white">
                 <BookOpen className="h-8 w-8 text-amber-200 mb-1" />
                 <span className="text-xs font-bold uppercase tracking-widest text-white/80">
                   {viewing.subject}

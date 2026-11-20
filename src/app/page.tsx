@@ -146,7 +146,7 @@ export default function HomePage() {
   return (
     <SiteShell>
       {/* 1. Hero / Banner Section with Interactive Search */}
-      <section className="relative overflow-hidden border-b border-sage-border bg-gradient-to-b from-white via-sage-bg/50 to-sage-bg dark:from-[#0C130F] dark:via-[#101A14] dark:to-[#0C130F]">
+      <section className="relative overflow-hidden border-b border-sage-border bg-linear-to-b from-white via-sage-bg/50 to-sage-bg dark:from-[#0C130F] dark:via-[#101A14] dark:to-[#0C130F]">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-22 lg:px-8">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
             <div className="lg:col-span-7 space-y-6">
