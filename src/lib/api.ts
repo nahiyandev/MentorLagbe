@@ -2,6 +2,8 @@ const DEFAULT_SERVER_URL = "https://mentor-lagbe-server.vercel.app";
 
 export const JWT_STORAGE_KEY = "mentorlagbe_jwt";
 
+let pendingJwtRefresh: Promise<string | null> | null = null;
+
 export function getServerUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SERVER_URL || DEFAULT_SERVER_URL;
   return raw.replace(/\/+$/, "");
@@ -46,6 +48,48 @@ export class ApiError extends Error {
   }
 }
 
+async function refreshJwtFromSession(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+
+  if (pendingJwtRefresh) {
+    return pendingJwtRefresh;
+  }
+
+  pendingJwtRefresh = (async () => {
+    try {
+      const sessionRes = await fetch("/api/auth/get-session", {
+        credentials: "include",
+      });
+      if (!sessionRes.ok) return null;
+      const sessionData = (await sessionRes.json()) as {
+        session?: { token?: string };
+      } | null;
+      const sessionToken = sessionData?.session?.token;
+      if (!sessionToken) return null;
+      return await exchangeSessionForJwt(sessionToken);
+    } catch {
+      return null;
+    } finally {
+      pendingJwtRefresh = null;
+    }
+  })();
+
+  return pendingJwtRefresh;
+}
+
+async function parseResponseBody(res: Response): Promise<unknown> {
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }
+  const text = await res.text().catch(() => "");
+  return text || null;
+}
+
 export async function apiFetch<T = unknown>(
   path: string,
   options: RequestInit = {}
@@ -54,37 +98,49 @@ export async function apiFetch<T = unknown>(
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = `${base}${normalizedPath}`;
 
-  const headers = new Headers(options.headers);
-  const isFormData =
-    typeof FormData !== "undefined" && options.body instanceof FormData;
+  const buildHeaders = (jwtOverride?: string | null) => {
+    const headers = new Headers(options.headers);
+    const isFormData =
+      typeof FormData !== "undefined" && options.body instanceof FormData;
 
-  if (!isFormData && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
+    if (!isFormData && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "application/json");
+    }
+
+    const jwt = jwtOverride !== undefined ? jwtOverride : getStoredJwt();
+    if (jwt && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${jwt}`);
+    } else if (jwtOverride) {
+      headers.set("Authorization", `Bearer ${jwtOverride}`);
+    }
+    return headers;
+  };
+
+  if (
+    typeof window !== "undefined" &&
+    !getStoredJwt() &&
+    !normalizedPath.startsWith("/api/auth/jwt") &&
+    normalizedPath !== "/api/health"
+  ) {
+    await refreshJwtFromSession();
   }
 
-  const jwt = getStoredJwt();
-  if (jwt && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${jwt}`);
-  }
-
-  const res = await fetch(url, {
+  let res = await fetch(url, {
     ...options,
-    headers,
+    headers: buildHeaders(),
   });
 
-  const contentType = res.headers.get("content-type") || "";
-  let parsed: unknown = null;
-
-  if (contentType.includes("application/json")) {
-    try {
-      parsed = await res.json();
-    } catch {
-      parsed = null;
+  if (res.status === 401 && typeof window !== "undefined") {
+    const freshJwt = await refreshJwtFromSession();
+    if (freshJwt) {
+      res = await fetch(url, {
+        ...options,
+        headers: buildHeaders(freshJwt),
+      });
     }
-  } else {
-    const text = await res.text().catch(() => "");
-    parsed = text || null;
   }
+
+  const parsed = await parseResponseBody(res);
 
   if (!res.ok) {
     const msg =

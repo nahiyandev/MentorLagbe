@@ -5,6 +5,7 @@ import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import type { Tuition } from "@/types";
 import { ApiError, apiFetch } from "@/lib/api";
+import { useSession } from "@/lib/auth-client";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export function ApplyModal({
   defaultPhone = "",
   onSuccess,
 }: ApplyModalProps) {
+  const { data: session } = useSession();
   const [studentPhone, setStudentPhone] = React.useState<string | null>(null);
   const [preferredSchedule, setPreferredSchedule] = React.useState("");
   const [studentNote, setStudentNote] = React.useState("");
@@ -58,6 +60,7 @@ export function ApplyModal({
           studentPhone: phoneValue.trim(),
           preferredSchedule: preferredSchedule.trim(),
           studentNote: studentNote.trim(),
+          studentName: session?.user?.name?.trim() || "Student",
         }),
       });
 

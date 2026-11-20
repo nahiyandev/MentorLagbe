@@ -41,7 +41,9 @@ export default function TutorPostTuitionPage() {
   const { data: session } = useSession();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const user = session?.user as { plan?: string } | undefined;
+  const user = session?.user as
+    | { name?: string; email?: string; plan?: string }
+    | undefined;
   const isPro = user?.plan === "pro";
 
   const [title, setTitle] = React.useState("");
@@ -132,6 +134,8 @@ export default function TutorPostTuitionPage() {
           daysPerWeek: parsedDays,
           description: description.trim(),
           bannerImage,
+          tutorName:
+            user?.name?.trim() || session?.user?.name?.trim() || "Tutor",
         }),
       });
 
