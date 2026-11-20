@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --sage-bg: #EFF3EC;
   --sage-surface: #FFFFFF;

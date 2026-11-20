@@ -228,7 +228,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className={cn("p-3.5 border-b border-sage-border", collapsed && !isMobile && "px-2")}>
         <div
           className={cn(
-            "flex items-center gap-3 rounded-xl bg-sage-bg/80 p-2.5",
+            "flex items-center gap-3 rounded-xl bg-sage-bg/80 dark:bg-[#1C2B22] p-2.5",
             collapsed && !isMobile && "justify-center p-2"
           )}
         >
@@ -283,8 +283,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors",
                 collapsed && !isMobile && "justify-center px-2",
                 isActive
-                  ? "bg-forest text-white shadow-xs"
-                  : "text-muted hover:bg-sage-subtle/80 hover:text-forest"
+                  ? "bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] shadow-xs"
+                  : "text-muted hover:bg-sage-subtle/80 dark:hover:bg-[#1C2B22] hover:text-forest dark:hover:text-[#8EE0BA]"
               )}
             >
               <Icon className="h-4.5 w-4.5 shrink-0" />
@@ -302,7 +302,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           href="/"
           title={collapsed && !isMobile ? "Back to Home" : undefined}
           className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-muted hover:bg-sage-subtle/80 hover:text-forest transition-colors",
+            "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-muted hover:bg-sage-subtle/80 dark:hover:bg-[#1C2B22] hover:text-forest dark:hover:text-[#8EE0BA] transition-colors",
             collapsed && !isMobile && "justify-center px-2"
           )}
         >
@@ -315,7 +315,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           onClick={handleSignOut}
           title={collapsed && !isMobile ? "Sign Out" : undefined}
           className={cn(
-            "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 transition-colors cursor-pointer",
+            "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer",
             collapsed && !isMobile && "justify-center px-2"
           )}
         >
@@ -327,11 +327,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="flex min-h-screen w-full bg-sage-bg">
+    <div className="flex min-h-screen w-full bg-sage-bg dark:bg-[#0C130F]">
       {/* Desktop Sidebar */}
       <aside
         className={cn(
-          "hidden lg:flex shrink-0 flex-col border-r border-sage-border bg-white transition-all duration-200 sticky top-0 h-screen",
+          "hidden lg:flex shrink-0 flex-col border-r border-sage-border bg-white dark:bg-[#141F18] transition-all duration-200 sticky top-0 h-screen",
           collapsed ? "w-20" : "w-68"
         )}
       >
@@ -345,7 +345,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             className="fixed inset-0 bg-forest/35 backdrop-blur-[1px]"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="relative z-10 flex w-72 max-w-[85vw] flex-col bg-white shadow-xl">
+          <aside className="relative z-10 flex w-72 max-w-[85vw] flex-col bg-white dark:bg-[#141F18] shadow-xl">
             {sidebarContent(true)}
           </aside>
         </div>
@@ -354,7 +354,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 flex h-16.5 items-center justify-between gap-4 border-b border-sage-border bg-white/95 px-4 backdrop-blur-md sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex h-16.5 items-center justify-between gap-4 border-b border-sage-border bg-white/95 dark:bg-[#141F18]/95 px-4 backdrop-blur-md sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <button
               type="button"
