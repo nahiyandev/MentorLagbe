@@ -155,3 +155,38 @@ export interface TutorProfileData {
     totalReviews: number;
   };
 }
+
+export interface ChatMessage {
+  _id: string;
+  conversationId: string;
+  tuitionId?: string | null;
+  tuitionTitle?: string;
+  senderEmail: string;
+  senderName: string;
+  senderRole: UserRole;
+  recipientEmail: string;
+  recipientName: string;
+  recipientRole: UserRole;
+  text: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface ChatConversation {
+  conversationId: string;
+  tuitionId?: string | null;
+  tuitionTitle?: string;
+  otherParty: {
+    email: string;
+    name: string;
+    role: UserRole;
+  };
+  lastMessage: {
+    text: string;
+    senderEmail: string;
+    senderName: string;
+    createdAt: string;
+    isRead: boolean;
+  };
+  unreadCount: number;
+}

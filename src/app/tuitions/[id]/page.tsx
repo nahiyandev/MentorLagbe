@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Star,
   User,
+  MessageCircle,
 } from "lucide-react";
 import type { Review, Tuition } from "@/types";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -28,6 +29,7 @@ import {
 } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
 import { ApplyModal } from "@/components/tuitions/apply-modal";
+import { TuitionChatDialog } from "@/components/chat/tuition-chat-dialog";
 import { ReviewDialog } from "@/components/reviews/review-dialog";
 import { ReviewList } from "@/components/reviews/review-list";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +51,7 @@ export default function TuitionDetailsPage({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [applyOpen, setApplyOpen] = React.useState(false);
   const [applied, setApplied] = React.useState(false);
+  const [chatOpen, setChatOpen] = React.useState(false);
 
   // Reviews state
   const [reviews, setReviews] = React.useState<Review[]>([]);
@@ -468,6 +471,21 @@ export default function TuitionDetailsPage({
                       </div>
                     </div>
                   )}
+                  {/* Direct Student-Tutor Inquiry Chat Button */}
+                  <div className="pt-2 border-t border-sage-border">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full gap-2 border-forest/30 text-forest dark:text-[#8EE0BA] hover:bg-sage-subtle dark:hover:bg-[#1C2B22]"
+                      onClick={() => setChatOpen(true)}
+                    >
+                      <MessageCircle className="h-4 w-4 text-clay" />
+                      <span>Chat with Tutor / Ask Question</span>
+                    </Button>
+                    <p className="mt-1.5 text-center text-[11px] text-muted dark:text-[#9DB3A6]">
+                      Ask about timings, fee flexibility, or syllabus before applying.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -509,6 +527,21 @@ export default function TuitionDetailsPage({
                       </Button>
                     </Link>
                   </div>
+                  {/* Direct Student-Tutor Inquiry Chat Button */}
+                  <div className="pt-2 border-t border-sage-border">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full gap-2 border-forest/30 text-forest dark:text-[#8EE0BA] hover:bg-sage-subtle dark:hover:bg-[#1C2B22]"
+                      onClick={() => setChatOpen(true)}
+                    >
+                      <MessageCircle className="h-4 w-4 text-clay" />
+                      <span>Chat with Tutor / Ask Question</span>
+                    </Button>
+                    <p className="mt-1.5 text-center text-[11px] text-muted dark:text-[#9DB3A6]">
+                      Ask about timings, fee flexibility, or syllabus before applying.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             </aside>
@@ -536,6 +569,15 @@ export default function TuitionDetailsPage({
             onSuccess={() => {
               void refreshReviews();
             }}
+          />
+
+          <TuitionChatDialog
+            tuitionId={tuition._id}
+            tuitionTitle={tuition.title}
+            tutorEmail={tuition.tutorEmail}
+            tutorName={tuition.tutorName}
+            open={chatOpen}
+            onOpenChange={setChatOpen}
           />
         </>
       )}
