@@ -17,6 +17,21 @@
   --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
+.dark {
+  --color-sage-bg: #0F1713;
+  --color-sage-surface: #17241E;
+  --color-sage-subtle: #22302A;
+  --color-forest: #8EE0BA;
+  --color-forest-hover: #B2EED5;
+  --color-forest-soft: #1E3A2F;
+  --color-clay: #E58E58;
+  --color-clay-hover: #F2A979;
+  --color-clay-soft: #38251B;
+  --color-ink: #EFF3EC;
+  --color-muted: #9BB0A3;
+  --color-sage-border: #2A3C32;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -30,6 +45,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   h1, h2, h3, h4 {
@@ -38,7 +54,37 @@
   }
 
   ::selection {
-    background-color: #D5E2D3;
-    color: #1E3A2F;
+    background-color: #2A4F40;
+    color: #EFF3EC;
   }
+}
+
+/* Dark mode surface & card adjustments */
+.dark .bg-white {
+  background-color: #17241E !important;
+}
+
+.dark .bg-white\/92,
+.dark .bg-white\/95 {
+  background-color: rgba(23, 36, 30, 0.92) !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1A2822 !important;
+  color: #EFF3EC !important;
+  border-color: #2A3C32 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #748B7E !important;
+}
+
+.dark .shadow-xs,
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45) !important;
 }

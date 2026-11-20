@@ -8,6 +8,7 @@ import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatDate, getInitials, isValidImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pagination } from "@/components/ui/pagination";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -18,6 +19,9 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [updatingId, setUpdatingId] = React.useState<string | null>(null);
+
+  const ITEMS_PER_PAGE = 8;
+  const [currentPage, setCurrentPage] = React.useState(1);
 
   React.useEffect(() => {
     let active = true;
@@ -71,6 +75,12 @@ export default function AdminUsersPage() {
     }
   };
 
+  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
+  const paginatedUsers = users.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -109,99 +119,109 @@ export default function AdminUsersPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-sage-border text-xs uppercase tracking-wider text-muted">
-                    <th className="pb-3 pr-4 font-bold">User</th>
-                    <th className="pb-3 px-4 font-bold">Plan</th>
-                    <th className="pb-3 px-4 font-bold">Joined</th>
-                    <th className="pb-3 px-4 font-bold">Role</th>
-                    <th className="pb-3 pl-4 text-right font-bold">
-                      Change Role
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-sage-border">
-                  {users.map((u) => {
-                    const uid = u._id || u.id || u.email;
-                    const isUpdating = updatingId === uid;
-                    return (
-                      <tr key={uid} className="hover:bg-sage-bg/40">
-                        <td className="py-3.5 pr-4">
-                          <div className="flex items-center gap-3">
-                            {isValidImageUrl(u.image) ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={u.image!}
-                                alt={u.name}
-                                className="h-9 w-9 shrink-0 rounded-full object-cover border border-sage-border"
-                              />
-                            ) : (
-                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forest text-xs font-bold text-white">
-                                {getInitials(u.name)}
-                              </span>
-                            )}
-                            <div className="min-w-0">
-                              <p className="truncate font-bold text-forest">
-                                {u.name}
-                              </p>
-                              <p className="truncate text-xs text-muted">
-                                {u.email}
-                              </p>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-sage-border text-xs uppercase tracking-wider text-muted">
+                      <th className="pb-3 pr-4 font-bold">User</th>
+                      <th className="pb-3 px-4 font-bold">Plan</th>
+                      <th className="pb-3 px-4 font-bold">Joined</th>
+                      <th className="pb-3 px-4 font-bold">Role</th>
+                      <th className="pb-3 pl-4 text-right font-bold">
+                        Change Role
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-sage-border">
+                    {paginatedUsers.map((u) => {
+                      const uid = u._id || u.id || u.email;
+                      const isUpdating = updatingId === uid;
+                      return (
+                        <tr key={uid} className="hover:bg-sage-bg/40">
+                          <td className="py-3.5 pr-4">
+                            <div className="flex items-center gap-3">
+                              {isValidImageUrl(u.image) ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={u.image!}
+                                  alt={u.name}
+                                  className="h-9 w-9 shrink-0 rounded-full object-cover border border-sage-border"
+                                />
+                              ) : (
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forest text-xs font-bold text-white">
+                                  {getInitials(u.name)}
+                                </span>
+                              )}
+                              <div className="min-w-0">
+                                <p className="truncate font-bold text-forest">
+                                  {u.name}
+                                </p>
+                                <p className="truncate text-xs text-muted">
+                                  {u.email}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <Badge
-                            variant={u.plan === "pro" ? "clay" : "outline"}
-                            className="capitalize"
-                          >
-                            {u.plan || "free"}
-                          </Badge>
-                        </td>
-                        <td className="py-3.5 px-4 text-muted">
-                          {formatDate(u.createdAt)}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <Badge
-                            variant={u.role === "admin" ? "clay" : "sage"}
-                            className="capitalize"
-                          >
-                            {u.role}
-                          </Badge>
-                        </td>
-                        <td className="py-3.5 pl-4 text-right">
-                          <div className="inline-flex items-center gap-2">
-                            {isUpdating && (
-                              <Loader2 className="h-4 w-4 animate-spin text-forest" />
-                            )}
-                            <Select
-                              value={u.role}
-                              disabled={isUpdating}
-                              aria-label={`Change role for ${u.name}`}
-                              className="h-9 w-32 capitalize"
-                              onChange={(e) =>
-                                handleRoleChange(
-                                  uid,
-                                  e.target.value as UserRole
-                                )
-                              }
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <Badge
+                              variant={u.plan === "pro" ? "clay" : "outline"}
+                              className="capitalize"
                             >
-                              {ROLES.map((r) => (
-                                <option key={r} value={r}>
-                                  {r}
-                                </option>
-                              ))}
-                            </Select>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                              {u.plan || "free"}
+                            </Badge>
+                          </td>
+                          <td className="py-3.5 px-4 text-muted">
+                            {formatDate(u.createdAt)}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <Badge
+                              variant={u.role === "admin" ? "clay" : "sage"}
+                              className="capitalize"
+                            >
+                              {u.role}
+                            </Badge>
+                          </td>
+                          <td className="py-3.5 pl-4 text-right">
+                            <div className="inline-flex items-center gap-2">
+                              {isUpdating && (
+                                <Loader2 className="h-4 w-4 animate-spin text-forest" />
+                              )}
+                              <Select
+                                value={u.role}
+                                disabled={isUpdating}
+                                aria-label={`Change role for ${u.name}`}
+                                className="h-9 w-32 capitalize"
+                                onChange={(e) =>
+                                  handleRoleChange(
+                                    uid,
+                                    e.target.value as UserRole
+                                  )
+                                }
+                              >
+                                {ROLES.map((r) => (
+                                  <option key={r} value={r}>
+                                    {r}
+                                  </option>
+                                ))}
+                              </Select>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={users.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
+              />
+            </>
           )}
         </CardContent>
       </Card>

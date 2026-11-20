@@ -6,12 +6,16 @@ import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatDate, formatFee } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pagination } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminTransactionsPage() {
   const [payments, setPayments] = React.useState<PaymentRecord[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+
+  const ITEMS_PER_PAGE = 8;
+  const [currentPage, setCurrentPage] = React.useState(1);
 
   React.useEffect(() => {
     let active = true;
@@ -50,6 +54,12 @@ export default function AdminTransactionsPage() {
   const totalAmount = payments.reduce(
     (sum, p) => sum + (Number(p.amount) || 0),
     0
+  );
+
+  const totalPages = Math.ceil(payments.length / ITEMS_PER_PAGE);
+  const paginatedPayments = payments.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
 
   return (
@@ -104,53 +114,63 @@ export default function AdminTransactionsPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-sage-border text-xs uppercase tracking-wider text-muted">
-                    <th className="pb-3 pr-4 font-bold">User</th>
-                    <th className="pb-3 px-4 font-bold">Role</th>
-                    <th className="pb-3 px-4 font-bold">Plan Name</th>
-                    <th className="pb-3 px-4 font-bold">Amount</th>
-                    <th className="pb-3 px-4 font-bold">Transaction ID</th>
-                    <th className="pb-3 px-4 font-bold">Payment Date</th>
-                    <th className="pb-3 pl-4 text-right font-bold">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-sage-border">
-                  {payments.map((p) => (
-                    <tr key={p._id} className="hover:bg-sage-bg/40">
-                      <td className="py-3.5 pr-4">
-                        <p className="font-bold text-forest">{p.userName}</p>
-                        <p className="text-xs text-muted">{p.userEmail}</p>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <Badge variant="sage" className="capitalize">
-                          {p.userRole}
-                        </Badge>
-                      </td>
-                      <td className="py-3.5 px-4 font-semibold text-ink">
-                        {p.planName}
-                      </td>
-                      <td className="py-3.5 px-4 font-extrabold text-clay">
-                        {formatFee(p.amount, p.currency || "USD")}
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-xs text-muted">
-                        {p.transactionId || p.stripeSessionId || "—"}
-                      </td>
-                      <td className="py-3.5 px-4 text-muted">
-                        {formatDate(p.paidAt || p.createdAt)}
-                      </td>
-                      <td className="py-3.5 pl-4 text-right">
-                        <Badge variant="success" className="capitalize">
-                          {p.paymentStatus || "paid"}
-                        </Badge>
-                      </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-sage-border text-xs uppercase tracking-wider text-muted">
+                      <th className="pb-3 pr-4 font-bold">User</th>
+                      <th className="pb-3 px-4 font-bold">Role</th>
+                      <th className="pb-3 px-4 font-bold">Plan Name</th>
+                      <th className="pb-3 px-4 font-bold">Amount</th>
+                      <th className="pb-3 px-4 font-bold">Transaction ID</th>
+                      <th className="pb-3 px-4 font-bold">Payment Date</th>
+                      <th className="pb-3 pl-4 text-right font-bold">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-sage-border">
+                    {paginatedPayments.map((p) => (
+                      <tr key={p._id} className="hover:bg-sage-bg/40">
+                        <td className="py-3.5 pr-4">
+                          <p className="font-bold text-forest">{p.userName}</p>
+                          <p className="text-xs text-muted">{p.userEmail}</p>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <Badge variant="sage" className="capitalize">
+                            {p.userRole}
+                          </Badge>
+                        </td>
+                        <td className="py-3.5 px-4 font-semibold text-ink">
+                          {p.planName}
+                        </td>
+                        <td className="py-3.5 px-4 font-extrabold text-clay">
+                          {formatFee(p.amount, p.currency || "USD")}
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-xs text-muted">
+                          {p.transactionId || p.stripeSessionId || "—"}
+                        </td>
+                        <td className="py-3.5 px-4 text-muted">
+                          {formatDate(p.paidAt || p.createdAt)}
+                        </td>
+                        <td className="py-3.5 pl-4 text-right">
+                          <Badge variant="success" className="capitalize">
+                            {p.paymentStatus || "paid"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={payments.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
+              />
+            </>
           )}
         </CardContent>
       </Card>

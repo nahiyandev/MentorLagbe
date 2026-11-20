@@ -26,6 +26,7 @@ import {
   normalizeRole,
 } from "@/lib/utils";
 import { BrandLogo } from "./brand-logo";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -125,7 +126,9 @@ export function Navbar() {
         </nav>
 
         {/* Desktop Auth Area */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2.5">
+          <ThemeToggle />
+
           {isPending ? (
             <div className="h-9 w-36 animate-pulse rounded-xl bg-sage-subtle" />
           ) : user ? (
@@ -232,22 +235,26 @@ export function Navbar() {
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen((prev) => !prev)}
-          className="md:hidden inline-flex items-center justify-center rounded-xl border border-sage-border p-2 text-forest hover:bg-sage-subtle cursor-pointer"
-          aria-label="Toggle navigation menu"
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        {/* Mobile Toggle & Theme */}
+        <div className="flex md:hidden items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            className="inline-flex items-center justify-center rounded-xl border border-sage-border p-2 text-forest hover:bg-sage-subtle cursor-pointer"
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="md:hidden border-t border-sage-border bg-white px-4 pb-5 pt-3 shadow-md">
           <nav className="flex flex-col gap-1">
+            <ThemeToggle variant="button" className="mb-1" />
             {NAV_LINKS.map((item) => {
               const isActive =
                 item.href === "/"

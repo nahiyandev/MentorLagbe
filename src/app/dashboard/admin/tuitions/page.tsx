@@ -9,6 +9,7 @@ import { cn, formatDate, formatFee, isValidImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pagination } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type StatusFilter = "all" | ApprovalStatus;
@@ -19,6 +20,15 @@ export default function AdminTuitionsPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [filter, setFilter] = React.useState<StatusFilter>("all");
   const [busyId, setBusyId] = React.useState<string | null>(null);
+
+  const ITEMS_PER_PAGE = 6;
+  const [currentPage, setCurrentPage] = React.useState(1);
+
+  const [prevFilter, setPrevFilter] = React.useState<StatusFilter>("all");
+  if (prevFilter !== filter) {
+    setPrevFilter(filter);
+    setCurrentPage(1);
+  }
 
   React.useEffect(() => {
     let active = true;
@@ -85,6 +95,12 @@ export default function AdminTuitionsPage() {
       ? tuitions
       : tuitions.filter((t) => t.approvalStatus === filter);
 
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedTuitions = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -147,7 +163,7 @@ export default function AdminTuitionsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filtered.map((t) => {
+              {paginatedTuitions.map((t) => {
                 const isBusy = busyId === t._id;
                 return (
                   <div
@@ -230,6 +246,14 @@ export default function AdminTuitionsPage() {
                   </div>
                 );
               })}
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filtered.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
+              />
             </div>
           )}
         </CardContent>

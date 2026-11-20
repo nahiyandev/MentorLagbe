@@ -24,6 +24,7 @@ import { uploadImageToImgBB } from "@/lib/imgbb";
 import { formatFee, isValidImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,9 @@ export default function TutorMyTuitionsPage() {
   const [tuitions, setTuitions] = React.useState<Tuition[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+
+  const ITEMS_PER_PAGE = 5;
+  const [currentPage, setCurrentPage] = React.useState(1);
 
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [editing, setEditing] = React.useState<Tuition | null>(null);
@@ -227,6 +231,12 @@ export default function TutorMyTuitionsPage() {
     }
   };
 
+  const totalPages = Math.ceil(tuitions.length / ITEMS_PER_PAGE);
+  const paginatedTuitions = tuitions.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -283,7 +293,7 @@ export default function TutorMyTuitionsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {tuitions.map((t) => {
+              {paginatedTuitions.map((t) => {
                 const isBusy = busyId === t._id;
                 return (
                   <div
@@ -375,6 +385,14 @@ export default function TutorMyTuitionsPage() {
                   </div>
                 );
               })}
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={tuitions.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
+              />
             </div>
           )}
         </CardContent>

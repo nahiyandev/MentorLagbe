@@ -9,6 +9,7 @@ import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatDate, formatFee } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -17,6 +18,9 @@ export default function StudentMyApplicationsPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
+  const ITEMS_PER_PAGE = 5;
+  const [currentPage, setCurrentPage] = React.useState(1);
 
   React.useEffect(() => {
     let active = true;
@@ -68,6 +72,12 @@ export default function StudentMyApplicationsPage() {
       setDeletingId(null);
     }
   };
+
+  const totalPages = Math.ceil(applications.length / ITEMS_PER_PAGE);
+  const paginatedApplications = applications.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="space-y-6">
@@ -136,7 +146,7 @@ export default function StudentMyApplicationsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-sage-border">
-                    {applications.map((app) => (
+                    {paginatedApplications.map((app) => (
                       <tr key={app._id} className="hover:bg-sage-bg/40">
                         <td className="py-4 pr-4">
                           <Link
@@ -200,7 +210,7 @@ export default function StudentMyApplicationsPage() {
 
               {/* Mobile Cards */}
               <div className="grid grid-cols-1 gap-4 md:hidden">
-                {applications.map((app) => (
+                {paginatedApplications.map((app) => (
                   <div
                     key={app._id}
                     className="rounded-xl border border-sage-border bg-sage-bg/40 p-4 space-y-3"
@@ -263,6 +273,14 @@ export default function StudentMyApplicationsPage() {
                   </div>
                 ))}
               </div>
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={applications.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
+              />
             </>
           )}
         </CardContent>

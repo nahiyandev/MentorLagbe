@@ -18,6 +18,7 @@ import {
 import { apiFetch, extractList } from "@/lib/api";
 import { SiteShell } from "@/components/layout/site-shell";
 import { TuitionCard } from "@/components/tuitions/tuition-card";
+import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -41,9 +42,19 @@ function BrowseTuitionsContent() {
   );
   const [mode, setMode] = React.useState(searchParams.get("mode") || "");
 
+  const ITEMS_PER_PAGE = 6;
+  const [currentPage, setCurrentPage] = React.useState(1);
+
   const [tuitions, setTuitions] = React.useState<Tuition[]>([]);
   const [loadedQuery, setLoadedQuery] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+
+  const [filterKey, setFilterKey] = React.useState("");
+  const currentFilterKey = `${debouncedSearch}|${subject}|${classLevel}|${mode}`;
+  if (filterKey !== currentFilterKey) {
+    setFilterKey(currentFilterKey);
+    setCurrentPage(1);
+  }
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -107,7 +118,14 @@ function BrowseTuitionsContent() {
     setSubject("");
     setClassLevel("");
     setMode("");
+    setCurrentPage(1);
   };
+
+  const totalPages = Math.ceil(tuitions.length / ITEMS_PER_PAGE);
+  const paginatedTuitions = tuitions.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -261,10 +279,23 @@ function BrowseTuitionsContent() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {tuitions.map((tuition) => (
-            <TuitionCard key={tuition._id} tuition={tuition} />
-          ))}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {paginatedTuitions.map((tuition) => (
+              <TuitionCard key={tuition._id} tuition={tuition} />
+            ))}
+          </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={tuitions.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={(p) => {
+              setCurrentPage(p);
+              window.scrollTo({ top: 120, behavior: "smooth" });
+            }}
+          />
         </div>
       )}
     </section>
