@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   CalendarClock,
   Check,
+  Download,
   Loader2,
   Mail,
   MessageSquare,
@@ -14,6 +15,7 @@ import { toast } from "sonner";
 import type { Application } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
+import { AdmissionSlipDialog } from "@/components/tuitions/admission-slip-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +26,8 @@ export default function TutorApplicantsPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [updatingId, setUpdatingId] = React.useState<string | null>(null);
+  const [slipApp, setSlipApp] = React.useState<Application | null>(null);
+  const [slipOpen, setSlipOpen] = React.useState(false);
 
   React.useEffect(() => {
     let active = true;
@@ -166,6 +170,20 @@ export default function TutorApplicantsPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 shrink-0">
+                        {app.status === "accepted" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1 text-xs"
+                            onClick={() => {
+                              setSlipApp(app);
+                              setSlipOpen(true);
+                            }}
+                          >
+                            <Download className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
+                            <span>Slip</span>
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           disabled={isUpdating || app.status === "accepted"}
@@ -222,6 +240,12 @@ export default function TutorApplicantsPage() {
           )}
         </CardContent>
       </Card>
+
+      <AdmissionSlipDialog
+        application={slipApp}
+        open={slipOpen}
+        onOpenChange={setSlipOpen}
+      />
     </div>
   );
 }

@@ -100,3 +100,56 @@ export const CLASS_LEVEL_OPTIONS = [
 ] as const;
 
 export const MODE_OPTIONS: TuitionMode[] = ["Online", "Offline"];
+
+export interface Review {
+  _id: string;
+  tuitionId: string;
+  tuitionTitle: string;
+  tutorEmail: string;
+  studentName: string;
+  studentEmail: string;
+  studentImage?: string;
+  rating: number;
+  feedback: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface NotificationItem {
+  _id: string;
+  recipientEmail: string;
+  recipientRole: UserRole;
+  title: string;
+  message: string;
+  type:
+    | "application_received"
+    | "application_accepted"
+    | "application_rejected"
+    | "tuition_approved"
+    | "system";
+  link?: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface TutorProfileData {
+  tutor: {
+    _id?: string | null;
+    name: string;
+    email: string;
+    image?: string | null;
+    bio?: string;
+    phone?: string;
+    role: UserRole;
+    plan: UserPlan;
+    createdAt?: string;
+  };
+  tuitions: Tuition[];
+  reviews: Review[];
+  stats: {
+    totalBatches: number;
+    subjects: string[];
+    averageRating: number;
+    totalReviews: number;
+  };
+}

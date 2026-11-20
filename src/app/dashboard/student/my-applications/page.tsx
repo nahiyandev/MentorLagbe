@@ -2,11 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { BookOpen, Loader2, Trash2 } from "lucide-react";
+import { BookOpen, Download, Loader2, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Application } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatDate, formatFee } from "@/lib/utils";
+import { AdmissionSlipDialog } from "@/components/tuitions/admission-slip-dialog";
+import { ReviewDialog } from "@/components/reviews/review-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
@@ -18,6 +20,12 @@ export default function StudentMyApplicationsPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
+  // Dialog states
+  const [slipApp, setSlipApp] = React.useState<Application | null>(null);
+  const [slipOpen, setSlipOpen] = React.useState(false);
+  const [reviewApp, setReviewApp] = React.useState<Application | null>(null);
+  const [reviewOpen, setReviewOpen] = React.useState(false);
 
   const ITEMS_PER_PAGE = 5;
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -158,9 +166,12 @@ export default function StudentMyApplicationsPage() {
                           <p className="text-xs text-muted">{app.subject}</p>
                         </td>
                         <td className="py-4 px-4">
-                          <p className="font-semibold text-ink">
+                          <Link
+                            href={`/tutors/${encodeURIComponent(app.tutorEmail)}`}
+                            className="font-semibold text-ink dark:text-[#EFF5F0] hover:text-clay dark:hover:text-[#E58E58] transition-colors"
+                          >
                             {app.tutorName || "Tutor"}
-                          </p>
+                          </Link>
                           <p className="text-xs text-muted">{app.tutorEmail}</p>
                         </td>
                         <td className="py-4 px-4 font-bold text-clay">
@@ -184,23 +195,54 @@ export default function StudentMyApplicationsPage() {
                           </Badge>
                         </td>
                         <td className="py-4 pl-4 text-right">
-                          {app.status === "pending" ? (
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              disabled={deletingId === app._id}
-                              onClick={() => handleCancel(app)}
-                            >
-                              {deletingId === app._id ? (
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-3.5 w-3.5" />
-                              )}
-                              Cancel
-                            </Button>
-                          ) : (
-                            <span className="text-xs text-muted">Locked</span>
-                          )}
+                          <div className="flex items-center justify-end gap-1.5">
+                            {app.status === "accepted" && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="gap-1 text-xs"
+                                  onClick={() => {
+                                    setSlipApp(app);
+                                    setSlipOpen(true);
+                                  }}
+                                >
+                                  <Download className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
+                                  Slip
+                                </Button>
+                                <Button
+                                  variant="accent"
+                                  size="sm"
+                                  className="gap-1 text-xs"
+                                  onClick={() => {
+                                    setReviewApp(app);
+                                    setReviewOpen(true);
+                                  }}
+                                >
+                                  <Star className="h-3 w-3 fill-amber-300 text-amber-300" />
+                                  Review
+                                </Button>
+                              </>
+                            )}
+                            {app.status === "pending" && (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={deletingId === app._id}
+                                onClick={() => handleCancel(app)}
+                              >
+                                {deletingId === app._id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                )}
+                                Cancel
+                              </Button>
+                            )}
+                            {app.status === "rejected" && (
+                              <span className="text-xs text-muted">Closed</span>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -241,7 +283,13 @@ export default function StudentMyApplicationsPage() {
                     <div className="text-xs text-muted space-y-1">
                       <p>
                         <strong className="text-ink">Tutor:</strong>{" "}
-                        {app.tutorName ? `${app.tutorName} (${app.tutorEmail})` : app.tutorEmail}
+                        <Link
+                          href={`/tutors/${encodeURIComponent(app.tutorEmail)}`}
+                          className="font-semibold text-forest dark:text-[#8EE0BA] hover:underline"
+                        >
+                          {app.tutorName || "Tutor"}
+                        </Link>{" "}
+                        ({app.tutorEmail})
                       </p>
                       <p>
                         <strong className="text-ink">Fee:</strong>{" "}
@@ -254,6 +302,36 @@ export default function StudentMyApplicationsPage() {
                         {formatDate(app.appliedAt || app.createdAt)}
                       </p>
                     </div>
+
+                    {app.status === "accepted" && (
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full gap-1 text-xs"
+                          onClick={() => {
+                            setSlipApp(app);
+                            setSlipOpen(true);
+                          }}
+                        >
+                          <Download className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
+                          Download Slip
+                        </Button>
+                        <Button
+                          variant="accent"
+                          size="sm"
+                          className="w-full gap-1 text-xs"
+                          onClick={() => {
+                            setReviewApp(app);
+                            setReviewOpen(true);
+                          }}
+                        >
+                          <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
+                          Rate Tutor
+                        </Button>
+                      </div>
+                    )}
+
                     {app.status === "pending" && (
                       <Button
                         variant="destructive"
@@ -285,6 +363,23 @@ export default function StudentMyApplicationsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Slip Dialog */}
+      <AdmissionSlipDialog
+        application={slipApp}
+        open={slipOpen}
+        onOpenChange={setSlipOpen}
+      />
+
+      {/* Review Dialog */}
+      {reviewApp && (
+        <ReviewDialog
+          tuitionId={reviewApp.tuitionId}
+          tuitionTitle={reviewApp.tuitionTitle}
+          open={reviewOpen}
+          onOpenChange={setReviewOpen}
+        />
+      )}
     </div>
   );
 }

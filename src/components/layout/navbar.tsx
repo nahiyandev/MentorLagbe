@@ -27,6 +27,7 @@ import {
 } from "@/lib/utils";
 import { BrandLogo } from "./brand-logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -127,6 +128,7 @@ export function Navbar() {
 
         {/* Desktop Auth Area */}
         <div className="hidden md:flex items-center gap-2.5">
+          <NotificationBell />
           <ThemeToggle />
 
           {isPending ? (
@@ -237,6 +239,7 @@ export function Navbar() {
 
         {/* Mobile Toggle & Theme */}
         <div className="flex md:hidden items-center gap-2">
+          <NotificationBell />
           <ThemeToggle />
           <button
             type="button"

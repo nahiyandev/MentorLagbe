@@ -13,9 +13,10 @@ import {
   MapPin,
   Monitor,
   ShieldCheck,
+  Star,
   User,
 } from "lucide-react";
-import type { Tuition } from "@/types";
+import type { Review, Tuition } from "@/types";
 import { ApiError, apiFetch } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
 import {
@@ -27,6 +28,8 @@ import {
 } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
 import { ApplyModal } from "@/components/tuitions/apply-modal";
+import { ReviewDialog } from "@/components/reviews/review-dialog";
+import { ReviewList } from "@/components/reviews/review-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,6 +49,14 @@ export default function TuitionDetailsPage({
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [applyOpen, setApplyOpen] = React.useState(false);
   const [applied, setApplied] = React.useState(false);
+
+  // Reviews state
+  const [reviews, setReviews] = React.useState<Review[]>([]);
+  const [averageRating, setAverageRating] = React.useState(0);
+  const [totalReviews, setTotalReviews] = React.useState(0);
+  const [canReview, setCanReview] = React.useState(false);
+  const [existingReview, setExistingReview] = React.useState<Review | null>(null);
+  const [reviewOpen, setReviewOpen] = React.useState(false);
 
   const loading = loadedId !== id;
 
@@ -85,6 +96,38 @@ export default function TuitionDetailsPage({
             setErrorMessage(null);
           }
         }
+
+        // Concurrently fetch reviews
+        try {
+          const revRes = await apiFetch<{
+            reviews?: Review[];
+            averageRating?: number;
+            totalReviews?: number;
+          }>(`/api/reviews/tuition/${encodeURIComponent(id)}`);
+          if (active && revRes?.reviews) {
+            setReviews(revRes.reviews);
+            setAverageRating(revRes.averageRating || 0);
+            setTotalReviews(revRes.totalReviews || 0);
+          }
+        } catch {
+          // non-blocking
+        }
+
+        // Concurrently check review eligibility
+        if (session?.user?.email && role === "student") {
+          try {
+            const eligRes = await apiFetch<{
+              canReview?: boolean;
+              existingReview?: Review | null;
+            }>(`/api/reviews/can-review/${encodeURIComponent(id)}`);
+            if (active) {
+              setCanReview(!!eligRes?.canReview);
+              setExistingReview(eligRes?.existingReview || null);
+            }
+          } catch {
+            if (active) setCanReview(false);
+          }
+        }
       } catch (err) {
         if (active) {
           setTuition(null);
@@ -109,7 +152,32 @@ export default function TuitionDetailsPage({
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, session, role]);
+
+  const refreshReviews = React.useCallback(async () => {
+    try {
+      const res = await apiFetch<{
+        reviews?: Review[];
+        averageRating?: number;
+        totalReviews?: number;
+      }>(`/api/reviews/tuition/${encodeURIComponent(id)}`);
+      if (res?.reviews) {
+        setReviews(res.reviews);
+        setAverageRating(res.averageRating || 0);
+        setTotalReviews(res.totalReviews || 0);
+      }
+      if (session?.user?.email && role === "student") {
+        const eligRes = await apiFetch<{
+          canReview?: boolean;
+          existingReview?: Review | null;
+        }>(`/api/reviews/can-review/${encodeURIComponent(id)}`);
+        setCanReview(!!eligRes?.canReview);
+        setExistingReview(eligRes?.existingReview || null);
+      }
+    } catch {
+      // non-blocking
+    }
+  }, [id, session, role]);
 
   return (
     <SiteShell>
@@ -241,12 +309,44 @@ export default function TuitionDetailsPage({
 
                   {/* Description */}
                   <div className="mt-8 border-t border-sage-border pt-6">
-                    <h2 className="text-lg font-bold text-forest">
+                    <h2 className="text-lg font-bold text-forest dark:text-[#8EE0BA]">
                       About This Tuition
                     </h2>
-                    <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink sm:text-base">
+                    <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink dark:text-[#EFF5F0] sm:text-base">
                       {tuition.description}
                     </p>
+                  </div>
+
+                  {/* Student Reviews & Ratings */}
+                  <div className="mt-10 border-t border-sage-border pt-8 space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <h2 className="text-xl font-black text-forest dark:text-[#8EE0BA]">
+                          Student Reviews &amp; Ratings
+                        </h2>
+                        <p className="text-xs text-muted dark:text-[#9DB3A6]">
+                          Feedback from students accepted into this tuition
+                        </p>
+                      </div>
+
+                      {canReview && (
+                        <Button
+                          size="sm"
+                          variant="accent"
+                          className="gap-1.5 shrink-0"
+                          onClick={() => setReviewOpen(true)}
+                        >
+                          <Star className="h-4 w-4 fill-amber-300 text-amber-300" />
+                          <span>{existingReview ? "Update Review" : "Write a Review"}</span>
+                        </Button>
+                      )}
+                    </div>
+
+                    <ReviewList
+                      reviews={reviews}
+                      averageRating={averageRating}
+                      totalReviews={totalReviews}
+                    />
                   </div>
                 </div>
               </div>
@@ -361,26 +461,40 @@ export default function TuitionDetailsPage({
               {/* Tutor Summary Card */}
               <Card>
                 <CardContent className="p-6">
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-muted">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
                     Tutor Profile
                   </h2>
                   <div className="mt-4 flex items-center gap-3.5">
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-forest text-sm font-bold text-white">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-forest dark:bg-[#8EE0BA] text-sm font-bold text-white dark:text-[#0C130F]">
                       {getInitials(tuition.tutorName)}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-base font-bold text-forest">
+                      <p className="truncate text-base font-bold text-forest dark:text-[#8EE0BA]">
                         {tuition.tutorName}
                       </p>
-                      <p className="flex items-center gap-1 truncate text-xs text-muted">
+                      <p className="flex items-center gap-1 truncate text-xs text-muted dark:text-[#9DB3A6]">
                         <Mail className="h-3.5 w-3.5 shrink-0" />
                         <span className="truncate">{tuition.tutorEmail}</span>
                       </p>
                     </div>
                   </div>
-                  <div className="mt-4 flex items-center gap-2 rounded-xl bg-sage-bg/70 px-3 py-2 text-xs text-muted">
-                    <User className="h-4 w-4 text-forest shrink-0" />
+
+                  <div className="mt-4 flex items-center gap-2 rounded-xl bg-sage-bg/70 dark:bg-[#1C2B22]/60 px-3 py-2 text-xs text-muted dark:text-[#9DB3A6]">
+                    <User className="h-4 w-4 text-forest dark:text-[#8EE0BA] shrink-0" />
                     <span>Verified MentorLagbe Tutor Listing</span>
+                  </div>
+
+                  {/* Public Tutor Profile link */}
+                  <div className="mt-4 border-t border-sage-border pt-4">
+                    <Link
+                      href={`/tutors/${encodeURIComponent(tuition.tutorEmail)}`}
+                      className="block"
+                    >
+                      <Button variant="outline" size="sm" className="w-full gap-1.5">
+                        <GraduationCap className="h-4 w-4" />
+                        <span>View Tutor Profile &amp; Batches</span>
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -390,13 +504,27 @@ export default function TuitionDetailsPage({
       </section>
 
       {tuition && (
-        <ApplyModal
-          open={applyOpen}
-          onClose={() => setApplyOpen(false)}
-          tuition={tuition}
-          defaultPhone={user?.phone || ""}
-          onSuccess={() => setApplied(true)}
-        />
+        <>
+          <ApplyModal
+            open={applyOpen}
+            onClose={() => setApplyOpen(false)}
+            tuition={tuition}
+            defaultPhone={user?.phone || ""}
+            onSuccess={() => setApplied(true)}
+          />
+
+          <ReviewDialog
+            tuitionId={tuition._id}
+            tuitionTitle={tuition.title}
+            open={reviewOpen}
+            onOpenChange={setReviewOpen}
+            existingRating={existingReview?.rating}
+            existingFeedback={existingReview?.feedback}
+            onSuccess={() => {
+              void refreshReviews();
+            }}
+          />
+        </>
       )}
     </SiteShell>
   );

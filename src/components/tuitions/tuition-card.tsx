@@ -75,14 +75,18 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
           {tuition.title}
         </h3>
 
-        <div className="mt-3 flex items-center gap-2 text-sm text-muted">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-subtle text-forest">
+        <Link
+          href={`/tutors/${encodeURIComponent(tuition.tutorEmail)}`}
+          className="mt-3 inline-flex items-center gap-2 text-sm text-muted hover:text-clay dark:hover:text-[#E58E58] transition-colors w-fit"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-subtle dark:bg-[#1C2B22] text-forest dark:text-[#8EE0BA]">
             <User className="h-3.5 w-3.5" />
           </span>
-          <span className="truncate font-medium text-ink dark:text-[#EFF5F0]">
+          <span className="truncate font-semibold text-ink dark:text-[#EFF5F0] hover:underline">
             {tuition.tutorName}
           </span>
-        </div>
+        </Link>
 
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-sage-border pt-4 mt-5">
           <div>

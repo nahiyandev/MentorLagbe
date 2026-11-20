@@ -38,6 +38,7 @@ import {
 } from "@/lib/utils";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -375,6 +376,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2.5">
+            <NotificationBell />
             <ThemeToggle />
             <Link href="/tuitions" className="hidden sm:inline-block">
               <Button variant="outline" size="sm">
