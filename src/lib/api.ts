@@ -60,13 +60,20 @@ async function refreshJwtFromSession(): Promise<string | null> {
       const sessionRes = await fetch("/api/auth/get-session", {
         credentials: "include",
       });
-      if (!sessionRes.ok) return null;
-      const sessionData = (await sessionRes.json()) as {
-        session?: { token?: string };
-      } | null;
-      const sessionToken = sessionData?.session?.token;
-      if (!sessionToken) return null;
-      return await exchangeSessionForJwt(sessionToken);
+      if (sessionRes.ok) {
+        const sessionData = (await sessionRes.json()) as {
+          session?: { token?: string };
+          token?: string;
+        } | null;
+        const sessionToken = sessionData?.session?.token || sessionData?.token;
+        if (sessionToken) {
+          const exchanged = await exchangeSessionForJwt(sessionToken);
+          if (exchanged) return exchanged;
+          setStoredJwt(sessionToken);
+          return sessionToken;
+        }
+      }
+      return null;
     } catch {
       return null;
     } finally {
@@ -131,6 +138,7 @@ export async function apiFetch<T = unknown>(
   });
 
   if (res.status === 401 && typeof window !== "undefined") {
+    clearStoredJwt();
     const freshJwt = await refreshJwtFromSession();
     if (freshJwt) {
       res = await fetch(url, {

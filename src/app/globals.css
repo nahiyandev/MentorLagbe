@@ -1,47 +1,63 @@
 @import "tailwindcss";
 
-@theme inline {
-  --color-sage-bg: #EFF3EC;
-  --color-sage-surface: #FFFFFF;
-  --color-sage-subtle: #E4ECE0;
-  --color-forest: #1E3A2F;
-  --color-forest-hover: #162B23;
-  --color-forest-soft: #2A4F40;
-  --color-clay: #C2703D;
-  --color-clay-hover: #A85E31;
-  --color-clay-soft: #F7EAE2;
-  --color-ink: #1C2B23;
-  --color-muted: #5C6B60;
-  --color-sage-border: #DCE5DB;
-
-  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+:root {
+  --sage-bg: #EFF3EC;
+  --sage-surface: #FFFFFF;
+  --sage-subtle: #E4ECE0;
+  --forest: #1E3A2F;
+  --forest-hover: #162B23;
+  --forest-soft: #2A4F40;
+  --clay: #C2703D;
+  --clay-hover: #A85E31;
+  --clay-soft: #F7EAE2;
+  --ink: #1C2B23;
+  --muted: #5C6B60;
+  --sage-border: #DCE5DB;
 }
 
+html.dark,
 .dark {
-  --color-sage-bg: #0F1713;
-  --color-sage-surface: #17241E;
-  --color-sage-subtle: #22302A;
-  --color-forest: #8EE0BA;
-  --color-forest-hover: #B2EED5;
-  --color-forest-soft: #1E3A2F;
-  --color-clay: #E58E58;
-  --color-clay-hover: #F2A979;
-  --color-clay-soft: #38251B;
-  --color-ink: #EFF3EC;
-  --color-muted: #9BB0A3;
-  --color-sage-border: #2A3C32;
+  --sage-bg: #0C130F;
+  --sage-surface: #141F18;
+  --sage-subtle: #1C2B22;
+  --forest: #8EE0BA;
+  --forest-hover: #B3F0D5;
+  --forest-soft: #23372D;
+  --clay: #E58E58;
+  --clay-hover: #F0A777;
+  --clay-soft: #34241B;
+  --ink: #EFF5F0;
+  --muted: #9DB3A6;
+  --sage-border: #23352B;
+}
+
+@theme inline {
+  --color-sage-bg: var(--sage-bg);
+  --color-sage-surface: var(--sage-surface);
+  --color-sage-subtle: var(--sage-subtle);
+  --color-forest: var(--forest);
+  --color-forest-hover: var(--forest-hover);
+  --color-forest-soft: var(--forest-soft);
+  --color-clay: var(--clay);
+  --color-clay-hover: var(--clay-hover);
+  --color-clay-soft: var(--clay-soft);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-sage-border: var(--sage-border);
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
-    background-color: var(--color-sage-bg);
-    color: var(--color-ink);
+    background-color: var(--sage-bg);
+    color: var(--ink);
   }
 
   body {
-    background-color: var(--color-sage-bg);
-    color: var(--color-ink);
+    background-color: var(--sage-bg);
+    color: var(--ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -49,7 +65,7 @@
   }
 
   h1, h2, h3, h4 {
-    color: var(--color-forest);
+    color: var(--forest);
     letter-spacing: -0.02em;
   }
 
@@ -59,32 +75,106 @@
   }
 }
 
-/* Dark mode surface & card adjustments */
-.dark .bg-white {
-  background-color: #17241E !important;
+/* Bulletproof High-Contrast Dark Mode Overrides */
+html.dark,
+html.dark body {
+  background-color: #0C130F !important;
+  color: #EFF5F0 !important;
 }
 
-.dark .bg-white\/92,
-.dark .bg-white\/95 {
-  background-color: rgba(23, 36, 30, 0.92) !important;
+html.dark .bg-sage-bg {
+  background-color: #0C130F !important;
 }
 
-.dark input,
-.dark select,
-.dark textarea {
-  background-color: #1A2822 !important;
-  color: #EFF3EC !important;
-  border-color: #2A3C32 !important;
+html.dark .bg-white,
+html.dark .bg-sage-surface {
+  background-color: #141F18 !important;
 }
 
-.dark input::placeholder,
-.dark textarea::placeholder {
-  color: #748B7E !important;
+html.dark .bg-white\/92,
+html.dark .bg-white\/95 {
+  background-color: rgba(20, 31, 24, 0.95) !important;
 }
 
-.dark .shadow-xs,
-.dark .shadow-sm,
-.dark .shadow-md,
-.dark .shadow-lg {
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45) !important;
+html.dark .bg-sage-subtle {
+  background-color: #1C2B22 !important;
+}
+
+html.dark .border-sage-border {
+  border-color: #23352B !important;
+}
+
+html.dark .text-forest {
+  color: #8EE0BA !important;
+}
+
+html.dark .text-ink {
+  color: #EFF5F0 !important;
+}
+
+html.dark .text-muted {
+  color: #9DB3A6 !important;
+}
+
+html.dark .text-clay {
+  color: #E58E58 !important;
+}
+
+html.dark .bg-clay-soft {
+  background-color: #34241B !important;
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4 {
+  color: #8EE0BA !important;
+}
+
+html.dark header {
+  background-color: rgba(20, 31, 24, 0.95) !important;
+  border-color: #23352B !important;
+}
+
+html.dark aside {
+  background-color: #141F18 !important;
+  border-color: #23352B !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #18261E !important;
+  color: #EFF5F0 !important;
+  border-color: #23352B !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #728A7D !important;
+}
+
+html.dark button.bg-forest,
+html.dark a.bg-forest {
+  background-color: #8EE0BA !important;
+  color: #0C130F !important;
+  font-weight: 700 !important;
+}
+
+html.dark button.bg-forest:hover,
+html.dark a.bg-forest:hover {
+  background-color: #B3F0D5 !important;
+}
+
+html.dark button.bg-forest svg,
+html.dark a.bg-forest svg {
+  color: #0C130F !important;
+}
+
+html.dark .shadow-xs,
+html.dark .shadow-sm,
+html.dark .shadow-md,
+html.dark .shadow-lg,
+html.dark .shadow-xl {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
 }

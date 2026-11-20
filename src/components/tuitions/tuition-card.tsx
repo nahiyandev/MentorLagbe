@@ -45,7 +45,7 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
           </Badge>
           <Badge
             variant={tuition.mode === "Online" ? "sage" : "clay"}
-            className="bg-white/95 backdrop-blur-sm"
+            className="bg-white/95 dark:bg-[#141F18]/95 backdrop-blur-sm"
           >
             {tuition.mode === "Online" ? (
               <Monitor className="h-3 w-3" />
@@ -60,7 +60,7 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
       {/* Card Body */}
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-2 flex items-center justify-between gap-2 text-xs font-medium text-muted">
-          <span className="truncate rounded-md bg-sage-bg px-2 py-0.5 font-semibold text-forest">
+          <span className="truncate rounded-md bg-sage-subtle dark:bg-[#1C2B22] px-2 py-0.5 font-semibold text-forest dark:text-[#8EE0BA]">
             {tuition.classLevel}
           </span>
           {tuition.daysPerWeek ? (
@@ -71,7 +71,7 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
           ) : null}
         </div>
 
-        <h3 className="line-clamp-2 text-lg font-bold leading-snug text-forest group-hover:text-clay transition-colors">
+        <h3 className="line-clamp-2 text-lg font-bold leading-snug text-forest dark:text-[#8EE0BA] group-hover:text-clay dark:group-hover:text-[#E58E58] transition-colors">
           {tuition.title}
         </h3>
 
@@ -79,7 +79,7 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-subtle text-forest">
             <User className="h-3.5 w-3.5" />
           </span>
-          <span className="truncate font-medium text-ink">
+          <span className="truncate font-medium text-ink dark:text-[#EFF5F0]">
             {tuition.tutorName}
           </span>
         </div>
