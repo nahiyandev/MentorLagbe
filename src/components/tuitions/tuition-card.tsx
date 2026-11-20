@@ -105,7 +105,7 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
           </span>
         </Link>
 
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-sage-border pt-4 mt-5">
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-sage-border pt-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
               Monthly Fee
