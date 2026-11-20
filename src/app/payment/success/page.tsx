@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Info, LayoutDashboard } from "lucide-react";
+import { CheckCircle2, Info, LayoutDashboard, Loader2 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
 import { getDashboardPath } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
@@ -18,9 +19,18 @@ function PaymentSuccessContent() {
   const user = session?.user as { role?: string; plan?: string } | undefined;
   const dashboardHref = getDashboardPath(user?.role);
 
+  const [verifying, setVerifying] = React.useState(Boolean(sessionId));
+
   React.useEffect(() => {
     if (sessionId) {
-      void refetch();
+      apiFetch(
+        `/api/payments/verify-session?session_id=${encodeURIComponent(sessionId)}`
+      )
+        .catch(() => {})
+        .finally(() => {
+          setVerifying(false);
+          void refetch();
+        });
     }
   }, [sessionId, refetch]);
 
@@ -30,15 +40,19 @@ function PaymentSuccessContent() {
         {sessionId ? (
           <>
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <CheckCircle2 className="h-8 w-8" />
+              {verifying ? (
+                <Loader2 className="h-8 w-8 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-8 w-8" />
+              )}
             </div>
             <h1 className="text-2xl font-extrabold text-forest sm:text-3xl">
-              Payment Received
+              {verifying ? "Confirming Payment..." : "Payment Received"}
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-muted">
-              Thank you for upgrading with Stripe Checkout. Once Stripe confirms
-              the transaction via webhook, your account plan updates to{" "}
-              <strong className="text-forest">Pro</strong> automatically.
+              {verifying
+                ? "Connecting with Stripe to verify your transaction..."
+                : "Thank you for upgrading with Stripe Checkout. Your transaction is recorded and your account plan is now upgraded to Pro."}
             </p>
             <p className="mt-4 rounded-xl bg-sage-bg px-3.5 py-2 font-mono text-xs text-muted break-all">
               Session ID: {sessionId}
