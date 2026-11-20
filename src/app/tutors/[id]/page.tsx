@@ -24,13 +24,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
+function fullyDecode(str: string): string {
+  let decoded = str || "";
+  try {
+    while (decoded.includes("%")) {
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) break;
+      decoded = next;
+    }
+  } catch {
+    // Safe fallback
+  }
+  return decoded.trim();
+}
+
 export default function TutorProfilePage() {
   const params = useParams<{ id: string }>();
   const [data, setData] = React.useState<TutorProfileData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const identifier = params?.id ? decodeURIComponent(params.id) : "";
+  const rawId = params?.id || "";
+  const identifier = React.useMemo(() => fullyDecode(rawId), [rawId]);
 
   React.useEffect(() => {
     if (!identifier) return;
