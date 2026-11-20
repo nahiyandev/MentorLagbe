@@ -13,10 +13,10 @@ interface StatCardProps {
 }
 
 const TONE_CLASSES: Record<NonNullable<StatCardProps["tone"]>, string> = {
-  forest: "bg-sage-subtle text-forest",
-  clay: "bg-clay-soft text-clay",
-  emerald: "bg-emerald-50 text-emerald-700",
-  amber: "bg-amber-50 text-amber-700",
+  forest: "bg-sage-subtle dark:bg-[#1C2B22] text-forest dark:text-[#8EE0BA]",
+  clay: "bg-clay-soft dark:bg-[#34241B] text-clay dark:text-[#E58E58]",
+  emerald: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400",
+  amber: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400",
 };
 
 export function StatCard({

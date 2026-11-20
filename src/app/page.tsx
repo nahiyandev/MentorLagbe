@@ -9,15 +9,20 @@ import {
   Code2,
   FlaskConical,
   Globe,
+  GraduationCap,
   Languages,
   Layers,
+  Quote,
   Search,
   ShieldCheck,
   Sparkles,
+  Star,
   UserPlus,
+  Users,
 } from "lucide-react";
 import { SiteShell } from "@/components/layout/site-shell";
 import { FeaturedTuitions } from "@/components/home/featured-tuitions";
+import { HeroSearch } from "@/components/home/hero-search";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -107,11 +112,41 @@ const PLATFORM_PILLARS = [
   },
 ];
 
+const TESTIMONIALS = [
+  {
+    name: "Jack Walter",
+    role: "HSC Student (Class 11-12)",
+    quote:
+      "Finding an experienced tutor for HSC Higher Mathematics used to be a hassle. Through MentorLagbe, I applied to an online problem-solving batch within minutes and tracked my acceptance status live. The 1-on-1 sessions were game-changing.",
+    rating: 5,
+    avatar: "JW",
+    subject: "Higher Mathematics",
+  },
+  {
+    name: "Nahiyan Chowdhury",
+    role: "Verified Pro Tutor",
+    quote:
+      "As a university tutor, managing batch schedules and student applications manually was overwhelming. MentorLagbe gave me a structured workspace to post batches, review student notes, and toggle availability. Upgrading to Pro gave me unlimited batch postings.",
+    rating: 5,
+    avatar: "NC",
+    subject: "Physics & Chemistry",
+  },
+  {
+    name: "Tahmina Akter",
+    role: "IELTS Candidate & Student",
+    quote:
+      "The transparency in tuition fees and syllabus coverage gave me total confidence. I was accepted into an IELTS Speaking & Band Strategy cohort, and having weekly schedules clearly defined made tracking progress seamless.",
+    rating: 5,
+    avatar: "TA",
+    subject: "IELTS Band Prep",
+  },
+];
+
 export default function HomePage() {
   return (
     <SiteShell>
-      {/* 1. Hero / Banner Section */}
-      <section className="relative overflow-hidden border-b border-sage-border bg-gradient-to-b from-white via-sage-bg/50 to-sage-bg">
+      {/* 1. Hero / Banner Section with Interactive Search */}
+      <section className="relative overflow-hidden border-b border-sage-border bg-gradient-to-b from-white via-sage-bg/50 to-sage-bg dark:from-[#0C130F] dark:via-[#101A14] dark:to-[#0C130F]">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-22 lg:px-8">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
             <div className="lg:col-span-7 space-y-6">
@@ -120,15 +155,18 @@ export default function HomePage() {
                 Smart Tuition &amp; Mentorship Platform
               </Badge>
 
-              <h1 className="text-4xl font-extrabold leading-[1.12] text-forest sm:text-5xl lg:text-[54px]">
+              <h1 className="text-4xl font-extrabold leading-[1.12] text-forest dark:text-[#8EE0BA] sm:text-5xl lg:text-[54px]">
                 Find Your Ideal Tutor or Mentorship Batch Today
               </h1>
 
-              <p className="max-w-xl text-base leading-relaxed text-muted sm:text-lg">
+              <p className="max-w-xl text-base leading-relaxed text-muted dark:text-[#9DB3A6] sm:text-lg">
                 Connect with verified tutors offering structured subject-wise
                 tuition batches and 1-on-1 mentorship—online or offline—with
                 transparent monthly fees and real-time application tracking.
               </p>
+
+              {/* Instant Hero Search Box */}
+              <HeroSearch />
 
               <div className="flex flex-wrap items-center gap-3.5 pt-2">
                 <Link href="/tuitions">
@@ -144,17 +182,17 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-3 text-sm font-medium text-muted">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-3 text-sm font-medium text-muted dark:text-[#9DB3A6]">
                 <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-forest" />
+                  <CheckCircle2 className="h-4 w-4 text-forest dark:text-[#8EE0BA]" />
                   Admin-approved listings
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-forest" />
+                  <CheckCircle2 className="h-4 w-4 text-forest dark:text-[#8EE0BA]" />
                   Online &amp; Offline modes
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-forest" />
+                  <CheckCircle2 className="h-4 w-4 text-forest dark:text-[#8EE0BA]" />
                   Direct application tracking
                 </span>
               </div>
@@ -162,56 +200,56 @@ export default function HomePage() {
 
             {/* Right-side Sage Studio Visual Panel */}
             <div className="lg:col-span-5">
-              <div className="relative rounded-3xl border border-sage-border bg-white p-6 sm:p-7 shadow-[0_18px_50px_rgba(30,58,47,0.08)]">
+              <div className="relative rounded-3xl border border-sage-border bg-white dark:bg-[#141F18] p-6 sm:p-7 shadow-[0_18px_50px_rgba(30,58,47,0.08)]">
                 <div className="flex items-center justify-between border-b border-sage-border pb-4">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-clay">
                       Structured Ecosystem
                     </p>
-                    <h2 className="mt-0.5 text-lg font-extrabold text-forest">
+                    <h2 className="mt-0.5 text-lg font-extrabold text-forest dark:text-[#8EE0BA]">
                       Built for Every Stakeholder
                     </h2>
                   </div>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-forest text-white">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F]">
                     <BookOpen className="h-5 w-5" />
                   </span>
                 </div>
 
                 <div className="mt-5 space-y-3.5">
-                  <div className="rounded-2xl border border-sage-border bg-sage-bg/70 p-4">
+                  <div className="rounded-2xl border border-sage-border bg-sage-bg/70 dark:bg-[#1B2A22] p-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-forest">
+                      <span className="text-sm font-bold text-forest dark:text-[#8EE0BA]">
                         For Students
                       </span>
                       <Badge variant="sage">Free &amp; Pro</Badge>
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-muted">
+                    <p className="mt-1 text-xs leading-relaxed text-muted dark:text-[#9DB3A6]">
                       Filter verified tuitions by subject, class level, and mode.
                       Apply in one click and track acceptance status live.
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-sage-border bg-sage-bg/70 p-4">
+                  <div className="rounded-2xl border border-sage-border bg-sage-bg/70 dark:bg-[#1B2A22] p-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-forest">
+                      <span className="text-sm font-bold text-forest dark:text-[#8EE0BA]">
                         For Tutors
                       </span>
                       <Badge variant="clay">Up to Unlimited</Badge>
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-muted">
+                    <p className="mt-1 text-xs leading-relaxed text-muted dark:text-[#9DB3A6]">
                       Publish tuition batches with banners, manage schedules,
                       toggle batch availability, and accept applicants cleanly.
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-sage-border bg-sage-bg/70 p-4">
+                  <div className="rounded-2xl border border-sage-border bg-sage-bg/70 dark:bg-[#1B2A22] p-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-forest">
+                      <span className="text-sm font-bold text-forest dark:text-[#8EE0BA]">
                         Admin Moderation
                       </span>
                       <Badge variant="default">Verified</Badge>
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-muted">
+                    <p className="mt-1 text-xs leading-relaxed text-muted dark:text-[#9DB3A6]">
                       Every listing is reviewed before going public, alongside
                       role management and transparent Stripe subscription logs.
                     </p>
@@ -223,17 +261,76 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Dynamic Featured Tuitions Section */}
+      {/* 2. Platform Real Stats Section */}
+      <section className="border-b border-sage-border bg-sage-subtle/50 dark:bg-[#0E1712] py-10 sm:py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
+            <div className="text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-forest dark:text-[#8EE0BA]">
+                <BookOpen className="h-5 w-5 text-clay" />
+                <p className="text-3xl font-extrabold sm:text-4xl">32+</p>
+              </div>
+              <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
+                Verified Tuitions
+              </p>
+              <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
+                Active batches &amp; 1-on-1 programs
+              </p>
+            </div>
+
+            <div className="text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-clay">
+                <GraduationCap className="h-5 w-5 text-forest dark:text-[#8EE0BA]" />
+                <p className="text-3xl font-extrabold sm:text-4xl">8+</p>
+              </div>
+              <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
+                Core Subjects
+              </p>
+              <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
+                Math, Physics, IELTS, Science &amp; more
+              </p>
+            </div>
+
+            <div className="text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-forest dark:text-[#8EE0BA]">
+                <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                <p className="text-3xl font-extrabold sm:text-4xl">100%</p>
+              </div>
+              <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
+                Admin Verified
+              </p>
+              <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
+                Vetted tutors and transparent fees
+              </p>
+            </div>
+
+            <div className="text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-clay">
+                <Users className="h-5 w-5 text-amber-500" />
+                <p className="text-3xl font-extrabold sm:text-4xl">4.9/5</p>
+              </div>
+              <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
+                Learner Satisfaction
+              </p>
+              <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
+                High ratings from enrolled students
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Dynamic Featured Tuitions Section */}
       <section className="mx-auto max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-clay">
               Featured Listings
             </p>
-            <h2 className="mt-1.5 text-3xl font-extrabold text-forest">
+            <h2 className="mt-1.5 text-3xl font-extrabold text-forest dark:text-[#8EE0BA]">
               Latest Approved Tuitions
             </h2>
-            <p className="mt-2 max-w-xl text-sm text-muted sm:text-base">
+            <p className="mt-2 max-w-xl text-sm text-muted dark:text-[#9DB3A6] sm:text-base">
               Explore recently approved active batches and mentorship programs
               across core academic and skill subjects.
             </p>
@@ -249,20 +346,20 @@ export default function HomePage() {
         <FeaturedTuitions />
       </section>
 
-      {/* 3. How MentorLagbe Works */}
+      {/* 4. How MentorLagbe Works */}
       <section
         id="how-it-works"
-        className="border-y border-sage-border bg-white py-18"
+        className="border-y border-sage-border bg-white dark:bg-[#141F18] py-18"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-clay">
               Simple Workflow
             </p>
-            <h2 className="mt-1.5 text-3xl font-extrabold text-forest">
+            <h2 className="mt-1.5 text-3xl font-extrabold text-forest dark:text-[#8EE0BA]">
               How MentorLagbe Works
             </h2>
-            <p className="mt-2 text-sm text-muted sm:text-base">
+            <p className="mt-2 text-sm text-muted dark:text-[#9DB3A6] sm:text-base">
               A clear, four-step process designed for students looking for
               guidance and tutors managing their cohorts.
             </p>
@@ -272,20 +369,20 @@ export default function HomePage() {
             {STEPS.map((item) => {
               const Icon = item.icon;
               return (
-                <Card key={item.step} className="h-full bg-sage-bg/45">
+                <Card key={item.step} className="h-full bg-sage-bg/45 dark:bg-[#1A2821]">
                   <CardContent className="flex h-full flex-col p-6">
                     <div className="mb-4 flex items-center justify-between">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-forest text-white">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F]">
                         <Icon className="h-5 w-5" />
                       </span>
-                      <span className="text-2xl font-extrabold text-sage-border">
+                      <span className="text-2xl font-extrabold text-sage-border dark:text-[#23352B]">
                         {item.step}
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-forest">
+                    <h3 className="text-base font-bold text-forest dark:text-[#8EE0BA]">
                       {item.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">
+                    <p className="mt-2 text-sm leading-relaxed text-muted dark:text-[#9DB3A6]">
                       {item.description}
                     </p>
                   </CardContent>
@@ -296,16 +393,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. Pricing / Subscription Preview Section */}
+      {/* 5. Pricing / Subscription Preview Section */}
       <section className="mx-auto max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-clay">
             Transparent Plans
           </p>
-          <h2 className="mt-1.5 text-3xl font-extrabold text-forest">
+          <h2 className="mt-1.5 text-3xl font-extrabold text-forest dark:text-[#8EE0BA]">
             Start Free, Upgrade When You Grow
           </h2>
-          <p className="mt-2 text-sm text-muted sm:text-base">
+          <p className="mt-2 text-sm text-muted dark:text-[#9DB3A6] sm:text-base">
             Flexible plans powered by Stripe Checkout for both students and
             independent tutors.
           </p>
@@ -318,27 +415,27 @@ export default function HomePage() {
               <Badge variant="sage" className="w-fit">
                 Free Tier
               </Badge>
-              <h3 className="mt-4 text-xl font-extrabold text-forest">
+              <h3 className="mt-4 text-xl font-extrabold text-forest dark:text-[#8EE0BA]">
                 Starter Plan
               </h3>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-sm text-muted dark:text-[#9DB3A6]">
                 Included by default for every student and tutor.
               </p>
-              <p className="mt-5 text-4xl font-extrabold text-forest">
+              <p className="mt-5 text-4xl font-extrabold text-forest dark:text-[#8EE0BA]">
                 $0{" "}
-                <span className="text-sm font-medium text-muted">/ forever</span>
+                <span className="text-sm font-medium text-muted dark:text-[#9DB3A6]">/ forever</span>
               </p>
-              <ul className="mt-6 space-y-2.5 text-sm text-ink">
+              <ul className="mt-6 space-y-2.5 text-sm text-ink dark:text-[#EFF5F0]">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-forest dark:text-[#8EE0BA]" />
                   Browse and apply to approved tuitions
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-forest dark:text-[#8EE0BA]" />
                   Post up to 2 tuition listings as a Tutor
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-forest dark:text-[#8EE0BA]" />
                   Full role-based dashboard &amp; profile
                 </li>
               </ul>
@@ -358,17 +455,17 @@ export default function HomePage() {
               <Badge variant="clay" className="w-fit">
                 For Students
               </Badge>
-              <h3 className="mt-4 text-xl font-extrabold text-forest">
+              <h3 className="mt-4 text-xl font-extrabold text-forest dark:text-[#8EE0BA]">
                 Pro Student Plan
               </h3>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-sm text-muted dark:text-[#9DB3A6]">
                 Priority mentorship booking and Pro profile badge.
               </p>
               <p className="mt-5 text-4xl font-extrabold text-clay">
                 $10{" "}
-                <span className="text-sm font-medium text-muted">/ one-time</span>
+                <span className="text-sm font-medium text-muted dark:text-[#9DB3A6]">/ one-time</span>
               </p>
-              <ul className="mt-6 space-y-2.5 text-sm text-ink">
+              <ul className="mt-6 space-y-2.5 text-sm text-ink dark:text-[#EFF5F0]">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-clay" />
                   Priority booking visibility with tutors
@@ -434,8 +531,74 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. Top Subjects & Platform Highlights */}
-      <section className="border-t border-sage-border bg-white py-18">
+      {/* 6. Real Testimonials / Success Stories Section */}
+      <section className="border-t border-sage-border bg-sage-bg/35 dark:bg-[#0E1712] py-18">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-clay">
+              Community Voices
+            </p>
+            <h2 className="mt-1.5 text-3xl font-extrabold text-forest dark:text-[#8EE0BA]">
+              What Our Students &amp; Tutors Say
+            </h2>
+            <p className="mt-2 text-sm text-muted dark:text-[#9DB3A6] sm:text-base">
+              Real feedback from learners achieving academic goals and mentors
+              growing their cohorts.
+            </p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {TESTIMONIALS.map((item) => (
+              <Card
+                key={item.name}
+                className="flex flex-col justify-between bg-white dark:bg-[#141F18] border-sage-border shadow-xs hover:shadow-md transition-shadow"
+              >
+                <CardContent className="p-6 sm:p-7 flex flex-col justify-between h-full">
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: item.rating }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className="h-4 w-4 fill-amber-400 text-amber-400"
+                          />
+                        ))}
+                      </div>
+                      <span className="rounded-md bg-sage-subtle dark:bg-[#1C2B22] px-2 py-0.5 text-[11px] font-bold text-forest dark:text-[#8EE0BA]">
+                        {item.subject}
+                      </span>
+                    </div>
+
+                    <div className="relative mt-4">
+                      <Quote className="h-6 w-6 text-clay/20 absolute -top-1 -left-2 -z-0" />
+                      <p className="relative z-10 text-sm leading-relaxed text-ink dark:text-[#EFF5F0] italic">
+                        &ldquo;{item.quote}&rdquo;
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-center gap-3 border-t border-sage-border pt-4">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest dark:bg-[#8EE0BA] text-sm font-bold text-white dark:text-[#0C130F]">
+                      {item.avatar}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-forest dark:text-[#8EE0BA]">
+                        {item.name}
+                      </p>
+                      <p className="truncate text-xs text-muted dark:text-[#9DB3A6]">
+                        {item.role}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Top Subjects & Platform Highlights */}
+      <section className="border-t border-sage-border bg-white dark:bg-[#141F18] py-18">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-16">
           <div>
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -443,7 +606,7 @@ export default function HomePage() {
                 <p className="text-xs font-bold uppercase tracking-widest text-clay">
                   Popular Subjects
                 </p>
-                <h2 className="mt-1.5 text-3xl font-extrabold text-forest">
+                <h2 className="mt-1.5 text-3xl font-extrabold text-forest dark:text-[#8EE0BA]">
                   Explore by Subject Category
                 </h2>
               </div>
@@ -462,16 +625,16 @@ export default function HomePage() {
                   <Link
                     key={item.name}
                     href={`/tuitions?subject=${encodeURIComponent(item.name)}`}
-                    className="group flex items-center gap-4 rounded-2xl border border-sage-border bg-sage-bg/50 p-5 transition-all hover:border-forest/40 hover:bg-white hover:shadow-sm"
+                    className="group flex items-center gap-4 rounded-2xl border border-sage-border bg-sage-bg/50 dark:bg-[#1A2821] p-5 transition-all hover:border-forest/40 hover:bg-white dark:hover:bg-[#203229] hover:shadow-sm"
                   >
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-forest border border-sage-border group-hover:bg-forest group-hover:text-white transition-colors">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-[#141F18] text-forest dark:text-[#8EE0BA] border border-sage-border group-hover:bg-forest dark:group-hover:bg-[#8EE0BA] group-hover:text-white dark:group-hover:text-[#0C130F] transition-colors">
                       <Icon className="h-5 w-5" />
                     </span>
                     <div className="min-w-0">
-                      <h3 className="text-base font-bold text-forest group-hover:text-clay transition-colors">
+                      <h3 className="text-base font-bold text-forest dark:text-[#8EE0BA] group-hover:text-clay transition-colors">
                         {item.name}
                       </h3>
-                      <p className="truncate text-xs text-muted">
+                      <p className="truncate text-xs text-muted dark:text-[#9DB3A6]">
                         {item.subtitle}
                       </p>
                     </div>
@@ -487,15 +650,15 @@ export default function HomePage() {
               return (
                 <div
                   key={pillar.title}
-                  className="rounded-2xl border border-sage-border bg-sage-bg/60 p-6"
+                  className="rounded-2xl border border-sage-border bg-sage-bg/60 dark:bg-[#1A2821] p-6"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-clay-soft text-clay">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-clay-soft dark:bg-[#34241B] text-clay">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <h3 className="mt-4 text-lg font-bold text-forest">
+                  <h3 className="mt-4 text-lg font-bold text-forest dark:text-[#8EE0BA]">
                     {pillar.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                  <p className="mt-2 text-sm leading-relaxed text-muted dark:text-[#9DB3A6]">
                     {pillar.description}
                   </p>
                 </div>
