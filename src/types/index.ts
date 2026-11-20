@@ -52,7 +52,9 @@ export interface Application {
   studentNote: string;
   status: ApplicationStatus;
   appliedAt?: string;
+  decidedAt?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PaymentRecord {
