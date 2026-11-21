@@ -10,6 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+function areSimilarFeedback(textA?: string, textB?: string): boolean {
+  if (!textA || !textB) return false;
+  const a = textA.toLowerCase().replace(/[^\w\s]/g, "").trim();
+  const b = textB.toLowerCase().replace(/[^\w\s]/g, "").trim();
+  if (a === b) return true;
+  if (a.slice(0, 25) === b.slice(0, 25)) return true;
+  return false;
+}
+
 export function TestimonialsSection() {
   const [reviews, setReviews] = React.useState<Review[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -22,7 +31,51 @@ export function TestimonialsSection() {
         const res = await apiFetch<Review[]>("/api/reviews/featured");
         const list = extractList<Review>(res);
         if (active) {
-          setReviews(list);
+          // Guarantee unique student and distinct feedback across all 6 testimonial cards
+          const seenStudents = new Set<string>();
+          const seenFeedbacks: string[] = [];
+          const uniqueList: Review[] = [];
+
+          for (const item of list) {
+            const studentKey = (
+              item.studentEmail ||
+              item.studentName ||
+              ""
+            )
+              .toLowerCase()
+              .trim();
+            if (!studentKey || seenStudents.has(studentKey)) continue;
+
+            const isDuplicate = seenFeedbacks.some((fb) =>
+              areSimilarFeedback(fb, item.feedback)
+            );
+            if (isDuplicate) continue;
+
+            seenStudents.add(studentKey);
+            seenFeedbacks.push(item.feedback);
+            uniqueList.push(item);
+            if (uniqueList.length >= 6) break;
+          }
+
+          // Fallback if needed
+          if (uniqueList.length < 6) {
+            for (const item of list) {
+              const studentKey = (
+                item.studentEmail ||
+                item.studentName ||
+                ""
+              )
+                .toLowerCase()
+                .trim();
+              if (studentKey && !seenStudents.has(studentKey)) {
+                seenStudents.add(studentKey);
+                uniqueList.push(item);
+                if (uniqueList.length >= 6) break;
+              }
+            }
+          }
+
+          setReviews(uniqueList.length > 0 ? uniqueList : list.slice(0, 6));
         }
       } catch {
         // Non-blocking
