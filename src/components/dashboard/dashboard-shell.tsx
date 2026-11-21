@@ -91,6 +91,7 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       icon: Users,
     },
     { href: "/dashboard/messages", label: "Inquiries & Chat", icon: MessageCircle },
+    { href: "/tuitions", label: "Browse Tuitions", icon: BookOpen },
     { href: "/pricing", label: "Upgrade to Pro", icon: CreditCard },
     { href: "/dashboard/profile", label: "Update Profile", icon: UserPen },
   ],
@@ -112,6 +113,7 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       label: "Listing Reports",
       icon: ShieldAlert,
     },
+    { href: "/tuitions", label: "Browse Tuitions", icon: BookOpen },
     { href: "/dashboard/profile", label: "Update Profile", icon: UserPen },
   ],
 };
@@ -543,11 +545,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <NotificationBell />
             <ThemeToggle />
             <LanguageToggle />
-            <Link href="/tuitions" className="hidden sm:inline-block">
-              <Button variant="outline" size="sm">
-                {t("nav_tuitions", "Browse Tuitions")}
-              </Button>
-            </Link>
             <Link href="/dashboard/profile">
               <Button variant="secondary" size="sm">
                 <UserPen className="h-4 w-4" />
