@@ -73,7 +73,13 @@ export default function AdminTuitionsPage() {
         action === "approve" ? "approved" : "rejected";
       setTuitions((prev) =>
         prev.map((item) =>
-          item._id === id ? { ...item, approvalStatus: nextStatus } : item
+          item._id === id
+            ? {
+                ...item,
+                approvalStatus: nextStatus,
+                ...(nextStatus === "rejected" ? { isActive: false } : {}),
+              }
+            : item
         )
       );
       toast.success(
@@ -132,7 +138,13 @@ export default function AdminTuitionsPage() {
       });
       setTuitions((prev) =>
         prev.map((t) =>
-          selectedIds.has(t._id) ? { ...t, approvalStatus: action } : t
+          selectedIds.has(t._id)
+            ? {
+                ...t,
+                approvalStatus: action,
+                ...(action === "rejected" ? { isActive: false } : {}),
+              }
+            : t
         )
       );
       setSelectedIds(new Set());

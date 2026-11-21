@@ -73,6 +73,7 @@ export interface PaymentRecord {
   planName: string;
   amount: number;
   currency?: string;
+  paymentMethod?: string;
   transactionId: string;
   stripeSessionId?: string;
   paymentStatus: string;
@@ -86,6 +87,34 @@ export interface AdminStats {
   pendingTuitions: number;
   approvedTuitions: number;
   totalRevenue: number;
+  totalReviews?: number;
+  stripeRevenueUsd?: number;
+  localRevenueBdt?: number;
+  pendingReports?: number;
+}
+
+export interface ReportRecord {
+  _id: string;
+  tuitionId: {
+    _id: string;
+    title: string;
+    subject: string;
+    tutorName: string;
+    tutorEmail: string;
+    monthlyFee: number;
+  } | null;
+  reporterEmail: string;
+  reporterName: string;
+  reason:
+    | "inaccurate_info"
+    | "fake_fee"
+    | "unresponsive_tutor"
+    | "inappropriate_content"
+    | "other";
+  details: string;
+  status: "pending" | "investigating" | "resolved" | "dismissed";
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export const SUBJECT_OPTIONS = [

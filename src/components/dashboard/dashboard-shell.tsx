@@ -20,6 +20,7 @@ import {
   PlusCircle,
   Receipt,
   Shield,
+  ShieldAlert,
   UserPen,
   Users,
   X,
@@ -106,6 +107,11 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       label: "Transactions",
       icon: Receipt,
     },
+    {
+      href: "/dashboard/admin/reports",
+      label: "Listing Reports",
+      icon: ShieldAlert,
+    },
     { href: "/dashboard/profile", label: "Update Profile", icon: UserPen },
   ],
 };
@@ -159,6 +165,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           return t("db_tuition_approvals", item.label);
         case "/dashboard/admin/transactions":
           return t("db_transactions", item.label);
+        case "/dashboard/admin/reports":
+          return t("db_listing_reports", item.label);
         default:
           return item.label;
       }

@@ -654,16 +654,19 @@ export default function TutorMyTuitionsPage() {
                             </Badge>
                           )}
 
-                          {t.isActive ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/30 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 dark:text-emerald-400">
-                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              Active
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-sage-border bg-sage-subtle dark:bg-[#1C2B22] px-2.5 py-0.5 text-[11px] font-medium text-muted">
-                              <span className="h-1.5 w-1.5 rounded-full bg-muted/60" />
-                              Closed
-                            </span>
+                          {/* Show Active/Closed only if NOT rejected */}
+                          {t.approvalStatus !== "rejected" && (
+                            t.isActive ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/30 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 dark:text-emerald-400">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 rounded-full border border-sage-border bg-sage-subtle dark:bg-[#1C2B22] px-2.5 py-0.5 text-[11px] font-medium text-muted">
+                                <span className="h-1.5 w-1.5 rounded-full bg-muted/60" />
+                                Closed
+                              </span>
+                            )
                           )}
 
                           {/* Date Display (User Request: তারিখ এড করো) */}
@@ -734,7 +737,7 @@ export default function TutorMyTuitionsPage() {
                         type="button"
                         variant="secondary"
                         size="sm"
-                        disabled={isBusy}
+                        disabled={isBusy || t.approvalStatus === "rejected"}
                         onClick={() => handleToggleActive(t)}
                         className="h-8.5 gap-1.5"
                       >
@@ -820,9 +823,11 @@ export default function TutorMyTuitionsPage() {
                     <Clock className="h-3 w-3" /> Pending Review
                   </Badge>
                 )}
-                <Badge variant={viewing.isActive ? "sage" : "outline"}>
-                  {viewing.isActive ? "Active Batch" : "Closed Batch"}
-                </Badge>
+                {viewing.approvalStatus !== "rejected" && (
+                  <Badge variant={viewing.isActive ? "sage" : "outline"}>
+                    {viewing.isActive ? "Active Batch" : "Closed Batch"}
+                  </Badge>
+                )}
                 <Badge variant="outline">{viewing.mode}</Badge>
               </div>
 

@@ -3,11 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import {
+  AlertTriangle,
   ArrowRight,
   DollarSign,
   FileCheck2,
   GraduationCap,
   Receipt,
+  Star,
   Users,
 } from "lucide-react";
 import type { AdminStats } from "@/types";
@@ -20,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const EMPTY_STATS: AdminStats = {
   totalUsers: 0,
   totalTutors: 0,
+  totalReviews: 0,
   pendingTuitions: 0,
   approvedTuitions: 0,
   totalRevenue: 0,
@@ -87,13 +90,13 @@ export default function AdminOverviewPage() {
       )}
 
       {loading ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-28 w-full rounded-2xl" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <StatCard
             label="Total Users"
             value={stats.totalUsers}
@@ -109,24 +112,52 @@ export default function AdminOverviewPage() {
             tone="emerald"
           />
           <StatCard
+            label="Total Reviews"
+            value={stats.totalReviews || 0}
+            helper="Verified student feedback"
+            icon={Star}
+            tone="amber"
+          />
+          <StatCard
             label="Pending / Approved"
             value={`${stats.pendingTuitions} / ${stats.approvedTuitions}`}
             helper="Pending vs. approved tuitions"
             icon={FileCheck2}
             tone="amber"
           />
-          <StatCard
-            label="Total Stripe Revenue"
-            value={`$${Number(stats.totalRevenue || 0).toLocaleString("en-US")}`}
-            helper="Verified Pro plan payments"
-            icon={DollarSign}
-            tone="clay"
-          />
+          {(() => {
+            const usdRevenue =
+              stats.stripeRevenueUsd !== undefined
+                ? stats.stripeRevenueUsd
+                : stats.totalRevenue || 0;
+            const bdtRevenue = stats.localRevenueBdt || 0;
+
+            let revenueDisplay = `$${usdRevenue.toLocaleString("en-US")}`;
+            let revenueHelper = "Stripe Pro subscriptions";
+
+            if (usdRevenue > 0 && bdtRevenue > 0) {
+              revenueDisplay = `$${usdRevenue} · ৳${bdtRevenue.toLocaleString("en-US")}`;
+              revenueHelper = `Stripe: $${usdRevenue} | bKash/Nagad: ৳${bdtRevenue.toLocaleString("en-US")}`;
+            } else if (bdtRevenue > 0) {
+              revenueDisplay = `৳${bdtRevenue.toLocaleString("en-US")}`;
+              revenueHelper = "bKash & Nagad subscriptions";
+            }
+
+            return (
+              <StatCard
+                label="Total Platform Revenue"
+                value={revenueDisplay}
+                helper={revenueHelper}
+                icon={DollarSign}
+                tone="clay"
+              />
+            );
+          })()}
         </div>
       )}
 
-      {/* Quick Admin Actions */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+      {/* Quick Admin Actions — 4-Column Layout */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="h-full">
           <CardContent className="flex h-full flex-col justify-between p-6">
             <div>
@@ -183,10 +214,10 @@ export default function AdminOverviewPage() {
                 <Receipt className="h-5 w-5" />
               </span>
               <h2 className="mt-4 text-lg font-bold text-forest">
-                Stripe Transactions
+                Transactions &amp; Revenue
               </h2>
               <p className="mt-1 text-sm text-muted">
-                Inspect all Pro Student and Pro Tutor checkout transactions and
+                Inspect all Stripe, bKash, and Nagad Pro checkout transactions and
                 revenue history.
               </p>
             </div>
@@ -196,6 +227,38 @@ export default function AdminOverviewPage() {
             >
               <Button variant="outline" size="sm">
                 View Transactions
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="h-full">
+          <CardContent className="flex h-full flex-col justify-between p-6">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+                  <AlertTriangle className="h-5 w-5" />
+                </span>
+                {typeof stats.pendingReports === "number" && stats.pendingReports > 0 && (
+                  <span className="rounded-full bg-rose-500 px-2 py-0.5 text-xs font-bold text-white shadow-xs">
+                    {stats.pendingReports} pending
+                  </span>
+                )}
+              </div>
+              <h2 className="mt-4 text-lg font-bold text-forest">
+                Listing Reports
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                Review user reports regarding fake fees, inaccurate info, or inappropriate listings.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/admin/reports"
+              className="mt-5 inline-block"
+            >
+              <Button variant="outline" size="sm">
+                Review Reports
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
