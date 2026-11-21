@@ -46,6 +46,7 @@ export function Navbar() {
     () => [
       { href: "/", label: t("nav_home", "Home") },
       { href: "/tuitions", label: t("nav_tuitions", "Browse Tuitions") },
+      { href: "/tuitions/find-tutor", label: t("nav_find_tutor", "Find My Tutor") },
       { href: "/pricing", label: t("nav_pricing", "Pricing") },
       { href: "/#how-it-works", label: t("nav_how_it_works", "How It Works") },
     ],

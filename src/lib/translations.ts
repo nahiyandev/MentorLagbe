@@ -6,6 +6,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Nav
     nav_home: "Home",
     nav_tuitions: "Browse Tuitions",
+    nav_find_tutor: "Find My Tutor",
     nav_pricing: "Pricing",
     nav_how_it_works: "How It Works",
     nav_dashboard: "Dashboard",
@@ -94,6 +95,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Nav
     nav_home: "হোম",
     nav_tuitions: "টিউশন খুঁজুন",
+    nav_find_tutor: "সেরা টিউটর খুঁজুন",
     nav_pricing: "প্রাইসিং",
     nav_how_it_works: "যেভাবে কাজ করে",
     nav_dashboard: "ড্যাশবোর্ড",

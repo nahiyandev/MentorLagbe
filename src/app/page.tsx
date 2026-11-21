@@ -143,6 +143,12 @@ export default function HomePage() {
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
+                <Link href="/tuitions/find-tutor">
+                  <Button variant="accent" size="lg" className="gap-1.5 shadow-sm">
+                    <Sparkles className="h-4 w-4" />
+                    Find My Tutor
+                  </Button>
+                </Link>
                 <Link href="/sign-up?role=tutor">
                   <Button variant="outline" size="lg">
                     Become a Tutor

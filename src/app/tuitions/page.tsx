@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowUpDown,
@@ -9,6 +10,7 @@ import {
   Filter,
   RotateCcw,
   Search,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -182,6 +184,29 @@ function BrowseTuitionsContent() {
             {tuitions.length === 1 ? "listing found" : "listings found"}
           </p>
         )}
+      </div>
+
+      {/* Smart Matchmaker Banner */}
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-clay/30 bg-linear-to-r from-clay/10 via-amber-500/10 to-forest/10 p-4 sm:p-5 dark:from-clay/20 dark:to-forest/20 shadow-xs">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-clay text-white shadow-xs">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-sm sm:text-base font-bold text-forest dark:text-[#8EE0BA]">
+              Can&apos;t find what you need? Try &quot;Find My Tutor&quot;
+            </h2>
+            <p className="text-xs text-muted dark:text-[#9DB3A6] mt-0.5">
+              Input your Subject, Class level, and Monthly Budget to receive instant AI-powered recommendations.
+            </p>
+          </div>
+        </div>
+        <Link href="/tuitions/find-tutor" className="shrink-0">
+          <Button variant="accent" size="sm" className="gap-1.5 shadow-xs">
+            <Sparkles className="h-4 w-4" />
+            <span>Launch Matchmaker</span>
+          </Button>
+        </Link>
       </div>
 
       {/* Server-side Search & Filter Bar */}
