@@ -34,7 +34,9 @@ interface AnalyticsBreakdown {
   views: number;
   applicantsCount: number;
   acceptedCount: number;
-  conversionRate: number;
+  acceptanceRate?: number | null;
+  applyRate?: number | null;
+  conversionRate?: number | null;
 }
 
 interface TutorAnalyticsData {
@@ -43,7 +45,9 @@ interface TutorAnalyticsData {
     totalViews: number;
     totalApplicants: number;
     totalAccepted: number;
-    overallConversionRate: number;
+    overallAcceptanceRate?: number | null;
+    overallConversionRate?: number | null;
+    acceptanceRate?: number | null;
   };
   breakdown: AnalyticsBreakdown[];
 }
@@ -168,9 +172,20 @@ export default function TutorOverviewPage() {
             tone="clay"
           />
           <StatCard
-            label="Apply Rate"
-            value={`${analytics?.totals?.overallConversionRate ?? 0}%`}
-            helper={`${analytics?.totals?.totalAccepted ?? 0} students accepted`}
+            label="Acceptance Rate"
+            value={
+              totalApplicants === 0
+                ? "—"
+                : `${Math.min(
+                    100,
+                    Math.round(
+                      analytics?.totals?.overallAcceptanceRate ??
+                        analytics?.totals?.acceptanceRate ??
+                        0
+                    )
+                  )}%`
+            }
+            helper={`${analytics?.totals?.totalAccepted ?? 0} of ${totalApplicants} accepted`}
             icon={TrendingUp}
             tone="emerald"
           />
@@ -204,7 +219,7 @@ export default function TutorOverviewPage() {
             <div>
               <CardTitle className="text-lg">Tuition Analytics & Impressions</CardTitle>
               <p className="text-xs text-muted dark:text-[#9DB3A6] mt-0.5">
-                Real-time tracking of student views, applications received, and conversion rates for each listing.
+                Real-time tracking of student views, applications received, and acceptance rates for each listing.
               </p>
             </div>
           </div>
@@ -214,7 +229,16 @@ export default function TutorOverviewPage() {
                 {analytics.totals.totalViews} total views
               </Badge>
               <Badge variant="success" className="text-xs">
-                {analytics.totals.overallConversionRate}% conversion
+                {totalApplicants === 0
+                  ? "0% acceptance"
+                  : `${Math.min(
+                      100,
+                      Math.round(
+                        analytics.totals.overallAcceptanceRate ??
+                          analytics.totals.acceptanceRate ??
+                          0
+                      )
+                    )}% acceptance`}
               </Badge>
             </div>
           )}
@@ -246,7 +270,7 @@ export default function TutorOverviewPage() {
                     <th className="pb-3 px-4 text-center">Views</th>
                     <th className="pb-3 px-4 text-center">Applicants</th>
                     <th className="pb-3 px-4 text-center">Accepted</th>
-                    <th className="pb-3 px-4 text-center">Conversion</th>
+                    <th className="pb-3 px-4 text-center">Acceptance Rate</th>
                     <th className="pb-3 pl-4 text-right">Action</th>
                   </tr>
                 </thead>
@@ -287,10 +311,14 @@ export default function TutorOverviewPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-center">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-sage-bg dark:bg-[#1C2B22] px-2 py-1 text-xs font-bold text-forest dark:text-[#8EE0BA]">
-                          <Eye className="h-3.5 w-3.5 text-muted" />
-                          {row.views}
-                        </span>
+                        {row.views === 0 ? (
+                          <span className="text-xs text-muted font-medium">—</span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-sage-bg dark:bg-[#1C2B22] px-2 py-1 text-xs font-bold text-forest dark:text-[#8EE0BA]">
+                            <Eye className="h-3.5 w-3.5 text-muted" />
+                            {row.views}
+                          </span>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-center">
                         <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 dark:bg-amber-950/40 px-2 py-1 text-xs font-bold text-amber-800 dark:text-amber-300">
@@ -305,18 +333,27 @@ export default function TutorOverviewPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-center">
-                        <Badge
-                          variant={
-                            row.conversionRate > 20
-                              ? "success"
-                              : row.conversionRate > 0
-                                ? "clay"
-                                : "outline"
-                          }
-                          className="text-xs font-semibold"
-                        >
-                          {row.conversionRate}%
-                        </Badge>
+                        {row.applicantsCount === 0 ? (
+                          <span className="text-xs text-muted font-medium">—</span>
+                        ) : (
+                          <Badge
+                            variant={
+                              (row.acceptanceRate ?? row.conversionRate ?? 0) >= 50
+                                ? "success"
+                                : (row.acceptanceRate ?? row.conversionRate ?? 0) > 0
+                                  ? "clay"
+                                  : "outline"
+                            }
+                            className="text-xs font-semibold"
+                          >
+                            {Math.min(
+                              100,
+                              Math.round(
+                                row.acceptanceRate ?? row.conversionRate ?? 0
+                              )
+                            )}%
+                          </Badge>
+                        )}
                       </td>
                       <td className="py-3.5 pl-4 text-right">
                         <Link href={`/tuitions/${row.tuitionId}`}>
