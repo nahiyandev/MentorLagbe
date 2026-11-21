@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  ArrowUpDown,
   Banknote,
   BookOpenCheck,
   Filter,
@@ -52,6 +53,9 @@ function BrowseTuitionsContent() {
   const [maxFee, setMaxFee] = React.useState(
     searchParams.get("maxFee") || ""
   );
+  const [sort, setSort] = React.useState(
+    searchParams.get("sort") || "newest"
+  );
 
   const ITEMS_PER_PAGE = 6;
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -61,7 +65,7 @@ function BrowseTuitionsContent() {
   const [error, setError] = React.useState<string | null>(null);
 
   const [filterKey, setFilterKey] = React.useState("");
-  const currentFilterKey = `${debouncedSearch}|${subject}|${classLevel}|${mode}|${district}|${minFee}|${maxFee}`;
+  const currentFilterKey = `${debouncedSearch}|${subject}|${classLevel}|${mode}|${district}|${minFee}|${maxFee}|${sort}`;
   if (filterKey !== currentFilterKey) {
     setFilterKey(currentFilterKey);
     setCurrentPage(1);
@@ -83,8 +87,9 @@ function BrowseTuitionsContent() {
     if (district) params.set("district", district);
     if (minFee) params.set("minFee", minFee);
     if (maxFee) params.set("maxFee", maxFee);
+    if (sort && sort !== "newest") params.set("sort", sort);
     return params.toString();
-  }, [debouncedSearch, subject, classLevel, mode, district, minFee, maxFee]);
+  }, [debouncedSearch, subject, classLevel, mode, district, minFee, maxFee, sort]);
 
   const loading = loadedQuery !== queryString;
 
@@ -131,7 +136,8 @@ function BrowseTuitionsContent() {
       mode ||
       district ||
       minFee ||
-      maxFee
+      maxFee ||
+      (sort && sort !== "newest")
   );
 
   const resetFilters = () => {
@@ -143,6 +149,7 @@ function BrowseTuitionsContent() {
     setDistrict("");
     setMinFee("");
     setMaxFee("");
+    setSort("newest");
     setCurrentPage(1);
   };
 
@@ -178,23 +185,46 @@ function BrowseTuitionsContent() {
 
       {/* Server-side Search & Filter Bar */}
       <div className="mb-8 rounded-2xl border border-sage-border bg-white p-4 sm:p-5 shadow-xs">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-forest">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-forest dark:text-[#8EE0BA]">
             <Filter className="h-3.5 w-3.5 text-clay" />
             Search &amp; Filter
           </span>
-          {hasFilters && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={resetFilters}
-              className="h-7 px-2.5 text-xs text-clay hover:text-clay-hover"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Reset Filters
-            </Button>
-          )}
+
+          <div className="flex items-center gap-2">
+            {/* Sort selector */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted dark:text-[#9DB3A6] hidden sm:inline flex items-center gap-1">
+                <ArrowUpDown className="h-3.5 w-3.5 text-clay" />
+                Sort:
+              </span>
+              <Select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="h-8 text-xs py-1 px-2.5 min-w-36 bg-sage-bg/40 dark:bg-[#18261E]"
+                aria-label="Sort tuitions"
+              >
+                <option value="newest">Newest First</option>
+                <option value="fee_asc">Fee: Low to High (৳)</option>
+                <option value="fee_desc">Fee: High to Low (৳)</option>
+                <option value="rating_desc">Highest Rated (★)</option>
+                <option value="oldest">Oldest First</option>
+              </Select>
+            </div>
+
+            {hasFilters && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={resetFilters}
+                className="h-8 px-2.5 text-xs text-clay hover:text-clay-hover"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
