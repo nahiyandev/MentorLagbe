@@ -272,3 +272,18 @@ export interface ChatConversation {
   };
   unreadCount: number;
 }
+
+export interface CouponRecord {
+  _id: string;
+  code: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  maxUses: number;
+  usedCount: number;
+  isActive: boolean;
+  expiresAt?: string;
+  description?: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

@@ -3,13 +3,13 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
+  Check,
   CheckCircle2,
   Copy,
   CreditCard,
   Loader2,
-  ShieldCheck,
   Smartphone,
-  Sparkles,
+  Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
@@ -43,9 +43,31 @@ export function UpgradePaymentModal({
   const [success, setSuccess] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
 
+  // Coupon state
+  const [couponInput, setCouponInput] = React.useState("");
+  const [couponApplying, setCouponApplying] = React.useState(false);
+  const [appliedCoupon, setAppliedCoupon] = React.useState<{
+    code: string;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    savings: number;
+  } | null>(null);
+
   const planName = plan === "tutor_pro" ? "Tutor Pro" : "Student Pro";
-  const amountBdt = plan === "tutor_pro" ? 1500 : 1000;
-  const amountUsd = plan === "tutor_pro" ? 15 : 10;
+  const baseAmountBdt = plan === "tutor_pro" ? 1500 : 1000;
+  const baseAmountUsd = plan === "tutor_pro" ? 15 : 10;
+
+  const effectiveAmountUsd = appliedCoupon
+    ? appliedCoupon.discountType === "percentage"
+      ? Math.max(1, Number(((baseAmountUsd * (100 - appliedCoupon.discountValue)) / 100).toFixed(2)))
+      : Math.max(1, baseAmountUsd - appliedCoupon.discountValue)
+    : baseAmountUsd;
+
+  const effectiveAmountBdt = appliedCoupon
+    ? appliedCoupon.discountType === "percentage"
+      ? Math.max(0, Math.round((baseAmountBdt * (100 - appliedCoupon.discountValue)) / 100))
+      : Math.max(0, baseAmountBdt - appliedCoupon.discountValue)
+    : baseAmountBdt;
 
   const agentNumbers: Record<"bkash" | "nagad", string> = {
     bkash: "01712-345678",
@@ -59,6 +81,44 @@ export function UpgradePaymentModal({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) {
+      toast.error("Please enter a coupon code.");
+      return;
+    }
+    setCouponApplying(true);
+    try {
+      const res = await apiFetch<{
+        valid: boolean;
+        code: string;
+        discountType: "percentage" | "fixed";
+        discountValue: number;
+        savings: number;
+      }>("/api/payments/apply-coupon", {
+        method: "POST",
+        body: JSON.stringify({
+          code: couponInput.trim(),
+          amount: method === "stripe" ? baseAmountUsd : baseAmountBdt,
+          currency: method === "stripe" ? "usd" : "bdt",
+        }),
+      });
+
+      if (res?.valid) {
+        setAppliedCoupon({
+          code: res.code,
+          discountType: res.discountType,
+          discountValue: res.discountValue,
+          savings: res.savings,
+        });
+        toast.success(`Coupon "${res.code}" applied! You received ${res.discountValue}% off.`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Invalid or expired coupon code.");
+    } finally {
+      setCouponApplying(false);
+    }
+  };
+
   const handleStripeCheckout = async () => {
     try {
       setLoading(true);
@@ -69,7 +129,8 @@ export function UpgradePaymentModal({
           body: JSON.stringify({
             plan,
             planName,
-            amount: amountUsd,
+            amount: effectiveAmountUsd,
+            couponCode: appliedCoupon?.code,
             userRole,
           }),
         }
@@ -113,7 +174,8 @@ export function UpgradePaymentModal({
             senderNumber: senderNumber.trim(),
             transactionId: transactionId.trim(),
             planName,
-            amount: amountBdt,
+            amount: effectiveAmountBdt,
+            couponCode: appliedCoupon?.code,
             userRole,
           }),
         }
@@ -166,7 +228,7 @@ export function UpgradePaymentModal({
           <p className="text-[11px] text-muted">Redirecting to your dashboard...</p>
         </div>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {/* Method Selection Tabs */}
           <div className="grid grid-cols-3 gap-2">
             {/* bKash */}
@@ -212,14 +274,79 @@ export function UpgradePaymentModal({
             </button>
           </div>
 
+          {/* Promo / Coupon Code Section */}
+          <div className="rounded-xl border border-sage-border bg-sage-bg/30 dark:bg-[#1C2B22]/30 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-forest dark:text-[#8EE0BA]">
+                <Tag className="h-3.5 w-3.5 text-clay" />
+                <span>Have a Promo Coupon?</span>
+              </div>
+              {appliedCoupon && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedCoupon(null);
+                    setCouponInput("");
+                  }}
+                  className="text-[11px] font-medium text-red-600 hover:underline cursor-pointer"
+                >
+                  Remove code
+                </button>
+              )}
+            </div>
+
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-3 py-2 text-xs">
+                <span className="font-bold text-emerald-800 dark:text-emerald-300 inline-flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5" />
+                  Coupon applied: {appliedCoupon.code}
+                </span>
+                <span className="font-black text-emerald-700 dark:text-emerald-300">
+                  {appliedCoupon.discountValue}% OFF
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="e.g. WELCOME10"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                  className="h-8.5 text-xs uppercase font-mono tracking-wider"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={couponApplying || !couponInput.trim()}
+                  onClick={handleApplyCoupon}
+                  className="h-8.5 shrink-0 text-xs"
+                >
+                  {couponApplying ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    "Apply"
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+
           {method === "stripe" ? (
             /* Stripe Checkout View */
             <div className="space-y-4 rounded-xl border border-sage-border bg-sage-bg/60 dark:bg-[#1C2B22]/40 p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-muted">One-Time Upgrade Fee</span>
-                <span className="text-lg font-black text-forest dark:text-[#8EE0BA]">
-                  ${amountUsd} USD
-                </span>
+                <div className="text-right">
+                  {appliedCoupon && (
+                    <span className="block text-xs line-through text-muted">
+                      ${baseAmountUsd} USD
+                    </span>
+                  )}
+                  <span className="text-lg font-black text-forest dark:text-[#8EE0BA]">
+                    ${effectiveAmountUsd} USD
+                  </span>
+                </div>
               </div>
               <p className="text-xs leading-relaxed text-muted dark:text-[#9DB3A6]">
                 Secure global payments via Visa, MasterCard, and American Express processed by Stripe.
@@ -241,9 +368,16 @@ export function UpgradePaymentModal({
               <div className="rounded-xl border border-sage-border bg-sage-bg/50 dark:bg-[#1C2B22]/40 p-3.5 space-y-2.5 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-muted">Payable Amount:</span>
-                  <span className="text-base font-black text-clay">
-                    ৳{amountBdt} BDT
-                  </span>
+                  <div className="text-right">
+                    {appliedCoupon && (
+                      <span className="block text-xs line-through text-muted">
+                        ৳{baseAmountBdt} BDT
+                      </span>
+                    )}
+                    <span className="text-base font-black text-clay">
+                      ৳{effectiveAmountBdt} BDT
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between border-t border-sage-border pt-2">
@@ -256,78 +390,62 @@ export function UpgradePaymentModal({
                     className="inline-flex items-center gap-1 font-mono font-bold text-forest dark:text-[#8EE0BA] hover:underline cursor-pointer"
                   >
                     <span>{agentNumbers[method]}</span>
-                    <Copy className="h-3 w-3" />
+                    {copied ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
                   </button>
                 </div>
-                {copied && (
-                  <p className="text-[10px] text-emerald-600 font-semibold text-right">
-                    Copied to clipboard!
-                  </p>
-                )}
 
-                <p className="text-[11px] text-muted dark:text-[#9DB3A6] border-t border-sage-border pt-2 leading-relaxed">
-                  ১. {method === "bkash" ? "bKash" : "Nagad"} অ্যাপে <strong>Send Money</strong> অপশনে যান।
-                  <br />
-                  ২. উপরের নম্বরে <strong>৳{amountBdt}</strong> পাঠিয়ে নিচে আপনার ফোন নম্বর ও ট্রানজেকশন আইডি (TrxID) দিন।
+                <p className="text-[11px] leading-relaxed text-muted dark:text-[#9DB3A6]">
+                  Open your {method === "bkash" ? "bKash" : "Nagad"} app, select <strong>Send Money</strong> to the personal number above, and enter the Transaction ID (TrxID) below.
                 </p>
               </div>
 
-              {/* Inputs */}
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label htmlFor="senderNumber" className="text-xs">
-                    Your {method === "bkash" ? "bKash" : "Nagad"} Number
-                  </Label>
-                  <Input
-                    id="senderNumber"
-                    type="tel"
-                    placeholder="017XXXXXXXX"
-                    value={senderNumber}
-                    onChange={(e) => setSenderNumber(e.target.value)}
-                    required
-                    className="text-sm"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <Label htmlFor="transactionId" className="text-xs">
-                    Transaction ID (TrxID)
-                  </Label>
-                  <Input
-                    id="transactionId"
-                    placeholder="e.g. BLA892JK1X"
-                    value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value)}
-                    required
-                    className="text-sm uppercase font-mono tracking-wider"
-                  />
-                </div>
+              {/* Sender Mobile Number */}
+              <div className="space-y-1">
+                <Label htmlFor="senderNumber" className="text-xs">
+                  Your {method === "bkash" ? "bKash" : "Nagad"} Mobile Number
+                </Label>
+                <Input
+                  id="senderNumber"
+                  type="tel"
+                  placeholder="e.g. 01712345678"
+                  value={senderNumber}
+                  onChange={(e) => setSenderNumber(e.target.value)}
+                  maxLength={11}
+                  required
+                />
               </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className={`w-full gap-2 text-white ${
-                  method === "bkash"
-                    ? "bg-[#E2136E] hover:bg-[#c10f5d]"
-                    : "bg-[#ED1C24] hover:bg-[#c9181f]"
-                }`}
-                disabled={loading}
-              >
+              {/* Transaction ID */}
+              <div className="space-y-1">
+                <Label htmlFor="transactionId" className="text-xs">
+                  Transaction ID (TrxID)
+                </Label>
+                <Input
+                  id="transactionId"
+                  type="text"
+                  placeholder="e.g. BL9A7K2M"
+                  value={transactionId}
+                  onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                  className="uppercase font-mono"
+                  required
+                />
+              </div>
+
+              <Button type="submit" className="w-full gap-2" disabled={loading}>
                 {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Verifying Transaction...</span>
+                  </>
                 ) : (
-                  <ShieldCheck className="h-4 w-4" />
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>Confirm &amp; Activate Pro Access</span>
+                  </>
                 )}
-                <span>Verify &amp; Activate Pro</span>
               </Button>
             </form>
           )}
-
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted">
-            <Sparkles className="h-3.5 w-3.5 text-clay" />
-            <span>Instant activation upon verification. Cancel anytime.</span>
-          </div>
         </div>
       )}
     </Dialog>

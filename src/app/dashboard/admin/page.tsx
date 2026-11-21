@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Receipt,
   Star,
+  TicketPercent,
   Users,
 } from "lucide-react";
 import type { AdminStats } from "@/types";
@@ -156,8 +157,8 @@ export default function AdminOverviewPage() {
         </div>
       )}
 
-      {/* Quick Admin Actions — 4-Column Layout */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Quick Admin Actions — 5-Column Grid */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Card className="h-full">
           <CardContent className="flex h-full flex-col justify-between p-6">
             <div>
@@ -259,6 +260,31 @@ export default function AdminOverviewPage() {
             >
               <Button variant="outline" size="sm">
                 Review Reports
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="h-full">
+          <CardContent className="flex h-full flex-col justify-between p-6">
+            <div>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                <TicketPercent className="h-5 w-5" />
+              </span>
+              <h2 className="mt-4 text-lg font-bold text-forest">
+                Coupons &amp; Promo
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                Create promotional discount codes for Pro membership upgrades and track usage.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/admin/coupons"
+              className="mt-5 inline-block"
+            >
+              <Button variant="outline" size="sm">
+                Manage Coupons
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

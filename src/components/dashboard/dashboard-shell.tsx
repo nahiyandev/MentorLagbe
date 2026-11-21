@@ -21,6 +21,7 @@ import {
   Receipt,
   Shield,
   ShieldAlert,
+  TicketPercent,
   UserPen,
   Users,
   X,
@@ -113,6 +114,11 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       label: "Listing Reports",
       icon: ShieldAlert,
     },
+    {
+      href: "/dashboard/admin/coupons",
+      label: "Coupons & Discounts",
+      icon: TicketPercent,
+    },
     { href: "/tuitions", label: "Browse Tuitions", icon: BookOpen },
     { href: "/dashboard/profile", label: "Update Profile", icon: UserPen },
   ],
@@ -169,6 +175,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           return t("db_transactions", item.label);
         case "/dashboard/admin/reports":
           return t("db_listing_reports", item.label);
+        case "/dashboard/admin/coupons":
+          return t("db_coupons", item.label);
         default:
           return item.label;
       }
