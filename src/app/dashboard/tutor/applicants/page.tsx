@@ -29,6 +29,24 @@ export default function TutorApplicantsPage() {
   const [slipApp, setSlipApp] = React.useState<Application | null>(null);
   const [slipOpen, setSlipOpen] = React.useState(false);
 
+  // Track already accepted slots per tuition to highlight conflicts
+  const acceptedSlotsByTuition = React.useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    for (const a of applicants) {
+      if (a.status === "accepted") {
+        if (!map.has(a.tuitionId)) {
+          map.set(a.tuitionId, new Set());
+        }
+        const set = map.get(a.tuitionId)!;
+        if (Array.isArray(a.selectedSlots)) {
+          for (const s of a.selectedSlots) set.add(s);
+        }
+        if (a.preferredSchedule) set.add(a.preferredSchedule);
+      }
+    }
+    return map;
+  }, [applicants]);
+
   React.useEffect(() => {
     let active = true;
     async function load() {
@@ -137,6 +155,16 @@ export default function TutorApplicantsPage() {
             <div className="space-y-4">
               {applicants.map((app) => {
                 const isUpdating = updatingId === app._id;
+                const acceptedSet = acceptedSlotsByTuition.get(app.tuitionId);
+                const isPending = app.status === "pending";
+                const hasSlotConflict =
+                  isPending &&
+                  acceptedSet &&
+                  ((Array.isArray(app.selectedSlots) &&
+                    app.selectedSlots.some((s) => acceptedSet.has(s))) ||
+                    (app.preferredSchedule &&
+                      acceptedSet.has(app.preferredSchedule)));
+
                 return (
                   <div
                     key={app._id}
@@ -160,6 +188,11 @@ export default function TutorApplicantsPage() {
                           >
                             {app.status}
                           </Badge>
+                          {hasSlotConflict && (
+                            <Badge variant="danger" className="text-[10px]">
+                              Slot Conflict (Already Booked)
+                            </Badge>
+                          )}
                         </div>
                         <p className="mt-1 text-sm font-semibold text-clay">
                           Tuition: {app.tuitionTitle}
@@ -186,7 +219,16 @@ export default function TutorApplicantsPage() {
                         )}
                         <Button
                           size="sm"
-                          disabled={isUpdating || app.status === "accepted"}
+                          disabled={
+                            isUpdating ||
+                            app.status === "accepted" ||
+                            hasSlotConflict
+                          }
+                          title={
+                            hasSlotConflict
+                              ? "Cannot accept: this time slot is already taken by another student."
+                              : undefined
+                          }
                           onClick={() => updateStatus(app._id, "accepted")}
                         >
                           {isUpdating ? (

@@ -87,8 +87,16 @@ export function ApplyModal({
     );
   }, [schedule]);
 
+  const bookedSlots = React.useMemo(() => {
+    return tuition.bookedSlots || [];
+  }, [tuition.bookedSlots]);
+
   const handleToggleSlot = (dayName: string, slotTime: string) => {
     const slotKey = `${dayName.slice(0, 3)}: ${slotTime}`;
+    if (bookedSlots.includes(slotKey)) {
+      toast.error(`Slot "${slotKey}" is already booked.`);
+      return;
+    }
     setSelectedSlots((prev) => {
       const exists = prev.includes(slotKey);
       const updated = exists
@@ -113,6 +121,14 @@ export function ApplyModal({
     }
     if (!preferredSchedule.trim()) {
       toast.error("Please select a slot or specify your preferred schedule.");
+      return;
+    }
+    // Double-booking frontend validation
+    const conflicts = selectedSlots.filter((s) => bookedSlots.includes(s));
+    if (conflicts.length > 0) {
+      toast.error(
+        `Slot "${conflicts.join(", ")}" is already booked by another accepted student.`
+      );
       return;
     }
     if (!studentNote.trim() || studentNote.trim().length < 10) {
@@ -212,6 +228,28 @@ export function ApplyModal({
                     {item.slots.map((slot) => {
                       const slotKey = `${item.day.slice(0, 3)}: ${slot}`;
                       const isSelected = selectedSlots.includes(slotKey);
+                      const isBooked =
+                        bookedSlots.includes(slotKey) ||
+                        bookedSlots.includes(`${item.day}: ${slot}`);
+
+                      if (isBooked) {
+                        return (
+                          <button
+                            key={slot}
+                            type="button"
+                            disabled
+                            title="This slot has already been booked by an accepted student"
+                            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-slate-400 dark:text-slate-500 cursor-not-allowed line-through"
+                          >
+                            <Clock className="h-3 w-3 opacity-40 shrink-0" />
+                            <span>{slot}</span>
+                            <span className="ml-1 rounded bg-rose-100 dark:bg-rose-950/60 px-1 py-0.2 text-[9px] font-bold text-rose-700 dark:text-rose-400 no-underline not-italic">
+                              Booked
+                            </span>
+                          </button>
+                        );
+                      }
+
                       return (
                         <button
                           key={slot}

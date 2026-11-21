@@ -44,6 +44,7 @@ export interface Tuition {
   totalReviews?: number;
   tutorAvailability?: TutorAvailabilitySlot[];
   tutorPhone?: string;
+  bookedSlots?: string[];
 }
 
 export interface Application {
