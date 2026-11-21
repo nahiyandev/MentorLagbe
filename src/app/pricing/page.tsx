@@ -6,27 +6,25 @@ import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   CreditCard,
-  Loader2,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
-import { ApiError, apiFetch } from "@/lib/api";
 import { normalizeRole } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { UpgradePaymentModal } from "@/components/payments/upgrade-payment-modal";
 
 type CheckoutPlan = "student_pro" | "tutor_pro";
 
 export default function PricingPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [loadingPlan, setLoadingPlan] = React.useState<CheckoutPlan | null>(
-    null
-  );
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [selectedPlan, setSelectedPlan] = React.useState<CheckoutPlan>("student_pro");
 
   const user = session?.user as
     | {
@@ -40,7 +38,7 @@ export default function PricingPage() {
   const userRole = user ? normalizeRole(user.role) : null;
   const isPro = user?.plan === "pro";
 
-  const handleSubscribe = async (plan: CheckoutPlan) => {
+  const handleSubscribe = (plan: CheckoutPlan) => {
     if (!user) {
       toast.info("Please sign in first to subscribe to a Pro plan.");
       router.push("/sign-in?callbackUrl=/pricing");
@@ -52,51 +50,8 @@ export default function PricingPage() {
       return;
     }
 
-    const planName =
-      plan === "tutor_pro" ? "Pro Tutor Plan" : "Pro Student Plan";
-    const amount = plan === "tutor_pro" ? 15 : 10;
-
-    setLoadingPlan(plan);
-    try {
-      const res = await apiFetch<{ url?: string; checkoutUrl?: string }>(
-        "/api/payments/checkout",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            plan,
-            planName,
-            amount,
-            userRole: userRole || "student",
-          }),
-        }
-      );
-
-      const checkoutUrl = res?.url || res?.checkoutUrl;
-      if (!checkoutUrl) {
-        toast.info(
-          "Stripe checkout is not ready yet. Please try again shortly."
-        );
-        return;
-      }
-
-      window.location.href = checkoutUrl;
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 404) {
-        toast.info(
-          "Stripe checkout is not ready yet on the server. Please try again once the checkout endpoint is live."
-        );
-      } else if (err instanceof ApiError && err.status === 401) {
-        toast.error(
-          "Backend session token is missing or expired. Please sign in again."
-        );
-      } else if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error("Could not start Stripe checkout.");
-      }
-    } finally {
-      setLoadingPlan(null);
-    }
+    setSelectedPlan(plan);
+    setModalOpen(true);
   };
 
   return (
@@ -221,20 +176,15 @@ export default function PricingPage() {
                   variant="accent"
                   size="lg"
                   className="w-full"
-                  disabled={loadingPlan !== null || isPro}
+                  disabled={isPro}
                   onClick={() => handleSubscribe("student_pro")}
                 >
-                  {loadingPlan === "student_pro" ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Connecting to Stripe...
-                    </>
-                  ) : isPro ? (
+                  {isPro ? (
                     "Already on Pro Plan"
                   ) : (
                     <>
                       <CreditCard className="h-4 w-4" />
-                      Subscribe with Stripe — $10
+                      Upgrade to Pro — $10 / ৳1,000
                     </>
                   )}
                 </Button>
@@ -284,20 +234,15 @@ export default function PricingPage() {
                   variant="accent"
                   size="lg"
                   className="w-full"
-                  disabled={loadingPlan !== null || isPro}
+                  disabled={isPro}
                   onClick={() => handleSubscribe("tutor_pro")}
                 >
-                  {loadingPlan === "tutor_pro" ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Connecting to Stripe...
-                    </>
-                  ) : isPro ? (
+                  {isPro ? (
                     "Already on Pro Plan"
                   ) : (
                     <>
                       <CreditCard className="h-4 w-4" />
-                      Subscribe with Stripe — $15
+                      Upgrade to Pro — $15 / ৳1,500
                     </>
                   )}
                 </Button>
@@ -306,6 +251,13 @@ export default function PricingPage() {
           </Card>
         </div>
       </section>
+
+      <UpgradePaymentModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        plan={selectedPlan}
+        userRole={userRole || "student"}
+      />
     </SiteShell>
   );
 }
