@@ -15,6 +15,7 @@ import {
   BANGLADESH_DISTRICTS,
   CLASS_LEVEL_OPTIONS,
   MODE_OPTIONS,
+  POPULAR_LOCATIONS,
   SUBJECT_OPTIONS,
   type Tuition,
 } from "@/types";
@@ -279,18 +280,27 @@ function BrowseTuitionsContent() {
             ))}
           </Select>
 
-          {/* District (জেলা) Filter */}
+          {/* District & Popular Area Filter */}
           <Select
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
-            aria-label="Filter by district"
+            aria-label="Filter by district or area"
           >
-            <option value="">All Districts (সব জেলা)</option>
-            {BANGLADESH_DISTRICTS.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
+            <option value="">All Locations (সব এলাকা / জেলা)</option>
+            <optgroup label="Popular Areas (জনপ্রিয় এলাকা)">
+              {POPULAR_LOCATIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Districts (জেলা)">
+              {BANGLADESH_DISTRICTS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </optgroup>
           </Select>
         </div>
 

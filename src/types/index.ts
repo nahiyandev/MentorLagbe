@@ -113,6 +113,15 @@ export const CLASS_LEVEL_OPTIONS = [
 
 export const MODE_OPTIONS: TuitionMode[] = ["Online", "Offline"];
 
+export const POPULAR_LOCATIONS = [
+  "Banani",
+  "Dhanmondi",
+  "Gulshan",
+  "Mirpur",
+  "Mohammadpur",
+  "Uttara",
+] as const;
+
 export const BANGLADESH_DISTRICTS = [
   "Dhaka",
   "Chittagong",

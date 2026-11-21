@@ -119,7 +119,7 @@ export function PlatformStats() {
         <div className="flex items-center justify-center sm:justify-start gap-2 text-clay">
           <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
           <p className="text-3xl font-extrabold sm:text-4xl">
-            {stats.averageRating > 0 ? `${stats.averageRating.toFixed(1)}/5` : "5.0/5"}
+            {stats.averageRating > 0 ? `${stats.averageRating.toFixed(1)}/5` : "—"}
           </p>
         </div>
         <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
