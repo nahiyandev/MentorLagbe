@@ -11,17 +11,16 @@ import {
   Globe,
   Languages,
   Layers,
-  Quote,
   Search,
   ShieldCheck,
   Sparkles,
-  Star,
   UserPlus,
 } from "lucide-react";
 import { SiteShell } from "@/components/layout/site-shell";
 import { FeaturedTuitions } from "@/components/home/featured-tuitions";
 import { HeroSearch } from "@/components/home/hero-search";
 import { PlatformStats } from "@/components/home/platform-stats";
+import { TestimonialsSection } from "@/components/home/testimonials-section";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -108,36 +107,6 @@ const PLATFORM_PILLARS = [
     description:
       "Whether you prefer live remote mentorship or in-person home batches, filter exact modes and weekly schedules effortlessly.",
     icon: BookOpen,
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    name: "Jack Walter",
-    role: "HSC Student (Class 11-12)",
-    quote:
-      "Finding an experienced tutor for HSC Higher Mathematics used to be a hassle. Through MentorLagbe, I applied to an online problem-solving batch within minutes and tracked my acceptance status live. The 1-on-1 sessions were game-changing.",
-    rating: 5,
-    avatar: "JW",
-    subject: "Higher Mathematics",
-  },
-  {
-    name: "Nahiyan Chowdhury",
-    role: "Verified Pro Tutor",
-    quote:
-      "As a university tutor, managing batch schedules and student applications manually was overwhelming. MentorLagbe gave me a structured workspace to post batches, review student notes, and toggle availability. Upgrading to Pro gave me unlimited batch postings.",
-    rating: 5,
-    avatar: "NC",
-    subject: "Physics & Chemistry",
-  },
-  {
-    name: "Tahmina Akter",
-    role: "IELTS Candidate & Student",
-    quote:
-      "The transparency in tuition fees and syllabus coverage gave me total confidence. I was accepted into an IELTS Speaking & Band Strategy cohort, and having weekly schedules clearly defined made tracking progress seamless.",
-    rating: 5,
-    avatar: "TA",
-    subject: "IELTS Band Prep",
   },
 ];
 
@@ -478,71 +447,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. Real Testimonials / Success Stories Section */}
-      <section className="border-t border-sage-border bg-sage-bg/35 dark:bg-[#0E1712] py-18">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-bold uppercase tracking-widest text-clay">
-              Community Voices
-            </p>
-            <h2 className="mt-1.5 text-3xl font-extrabold text-forest dark:text-[#8EE0BA]">
-              What Our Students &amp; Tutors Say
-            </h2>
-            <p className="mt-2 text-sm text-muted dark:text-[#9DB3A6] sm:text-base">
-              Real feedback from learners achieving academic goals and mentors
-              growing their cohorts.
-            </p>
-          </div>
-
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {TESTIMONIALS.map((item) => (
-              <Card
-                key={item.name}
-                className="flex flex-col justify-between bg-white dark:bg-[#141F18] border-sage-border shadow-xs hover:shadow-md transition-shadow"
-              >
-                <CardContent className="p-6 sm:p-7 flex flex-col justify-between h-full">
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: item.rating }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className="h-4 w-4 fill-amber-400 text-amber-400"
-                          />
-                        ))}
-                      </div>
-                      <span className="rounded-md bg-sage-subtle dark:bg-[#1C2B22] px-2 py-0.5 text-[11px] font-bold text-forest dark:text-[#8EE0BA]">
-                        {item.subject}
-                      </span>
-                    </div>
-
-                    <div className="relative mt-4">
-                      <Quote className="h-6 w-6 text-clay/20 absolute -top-1 -left-2 -z-0" />
-                      <p className="relative z-10 text-sm leading-relaxed text-ink dark:text-[#EFF5F0] italic">
-                        &ldquo;{item.quote}&rdquo;
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex items-center gap-3 border-t border-sage-border pt-4">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest dark:bg-[#8EE0BA] text-sm font-bold text-white dark:text-[#0C130F]">
-                      {item.avatar}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-forest dark:text-[#8EE0BA]">
-                        {item.name}
-                      </p>
-                      <p className="truncate text-xs text-muted dark:text-[#9DB3A6]">
-                        {item.role}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 6. Real Testimonials / Community Voices Section */}
+      <TestimonialsSection />
 
       {/* 7. Top Subjects & Platform Highlights */}
       <section className="border-t border-sage-border bg-white dark:bg-[#141F18] py-18">
