@@ -4,10 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  Banknote,
   BarChart2,
   BookOpen,
   CheckCircle2,
-  Crown,
   Eye,
   PlusCircle,
   TrendingUp,
@@ -34,6 +34,7 @@ interface AnalyticsBreakdown {
   views: number;
   applicantsCount: number;
   acceptedCount: number;
+  tuitionEarnings?: number;
   acceptanceRate?: number | null;
   applyRate?: number | null;
   conversionRate?: number | null;
@@ -45,6 +46,7 @@ interface TutorAnalyticsData {
     totalViews: number;
     totalApplicants: number;
     totalAccepted: number;
+    totalEarnings?: number;
     overallAcceptanceRate?: number | null;
     overallConversionRate?: number | null;
     acceptanceRate?: number | null;
@@ -108,6 +110,12 @@ export default function TutorOverviewPage() {
     (t) => t.approvalStatus === "approved" && t.isActive
   ).length;
   const totalApplicants = applicants.length;
+  const acceptedApplicants = applicants.filter((a) => a.status === "accepted");
+  const acceptedStudentsCount =
+    analytics?.totals?.totalAccepted ?? acceptedApplicants.length;
+  const totalMonthlyEarnings =
+    analytics?.totals?.totalEarnings ??
+    acceptedApplicants.reduce((sum, a) => sum + (a.monthlyFee || 0), 0);
 
   return (
     <div className="space-y-8">
@@ -137,6 +145,13 @@ export default function TutorOverviewPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <StatCard
+            label="Monthly Earnings"
+            value={formatFee(totalMonthlyEarnings)}
+            helper={`From ${acceptedStudentsCount} active student${acceptedStudentsCount === 1 ? "" : "s"}`}
+            icon={Banknote}
+            tone="emerald"
+          />
           <StatCard
             label="Total Tuitions"
             value={totalPosted}
@@ -189,17 +204,6 @@ export default function TutorOverviewPage() {
             icon={TrendingUp}
             tone="emerald"
           />
-          <StatCard
-            label="Current Plan"
-            value={currentPlan}
-            helper={
-              currentPlan === "Pro"
-                ? "Unlimited tuition listings"
-                : "Free limit: up to 2 posts"
-            }
-            icon={Crown}
-            tone="clay"
-          />
         </div>
       )}
 
@@ -224,7 +228,11 @@ export default function TutorOverviewPage() {
             </div>
           </div>
           {analytics && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="success" className="text-xs font-bold gap-1">
+                <Banknote className="h-3.5 w-3.5" />
+                {formatFee(totalMonthlyEarnings)}/mo
+              </Badge>
               <Badge variant="sage" className="text-xs">
                 {analytics.totals.totalViews} total views
               </Badge>
@@ -267,6 +275,7 @@ export default function TutorOverviewPage() {
                   <tr className="border-b border-sage-border text-xs font-semibold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
                     <th className="pb-3 pr-4">Tuition Listing</th>
                     <th className="pb-3 px-4">Subject & Fee</th>
+                    <th className="pb-3 px-4 text-center">Batch Earnings</th>
                     <th className="pb-3 px-4 text-center">Views</th>
                     <th className="pb-3 px-4 text-center">Applicants</th>
                     <th className="pb-3 px-4 text-center">Accepted</th>
@@ -308,6 +317,17 @@ export default function TutorOverviewPage() {
                         </span>
                         <span className="font-bold text-clay mt-0.5 block">
                           {formatFee(row.monthlyFee)}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-center text-xs">
+                        <span className="font-extrabold text-forest dark:text-[#8EE0BA] block">
+                          {formatFee(
+                            row.tuitionEarnings ??
+                              row.acceptedCount * row.monthlyFee
+                          )}
+                        </span>
+                        <span className="text-[10px] text-muted dark:text-[#9DB3A6] block mt-0.5">
+                          {row.acceptedCount} active student{row.acceptedCount === 1 ? "" : "s"}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-center">
