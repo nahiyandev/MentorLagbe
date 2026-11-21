@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   BookOpen,
+  Bookmark,
   CalendarDays,
   CheckCircle2,
   GraduationCap,
@@ -21,6 +22,7 @@ import type { Review, Tuition } from "@/types";
 import { ApiError, apiFetch } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
 import {
+  cn,
   formatDate,
   formatFee,
   getInitials,
@@ -28,6 +30,7 @@ import {
   normalizeRole,
 } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
+import { useBookmarks } from "@/context/bookmark-context";
 import { ApplyModal } from "@/components/tuitions/apply-modal";
 import { TuitionChatDialog } from "@/components/chat/tuition-chat-dialog";
 import { ReviewDialog } from "@/components/reviews/review-dialog";
@@ -53,6 +56,21 @@ export default function TuitionDetailsPage({
   const [applyOpen, setApplyOpen] = React.useState(false);
   const [applied, setApplied] = React.useState(false);
   const [chatOpen, setChatOpen] = React.useState(false);
+
+  // Bookmarks state
+  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const bookmarked = tuition ? isBookmarked(tuition._id) : false;
+  const [bookmarkLoading, setBookmarkLoading] = React.useState(false);
+
+  const handleToggleBookmark = async () => {
+    if (!tuition || bookmarkLoading) return;
+    setBookmarkLoading(true);
+    try {
+      await toggleBookmark(tuition._id);
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
 
   // Reviews state
   const [reviews, setReviews] = React.useState<Review[]>([]);
@@ -256,6 +274,30 @@ export default function TuitionDetailsPage({
                       )}
                       {tuition.mode}
                     </Badge>
+                  </div>
+
+                  {/* Bookmark Button */}
+                  <div className="absolute right-4 top-4 z-10">
+                    <button
+                      type="button"
+                      onClick={handleToggleBookmark}
+                      disabled={bookmarkLoading}
+                      aria-label={bookmarked ? "Remove bookmark" : "Save tuition"}
+                      title={bookmarked ? "Remove bookmark" : "Save tuition"}
+                      className={cn(
+                        "flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer",
+                        bookmarked
+                          ? "bg-forest text-amber-300 dark:bg-[#1E3A2F] dark:text-amber-300 hover:scale-110"
+                          : "bg-white/90 text-forest hover:bg-white hover:text-clay dark:bg-[#141F18]/90 dark:text-[#8EE0BA] dark:hover:bg-[#1C2B22]"
+                      )}
+                    >
+                      <Bookmark
+                        className={cn(
+                          "h-4 w-4 transition-transform",
+                          bookmarked ? "fill-amber-300 text-amber-300 scale-110" : ""
+                        )}
+                      />
+                    </button>
                   </div>
                 </div>
 
@@ -496,6 +538,34 @@ export default function TuitionDetailsPage({
                       Ask about timings, fee flexibility, or syllabus before applying.
                     </p>
                   </div>
+
+                  {/* Bookmark Tuition Button */}
+                  <div className="pt-2">
+                    <Button
+                      type="button"
+                      variant={bookmarked ? "default" : "outline"}
+                      className={cn(
+                        "w-full gap-2 transition-all",
+                        bookmarked
+                          ? "bg-forest text-amber-300 hover:bg-forest-soft dark:bg-[#1E3A2F]"
+                          : "border-forest/30 text-forest dark:text-[#8EE0BA] hover:bg-sage-subtle dark:hover:bg-[#1C2B22]"
+                      )}
+                      onClick={handleToggleBookmark}
+                      disabled={bookmarkLoading}
+                    >
+                      <Bookmark
+                        className={cn(
+                          "h-4 w-4",
+                          bookmarked && "fill-amber-300 text-amber-300"
+                        )}
+                      />
+                      <span>
+                        {bookmarked
+                          ? "Saved in Bookmarks"
+                          : "Save / Bookmark Tuition"}
+                      </span>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -536,21 +606,6 @@ export default function TuitionDetailsPage({
                         <span>View Tutor Profile &amp; Batches</span>
                       </Button>
                     </Link>
-                  </div>
-                  {/* Direct Student-Tutor Inquiry Chat Button */}
-                  <div className="pt-2 border-t border-sage-border">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full gap-2 border-forest/30 text-forest dark:text-[#8EE0BA] hover:bg-sage-subtle dark:hover:bg-[#1C2B22]"
-                      onClick={() => setChatOpen(true)}
-                    >
-                      <MessageCircle className="h-4 w-4 text-clay" />
-                      <span>Chat with Tutor / Ask Question</span>
-                    </Button>
-                    <p className="mt-1.5 text-center text-[11px] text-muted dark:text-[#9DB3A6]">
-                      Ask about timings, fee flexibility, or syllabus before applying.
-                    </p>
                   </div>
                 </CardContent>
               </Card>

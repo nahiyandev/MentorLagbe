@@ -152,6 +152,12 @@ export interface Review {
   updatedAt?: string;
 }
 
+export interface BookmarkItem {
+  bookmarkId: string;
+  savedAt: string;
+  tuition: Tuition;
+}
+
 export interface NotificationItem {
   _id: string;
   recipientEmail: string;

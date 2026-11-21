@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen,
+  Bookmark,
   ClipboardList,
   CreditCard,
   FileCheck2,
@@ -58,6 +59,11 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       href: "/dashboard/student/my-applications",
       label: "My Applications",
       icon: ClipboardList,
+    },
+    {
+      href: "/dashboard/student/bookmarks",
+      label: "Saved Tuitions",
+      icon: Bookmark,
     },
     { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
     { href: "/tuitions", label: "Browse Tuitions", icon: BookOpen },

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
+import { BookmarkProvider } from "@/context/bookmark-context";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -42,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="min-h-full flex flex-col bg-sage-bg text-ink font-sans">
-        {children}
+        <BookmarkProvider>{children}</BookmarkProvider>
         <Toaster
           position="top-right"
           richColors

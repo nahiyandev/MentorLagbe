@@ -1,7 +1,11 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
 import {
   ArrowRight,
   BookOpen,
+  Bookmark,
   CalendarDays,
   MapPin,
   Monitor,
@@ -9,16 +13,35 @@ import {
   User,
 } from "lucide-react";
 import type { Tuition } from "@/types";
-import { formatFee, isValidImageUrl } from "@/lib/utils";
+import { cn, formatFee, isValidImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useBookmarks } from "@/context/bookmark-context";
 
 interface TuitionCardProps {
   tuition: Tuition;
+  onBookmarkToggle?: (tuitionId: string, newState: boolean) => void;
 }
 
-export function TuitionCard({ tuition }: TuitionCardProps) {
+export function TuitionCard({ tuition, onBookmarkToggle }: TuitionCardProps) {
+  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const bookmarked = isBookmarked(tuition._id);
+  const [toggling, setToggling] = React.useState(false);
+
   const hasBanner = isValidImageUrl(tuition.bannerImage);
+
+  const handleBookmarkClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (toggling) return;
+    setToggling(true);
+    try {
+      const newState = await toggleBookmark(tuition._id);
+      onBookmarkToggle?.(tuition._id, newState);
+    } finally {
+      setToggling(false);
+    }
+  };
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-sage-border bg-white shadow-[0_2px_10px_rgba(30,58,47,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(30,58,47,0.09)]">
@@ -40,6 +63,7 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
           </div>
         )}
 
+        {/* Category & Mode Badges */}
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           <Badge variant="default" className="bg-forest/90 backdrop-blur-sm">
             {tuition.subject}
@@ -55,6 +79,30 @@ export function TuitionCard({ tuition }: TuitionCardProps) {
             )}
             {tuition.mode}
           </Badge>
+        </div>
+
+        {/* Bookmark Button */}
+        <div className="absolute right-3 top-3 z-10">
+          <button
+            type="button"
+            onClick={handleBookmarkClick}
+            disabled={toggling}
+            aria-label={bookmarked ? "Remove bookmark" : "Save tuition"}
+            title={bookmarked ? "Remove bookmark" : "Save tuition"}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer",
+              bookmarked
+                ? "bg-forest text-amber-300 dark:bg-[#1E3A2F] dark:text-amber-300 hover:scale-110"
+                : "bg-white/85 text-muted hover:text-forest hover:bg-white dark:bg-[#141F18]/85 dark:text-[#9DB3A6] dark:hover:text-[#8EE0BA] dark:hover:bg-[#1C2B22]"
+            )}
+          >
+            <Bookmark
+              className={cn(
+                "h-4 w-4 transition-transform",
+                bookmarked ? "fill-amber-300 text-amber-300 scale-110" : ""
+              )}
+            />
+          </button>
         </div>
       </div>
 
