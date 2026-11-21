@@ -43,6 +43,7 @@ export interface Tuition {
   averageRating?: number;
   totalReviews?: number;
   tutorAvailability?: TutorAvailabilitySlot[];
+  tutorPhone?: string;
 }
 
 export interface Application {

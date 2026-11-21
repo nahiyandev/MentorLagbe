@@ -54,3 +54,12 @@ export function isValidImageUrl(url?: string | null): boolean {
     trimmed.startsWith("/")
   );
 }
+
+export function formatWhatsAppUrl(phone: string, tutorName = "Tutor"): string {
+  let digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("0") && digits.length === 11) {
+    digits = "88" + digits;
+  }
+  const message = `Hello ${tutorName}, I found your tutor profile on MentorLagbe and would like to ask about your tuition batches.`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}

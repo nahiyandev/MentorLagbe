@@ -26,6 +26,7 @@ import {
   cn,
   formatDate,
   formatFee,
+  formatWhatsAppUrl,
   getInitials,
   isValidImageUrl,
   normalizeRole,
@@ -600,8 +601,20 @@ export default function TuitionDetailsPage({
                     <span>Verified MentorLagbe Tutor Listing</span>
                   </div>
 
-                  {/* Public Tutor Profile link */}
+                  {/* Public Tutor Profile link & WhatsApp */}
                   <div className="mt-4 border-t border-sage-border pt-4 space-y-2">
+                    {tuition.tutorPhone && (
+                      <a
+                        href={formatWhatsAppUrl(tuition.tutorPhone, tuition.tutorName)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white py-2 px-3 text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                      >
+                        <MessageCircle className="h-4 w-4 fill-white" />
+                        <span>Chat via WhatsApp</span>
+                      </a>
+                    )}
+
                     <Link
                       href={`/tutors/${encodeURIComponent(tuition.tutorEmail)}`}
                       className="block"

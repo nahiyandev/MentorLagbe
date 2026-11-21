@@ -10,12 +10,18 @@ import {
   Crown,
   GraduationCap,
   Mail,
+  MessageCircle,
   Phone,
   Star,
 } from "lucide-react";
 import type { TutorProfileData } from "@/types";
 import { apiFetch } from "@/lib/api";
-import { formatDate, getInitials, isValidImageUrl } from "@/lib/utils";
+import {
+  formatDate,
+  formatWhatsAppUrl,
+  getInitials,
+  isValidImageUrl,
+} from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
 import { TuitionCard } from "@/components/tuitions/tuition-card";
 import { ReviewList } from "@/components/reviews/review-list";
@@ -167,6 +173,20 @@ export default function TutorProfilePage() {
                         </span>
                       )}
                     </div>
+
+                    {data.tutor.phone && (
+                      <div className="pt-2">
+                        <a
+                          href={formatWhatsAppUrl(data.tutor.phone, data.tutor.name)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white px-4 py-2 text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                        >
+                          <MessageCircle className="h-4 w-4 fill-white" />
+                          <span>Direct Message on WhatsApp</span>
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
