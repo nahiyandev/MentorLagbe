@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   LogOut,
@@ -10,11 +10,10 @@ import {
   UserPen,
   X,
   ChevronDown,
+  Crown,
 } from "lucide-react";
-import { toast } from "sonner";
-import { authClient, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import {
-  clearStoredJwt,
   exchangeSessionForJwt,
   getStoredJwt,
 } from "@/lib/api";
@@ -31,15 +30,16 @@ import { LanguageToggle } from "./language-toggle";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LogoutConfirmDialog } from "@/components/auth/logout-confirm-dialog";
 import { useLanguage } from "@/context/language-context";
 
 export function Navbar() {
   const pathname = usePathname();
-  const router = useRouter();
   const { data: session, isPending } = useSession();
   const { t } = useLanguage();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const navLinks = React.useMemo(
@@ -85,20 +85,6 @@ export function Navbar() {
       void exchangeSessionForJwt(token);
     }
   }, [session?.session?.token]);
-
-  const handleSignOut = async () => {
-    try {
-      await authClient.signOut();
-      clearStoredJwt();
-      toast.success("Signed out successfully.");
-      setMenuOpen(false);
-      setMobileOpen(false);
-      router.push("/");
-      router.refresh();
-    } catch {
-      toast.error("Failed to sign out. Please try again.");
-    }
-  };
 
   const roleBadgeLabel =
     role === "admin" ? "Admin" : role === "tutor" ? "Tutor" : "Student";
@@ -190,11 +176,25 @@ export function Navbar() {
                       </p>
                       <p className="truncate text-xs text-muted">{user.email}</p>
                       <div className="mt-1.5 flex items-center gap-1.5">
-                        <Badge variant={role === "admin" ? "clay" : "sage"}>
+                        <Badge
+                          variant={
+                            role === "admin"
+                              ? "clay"
+                              : role === "tutor"
+                                ? "sage"
+                                : "success"
+                          }
+                        >
                           {roleBadgeLabel}
                         </Badge>
-                        {user.plan === "pro" && (
-                          <Badge variant="clay">Pro</Badge>
+                        {user.plan === "pro" ? (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-linear-to-r from-amber-500/20 via-yellow-400/20 to-amber-500/20 border border-amber-300 dark:border-amber-700 px-1.5 py-0.2 text-[10px] font-black text-amber-800 dark:text-amber-300">
+                            <Crown className="h-2.5 w-2.5 text-amber-600 fill-amber-500" /> PRO
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1.5 py-0.2 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                            FREE
+                          </span>
                         )}
                       </div>
                     </div>
@@ -219,7 +219,10 @@ export function Navbar() {
                     <div className="border-t border-sage-border pt-1">
                       <button
                         type="button"
-                        onClick={handleSignOut}
+                        onClick={() => {
+                          setMenuOpen(false);
+                          setLogoutDialogOpen(true);
+                        }}
                         className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 cursor-pointer"
                       >
                         <LogOut className="h-4 w-4" />
@@ -338,7 +341,10 @@ export function Navbar() {
                   variant="destructive"
                   size="sm"
                   className="w-full"
-                  onClick={handleSignOut}
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setLogoutDialogOpen(true);
+                  }}
                 >
                   <LogOut className="h-4 w-4" />
                   Sign Out
@@ -359,6 +365,12 @@ export function Navbar() {
           </div>
         </div>
       )}
+
+      {/* Logout Confirmation Dialog */}
+      <LogoutConfirmDialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+      />
     </header>
   );
 }

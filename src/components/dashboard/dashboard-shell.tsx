@@ -8,6 +8,7 @@ import {
   Bookmark,
   ClipboardList,
   CreditCard,
+  Crown,
   FileCheck2,
   Home,
   LayoutDashboard,
@@ -18,17 +19,16 @@ import {
   PanelLeftOpen,
   PlusCircle,
   Receipt,
+  Shield,
   UserPen,
   Users,
   X,
   type LucideIcon,
 } from "lucide-react";
-import { toast } from "sonner";
 import type { UserRole } from "@/types";
-import { authClient, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import {
   apiFetch,
-  clearStoredJwt,
   exchangeSessionForJwt,
   getStoredJwt,
 } from "@/lib/api";
@@ -43,9 +43,9 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { LanguageToggle } from "@/components/layout/language-toggle";
 import { NotificationBell } from "@/components/notifications/notification-bell";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LogoutConfirmDialog } from "@/components/auth/logout-confirm-dialog";
 import { useLanguage } from "@/context/language-context";
 
 interface NavItem {
@@ -126,6 +126,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [unreadMessages, setUnreadMessages] = React.useState(0);
+  const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false);
 
   const getTranslatedLabel = React.useCallback(
     (item: NavItem) => {
@@ -236,18 +237,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     }
   }, [isPending, user, role, requiredRole, pathname, router]);
 
-  const handleSignOut = async () => {
-    try {
-      await authClient.signOut();
-      clearStoredJwt();
-      toast.success("Signed out successfully.");
-      router.push("/");
-      router.refresh();
-    } catch {
-      toast.error("Failed to sign out.");
-    }
-  };
-
   if (isPending || !user || (requiredRole && requiredRole !== role)) {
     return (
       <div className="flex min-h-screen bg-sage-bg">
@@ -276,7 +265,30 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const navItems = ROLE_NAV_ITEMS[role];
   const roleLabel =
     role === "admin" ? "Admin" : role === "tutor" ? "Tutor" : "Student";
-  const planLabel = user.plan === "pro" ? "Pro Plan" : "Free Plan";
+
+  const roleTheme = {
+    student: {
+      accentText: "text-teal-700 dark:text-teal-400",
+      badgeClass:
+        "bg-teal-50 text-teal-800 border-teal-200 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800",
+      cardBorder: "border-teal-200/80 dark:border-teal-900/40",
+      avatarRing: "ring-teal-500/40",
+    },
+    tutor: {
+      accentText: "text-forest dark:text-[#8EE0BA]",
+      badgeClass:
+        "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
+      cardBorder: "border-forest/20 dark:border-emerald-800/40",
+      avatarRing: "ring-forest/40",
+    },
+    admin: {
+      accentText: "text-purple-700 dark:text-purple-400",
+      badgeClass:
+        "bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800",
+      cardBorder: "border-purple-200/80 dark:border-purple-900/40",
+      avatarRing: "ring-purple-500/40",
+    },
+  }[role];
 
   const sidebarContent = (isMobile = false) => (
     <div className="flex h-full flex-col">
@@ -317,7 +329,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className={cn("p-3.5 border-b border-sage-border", collapsed && !isMobile && "px-2")}>
         <div
           className={cn(
-            "flex items-center gap-3 rounded-xl bg-sage-bg/80 dark:bg-[#1C2B22] p-2.5",
+            "flex items-center gap-3 rounded-xl border bg-sage-bg/80 dark:bg-[#1C2B22] p-2.5 transition-colors",
+            roleTheme.cardBorder,
             collapsed && !isMobile && "justify-center p-2"
           )}
         >
@@ -326,26 +339,48 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <img
               src={user.image!}
               alt={user.name}
-              className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-sage-border"
+              className={cn(
+                "h-10 w-10 shrink-0 rounded-full object-cover ring-2",
+                roleTheme.avatarRing
+              )}
             />
           ) : (
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest text-sm font-bold text-white">
+            <span
+              className={cn(
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest text-sm font-bold text-white ring-2",
+                roleTheme.avatarRing
+              )}
+            >
               {getInitials(user.name)}
             </span>
           )}
           {(!collapsed || isMobile) && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-forest">
+              <p className="truncate text-sm font-bold text-forest dark:text-[#8EE0BA]">
                 {user.name}
               </p>
-              <p className="truncate text-xs text-muted">{user.email}</p>
+              <p className="truncate text-xs text-muted dark:text-[#9DB3A6]">{user.email}</p>
               <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                <Badge variant={role === "admin" ? "clay" : "sage"}>
+                {/* Role Badge */}
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-bold border",
+                    roleTheme.badgeClass
+                  )}
+                >
                   {roleLabel}
-                </Badge>
-                <Badge variant={user.plan === "pro" ? "clay" : "outline"}>
-                  {planLabel}
-                </Badge>
+                </span>
+
+                {/* Pro vs Free Badge */}
+                {user.plan === "pro" ? (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-linear-to-r from-amber-500/20 via-yellow-400/20 to-amber-500/20 border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] font-black text-amber-800 dark:text-amber-300 shadow-2xs">
+                    <Crown className="h-2.5 w-2.5 text-amber-600 fill-amber-500" /> Pro
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                    <Shield className="h-2.5 w-2.5 text-slate-500" /> Free
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -418,7 +453,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <button
           type="button"
-          onClick={handleSignOut}
+          onClick={() => setLogoutDialogOpen(true)}
           title={collapsed && !isMobile ? t("nav_sign_out", "Sign Out") : undefined}
           className={cn(
             "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer",
@@ -471,10 +506,26 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               <Menu className="h-5 w-5" />
             </button>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-clay">
-                {roleLabel} {language === "bn" ? "ওয়ার্কস্পেস" : "Workspace"}
-              </p>
-              <p className="text-sm font-bold text-forest leading-tight">
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "text-xs font-bold uppercase tracking-wider",
+                    roleTheme.accentText
+                  )}
+                >
+                  {roleLabel} {language === "bn" ? "ওয়ার্কস্পেস" : "Workspace"}
+                </span>
+                {user.plan === "pro" ? (
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-linear-to-r from-amber-500/20 via-yellow-400/20 to-amber-500/20 border border-amber-300 dark:border-amber-700 px-2 py-0.5 text-[10px] font-black text-amber-800 dark:text-amber-300">
+                    <Crown className="h-2.5 w-2.5 text-amber-600 fill-amber-500" /> PRO
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                    FREE
+                  </span>
+                )}
+              </div>
+              <p className="text-sm font-bold text-forest dark:text-[#8EE0BA] leading-tight">
                 {language === "bn" ? `স্বাগতম, ${user.name}` : `Welcome, ${user.name}`}
               </p>
             </div>
@@ -501,6 +552,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         {/* Page Body */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      <LogoutConfirmDialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+      />
     </div>
   );
 }
