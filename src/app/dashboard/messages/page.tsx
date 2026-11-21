@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Search,
   Send,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { ChatConversation, ChatMessage } from "@/types";
@@ -31,9 +32,37 @@ export default function MessagesDashboardPage() {
   const [replyText, setReplyText] = React.useState("");
   const [sending, setSending] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [adminContact, setAdminContact] = React.useState<{
+    name: string;
+    email: string;
+    role: string;
+  } | null>(null);
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   const myEmail = session?.user?.email;
+  const isAdmin = session?.user?.role === "admin";
+
+  React.useEffect(() => {
+    async function fetchAdminContact() {
+      try {
+        const res = await apiFetch<{
+          name: string;
+          email: string;
+          role: string;
+        }>("/api/messages/admin-contact");
+        if (res && res.email) {
+          setAdminContact(res);
+        }
+      } catch {
+        setAdminContact({
+          name: "Platform Admin",
+          email: "nahiyanadmin@gmail.com",
+          role: "admin",
+        });
+      }
+    }
+    void fetchAdminContact();
+  }, []);
 
   const scrollToBottom = React.useCallback(() => {
     if (scrollRef.current) {
@@ -118,6 +147,47 @@ export default function MessagesDashboardPage() {
     scrollToBottom();
   }, [thread, scrollToBottom]);
 
+  const handleStartAdminChat = () => {
+    const adminEmail = adminContact?.email || "nahiyanadmin@gmail.com";
+    const adminName = adminContact?.name || "Platform Admin";
+
+    const existing = conversations.find(
+      (c) => c.otherParty.email.toLowerCase() === adminEmail.toLowerCase()
+    );
+
+    if (existing) {
+      setActiveConvo(existing);
+      setLoadingThread(true);
+      return;
+    }
+
+    const pair = [myEmail?.toLowerCase() || "", adminEmail.toLowerCase()]
+      .sort()
+      .join("___");
+    const adminConvo: ChatConversation = {
+      conversationId: pair,
+      tuitionId: null,
+      tuitionTitle: "Platform Support & Inquiries",
+      otherParty: {
+        email: adminEmail,
+        name: adminName,
+        role: "admin",
+      },
+      lastMessage: {
+        text: "Direct channel with Platform Admin. Ask questions regarding payments, verification, or platform support.",
+        senderEmail: adminEmail,
+        senderName: adminName,
+        createdAt: new Date().toISOString(),
+        isRead: true,
+      },
+      unreadCount: 0,
+    };
+
+    setActiveConvo(adminConvo);
+    setThread([]);
+    setLoadingThread(false);
+  };
+
   const handleSendReply = async () => {
     if (!replyText.trim() || !activeConvo || !myEmail) return;
     setSending(true);
@@ -128,6 +198,7 @@ export default function MessagesDashboardPage() {
         body: JSON.stringify({
           recipientEmail: activeConvo.otherParty.email,
           tuitionId: activeConvo.tuitionId,
+          tuitionTitle: activeConvo.tuitionTitle || "Platform Support & Inquiries",
           text: replyText.trim(),
         }),
       });
@@ -173,6 +244,27 @@ export default function MessagesDashboardPage() {
               activeConvo ? "hidden md:flex" : "flex"
             }`}
           >
+            {/* Quick Action: Message Admin for help (shown to students & tutors) */}
+            {!isAdmin && (
+              <div className="p-3 border-b border-sage-border bg-emerald-50/60 dark:bg-[#1C2B22]/40">
+                <button
+                  type="button"
+                  onClick={handleStartAdminChat}
+                  className="flex w-full items-center justify-between gap-2 rounded-xl border border-forest/25 bg-white dark:bg-[#141F18] px-3 py-2 text-xs font-bold text-forest dark:text-[#8EE0BA] shadow-2xs hover:bg-forest hover:text-white dark:hover:bg-[#8EE0BA] dark:hover:text-[#0C130F] transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-[#8EE0BA] group-hover:bg-white/20 group-hover:text-white">
+                      <Shield className="h-3.5 w-3.5" />
+                    </span>
+                    <span>Message Platform Admin</span>
+                  </div>
+                  <Badge variant="clay" className="text-[10px] uppercase tracking-wider py-0 px-1.5 font-bold">
+                    Helpdesk
+                  </Badge>
+                </button>
+              </div>
+            )}
+
             {/* Search filter */}
             <div className="p-3.5 border-b border-sage-border">
               <div className="relative">
@@ -232,9 +324,20 @@ export default function MessagesDashboardPage() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-1">
-                          <p className="truncate text-xs font-bold text-forest dark:text-[#8EE0BA]">
-                            {c.otherParty.name}
-                          </p>
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <p className="truncate text-xs font-bold text-forest dark:text-[#8EE0BA]">
+                              {c.otherParty.name}
+                            </p>
+                            {c.otherParty.role === "admin" ? (
+                              <Badge variant="clay" className="text-[9px] py-0 px-1 shrink-0 font-bold">
+                                Admin
+                              </Badge>
+                            ) : isAdmin ? (
+                              <Badge variant="sage" className="text-[9px] py-0 px-1 shrink-0 capitalize">
+                                {c.otherParty.role}
+                              </Badge>
+                            ) : null}
+                          </div>
                           <span className="text-[10px] text-muted dark:text-[#9DB3A6] shrink-0">
                             {formatDate(c.lastMessage.createdAt)}
                           </span>
@@ -284,9 +387,16 @@ export default function MessagesDashboardPage() {
                         <h2 className="text-sm font-bold text-forest dark:text-[#8EE0BA]">
                           {activeConvo.otherParty.name}
                         </h2>
-                        <Badge variant="sage" className="text-[10px] uppercase">
-                          {activeConvo.otherParty.role}
-                        </Badge>
+                        {activeConvo.otherParty.role === "admin" ? (
+                          <Badge variant="clay" className="text-[10px] uppercase gap-1 font-bold">
+                            <Shield className="h-3 w-3" />
+                            Platform Admin
+                          </Badge>
+                        ) : (
+                          <Badge variant="sage" className="text-[10px] uppercase">
+                            {activeConvo.otherParty.role}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-xs text-muted dark:text-[#9DB3A6]">
                         {activeConvo.otherParty.email}
@@ -315,8 +425,18 @@ export default function MessagesDashboardPage() {
                       <Loader2 className="h-6 w-6 animate-spin text-muted" />
                     </div>
                   ) : thread.length === 0 ? (
-                    <div className="p-8 text-center text-xs text-muted">
-                      No messages yet in this inquiry.
+                    <div className="p-8 text-center text-xs text-muted dark:text-[#9DB3A6] space-y-2">
+                      <MessageCircle className="mx-auto h-8 w-8 text-muted/40 mb-1" />
+                      <p className="font-bold text-forest dark:text-[#8EE0BA]">
+                        {activeConvo.otherParty.role === "admin"
+                          ? "Direct Support with Platform Admin"
+                          : "No messages yet in this inquiry."}
+                      </p>
+                      <p className="max-w-md mx-auto text-muted">
+                        {activeConvo.otherParty.role === "admin"
+                          ? "Ask questions regarding account verification, tuition disputes, or billing support. Admin will reply directly here."
+                          : "Type your message below to communicate directly."}
+                      </p>
                     </div>
                   ) : (
                     thread.map((msg) => {

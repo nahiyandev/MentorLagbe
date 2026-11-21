@@ -119,6 +119,7 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       label: "Coupons & Discounts",
       icon: TicketPercent,
     },
+    { href: "/dashboard/messages", label: "Inquiries & Chat", icon: MessageCircle },
     { href: "/tuitions", label: "Browse Tuitions", icon: BookOpen },
     { href: "/dashboard/profile", label: "Update Profile", icon: UserPen },
   ],

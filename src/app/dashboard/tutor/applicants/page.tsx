@@ -157,13 +157,14 @@ export default function TutorApplicantsPage() {
                 const isUpdating = updatingId === app._id;
                 const acceptedSet = acceptedSlotsByTuition.get(app.tuitionId);
                 const isPending = app.status === "pending";
-                const hasSlotConflict =
+                const hasSlotConflict = Boolean(
                   isPending &&
                   acceptedSet &&
                   ((Array.isArray(app.selectedSlots) &&
                     app.selectedSlots.some((s) => acceptedSet.has(s))) ||
                     (app.preferredSchedule &&
-                      acceptedSet.has(app.preferredSchedule)));
+                      acceptedSet.has(app.preferredSchedule)))
+                );
 
                 return (
                   <div
