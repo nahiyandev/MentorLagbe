@@ -217,11 +217,25 @@ export default function TutorApplicantsPage() {
                         <Phone className="h-4 w-4 shrink-0 text-forest" />
                         <span>{app.studentPhone}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <CalendarClock className="h-4 w-4 shrink-0 text-forest" />
-                        <span className="truncate">
-                          {app.preferredSchedule}
-                        </span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <CalendarClock className="h-4 w-4 shrink-0 text-forest dark:text-[#8EE0BA]" />
+                          <span className="font-medium text-forest dark:text-[#8EE0BA]">
+                            {app.preferredSchedule}
+                          </span>
+                        </div>
+                        {app.selectedSlots && app.selectedSlots.length > 0 && (
+                          <div className="flex flex-wrap gap-1 pl-6">
+                            {app.selectedSlots.map((slot) => (
+                              <span
+                                key={slot}
+                                className="inline-flex items-center rounded-md bg-sage-subtle dark:bg-[#1C2B22] px-2 py-0.5 text-[10px] font-bold text-forest dark:text-[#8EE0BA]"
+                              >
+                                {slot}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 

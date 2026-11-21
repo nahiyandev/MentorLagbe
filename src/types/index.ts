@@ -57,6 +57,7 @@ export interface Application {
   studentEmail: string;
   studentPhone: string;
   preferredSchedule: string;
+  selectedSlots?: string[];
   studentNote: string;
   status: ApplicationStatus;
   appliedAt?: string;
