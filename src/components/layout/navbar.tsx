@@ -127,21 +127,13 @@ export function Navbar() {
           {isPending ? (
             <div className="h-9 w-36 animate-pulse rounded-xl bg-sage-subtle" />
           ) : user ? (
-            <div className="flex items-center gap-2.5">
-              <Link href={dashboardHref}>
-                <Button variant="secondary" size="sm">
-                  <LayoutDashboard className="h-4 w-4" />
-                  {t("nav_dashboard", "Dashboard")}
-                </Button>
-              </Link>
-
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen((prev) => !prev)}
-                  className="flex items-center gap-2.5 rounded-xl border border-sage-border bg-white px-2.5 py-1.5 text-left transition-colors hover:bg-sage-subtle/50 cursor-pointer"
-                  aria-expanded={menuOpen}
-                >
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="flex items-center gap-2.5 rounded-xl border border-sage-border bg-white px-2.5 py-1.5 text-left transition-colors hover:bg-sage-subtle/50 cursor-pointer"
+                aria-expanded={menuOpen}
+              >
                   {isValidImageUrl(user.image) ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -205,7 +197,7 @@ export function Navbar() {
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink hover:bg-sage-subtle/70"
                       >
                         <LayoutDashboard className="h-4 w-4 text-forest" />
-                        Dashboard
+                        {t("nav_dashboard", "Dashboard")}
                       </Link>
                       <Link
                         href="/dashboard/profile"
@@ -213,7 +205,7 @@ export function Navbar() {
                         className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink hover:bg-sage-subtle/70"
                       >
                         <UserPen className="h-4 w-4 text-forest" />
-                        Update Profile
+                        {t("nav_profile", "Update Profile")}
                       </Link>
                     </div>
                     <div className="border-t border-sage-border pt-1">
@@ -232,7 +224,6 @@ export function Navbar() {
                   </div>
                 )}
               </div>
-            </div>
           ) : (
             <>
               <Link href="/sign-in">
