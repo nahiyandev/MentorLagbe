@@ -69,6 +69,7 @@ export function TuitionChatDialog({
         if (active) {
           const list = extractList<ChatMessage>(res);
           setMessages(list);
+          window.dispatchEvent(new Event("messagesRead"));
         }
       } catch {
         // Non-blocking

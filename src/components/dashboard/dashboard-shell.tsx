@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import type { UserRole } from "@/types";
 import { authClient, useSession } from "@/lib/auth-client";
 import {
+  apiFetch,
   clearStoredJwt,
   exchangeSessionForJwt,
   getStoredJwt,
@@ -115,6 +116,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [unreadMessages, setUnreadMessages] = React.useState(0);
 
   const user = session?.user as
     | {
@@ -129,6 +131,42 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const role: UserRole = normalizeRole(user?.role);
   const requiredRole = getRequiredRoleForPath(pathname);
+
+  React.useEffect(() => {
+    let active = true;
+
+    async function fetchUnreadCount() {
+      if (!session?.user?.email) return;
+      try {
+        const res = await apiFetch<{ unreadCount?: number }>(
+          "/api/messages/unread-count"
+        );
+        if (active && typeof res?.unreadCount === "number") {
+          setUnreadMessages(res.unreadCount);
+        }
+      } catch {
+        // Non-blocking
+      }
+    }
+
+    void fetchUnreadCount();
+
+    const interval = setInterval(() => {
+      void fetchUnreadCount();
+    }, 5000);
+
+    const handleMessagesRead = () => {
+      void fetchUnreadCount();
+    };
+
+    window.addEventListener("messagesRead", handleMessagesRead);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+      window.removeEventListener("messagesRead", handleMessagesRead);
+    };
+  }, [session?.user?.email, pathname]);
 
   React.useEffect(() => {
     const token = session?.session?.token;
@@ -276,6 +314,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           const isActive = isOverview
             ? pathname === item.href
             : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isMessages = item.href === "/dashboard/messages";
 
           return (
             <Link
@@ -284,16 +323,30 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               onClick={() => isMobile && setMobileOpen(false)}
               title={collapsed && !isMobile ? item.label : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors",
                 collapsed && !isMobile && "justify-center px-2",
                 isActive
                   ? "bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] shadow-xs"
                   : "text-muted hover:bg-sage-subtle/80 dark:hover:bg-[#1C2B22] hover:text-forest dark:hover:text-[#8EE0BA]"
               )}
             >
-              <Icon className="h-4.5 w-4.5 shrink-0" />
+              <div className="relative flex items-center justify-center">
+                <Icon className="h-4.5 w-4.5 shrink-0" />
+                {isMessages && unreadMessages > 0 && collapsed && !isMobile && (
+                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white shadow-xs">
+                    {unreadMessages > 99 ? "99+" : unreadMessages}
+                  </span>
+                )}
+              </div>
               {(!collapsed || isMobile) && (
-                <span className="truncate">{item.label}</span>
+                <>
+                  <span className="truncate flex-1">{item.label}</span>
+                  {isMessages && unreadMessages > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[11px] font-bold text-white shadow-xs">
+                      {unreadMessages > 99 ? "99+" : unreadMessages}
+                    </span>
+                  )}
+                </>
               )}
             </Link>
           );

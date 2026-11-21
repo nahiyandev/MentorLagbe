@@ -82,6 +82,16 @@ export default function MessagesDashboardPage() {
         if (active) {
           const msgs = extractList<ChatMessage>(res);
           setThread(msgs);
+          if (activeConvo && activeConvo.unreadCount > 0) {
+            setConversations((prev) =>
+              prev.map((c) =>
+                c.conversationId === activeConvo.conversationId
+                  ? { ...c, unreadCount: 0 }
+                  : c
+              )
+            );
+            window.dispatchEvent(new Event("messagesRead"));
+          }
         }
       } catch {
         // Non-blocking
@@ -200,6 +210,16 @@ export default function MessagesDashboardPage() {
                       onClick={() => {
                         setActiveConvo(c);
                         setLoadingThread(true);
+                        if (c.unreadCount > 0) {
+                          setConversations((prev) =>
+                            prev.map((item) =>
+                              item.conversationId === c.conversationId
+                                ? { ...item, unreadCount: 0 }
+                                : item
+                            )
+                          );
+                          window.dispatchEvent(new Event("messagesRead"));
+                        }
                       }}
                       className={`w-full p-4 text-left transition-colors cursor-pointer flex items-start gap-3 ${
                         isSelected
