@@ -149,7 +149,7 @@ export default function PricingPage() {
 
               <div className="mt-6 flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold text-clay">$10</span>
-                <span className="text-sm text-muted">USD</span>
+                <span className="text-sm font-semibold text-muted">USD · One-Time</span>
               </div>
 
               <ul className="mt-7 space-y-3 text-sm text-ink">
@@ -205,7 +205,7 @@ export default function PricingPage() {
 
               <div className="mt-6 flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold text-white">$15</span>
-                <span className="text-sm text-white/70">USD</span>
+                <span className="text-sm font-semibold text-white/80">USD · One-Time</span>
               </div>
 
               <ul className="mt-7 space-y-3 text-sm text-white/90">

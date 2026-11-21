@@ -79,7 +79,7 @@ export default function AdminOverviewPage() {
         </h1>
         <p className="mt-1 text-sm text-muted">
           Monitor platform growth, moderate tutor listings, manage user roles,
-          and track Stripe revenue.
+          and track platform revenue.
         </p>
       </div>
 
@@ -133,14 +133,14 @@ export default function AdminOverviewPage() {
             const bdtRevenue = stats.localRevenueBdt || 0;
 
             let revenueDisplay = `$${usdRevenue.toLocaleString("en-US")}`;
-            let revenueHelper = "Stripe Pro subscriptions";
+            let revenueHelper = "Stripe Pro payments";
 
             if (usdRevenue > 0 && bdtRevenue > 0) {
               revenueDisplay = `$${usdRevenue} · ৳${bdtRevenue.toLocaleString("en-US")}`;
               revenueHelper = `Stripe: $${usdRevenue} | bKash/Nagad: ৳${bdtRevenue.toLocaleString("en-US")}`;
             } else if (bdtRevenue > 0) {
               revenueDisplay = `৳${bdtRevenue.toLocaleString("en-US")}`;
-              revenueHelper = "bKash & Nagad subscriptions";
+              revenueHelper = "bKash & Nagad payments";
             }
 
             return (

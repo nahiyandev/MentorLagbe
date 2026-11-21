@@ -115,8 +115,8 @@ export default function TutorPostTuitionPage() {
       return;
     }
 
-    if (!bannerImage.trim() || !isValidImageUrl(bannerImage)) {
-      toast.error("Please upload a banner image or provide a valid image link (https://...).");
+    if (bannerImage.trim() && !isValidImageUrl(bannerImage.trim())) {
+      toast.error("Please provide a valid image link (e.g. https://...).");
       return;
     }
 
@@ -133,7 +133,7 @@ export default function TutorPostTuitionPage() {
           monthlyFee: parsedFee,
           daysPerWeek: parsedDays,
           description: description.trim(),
-          bannerImage,
+          bannerImage: bannerImage.trim() || undefined,
           tutorName:
             user?.name?.trim() || session?.user?.name?.trim() || "Tutor",
         }),
@@ -321,7 +321,7 @@ export default function TutorPostTuitionPage() {
             {/* Direct ImgBB Banner File Upload */}
             <div className="space-y-2">
               <Label htmlFor="bannerUpload">
-                Tuition Banner Image (Uploaded via ImgBB)
+                Tuition Banner Image (Optional)
               </Label>
 
               <input
@@ -391,8 +391,7 @@ export default function TutorPostTuitionPage() {
                         Click to choose a banner image
                       </p>
                       <p className="mt-1 text-xs text-muted">
-                        PNG, JPG, or WebP up to 5MB — uploaded directly via
-                        ImgBB
+                        PNG, JPG, or WebP up to 5MB — or leave empty to use our clean subject graphic
                       </p>
                     </>
                   )}

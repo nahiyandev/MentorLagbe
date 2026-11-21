@@ -146,7 +146,7 @@ export function UpgradePaymentModal({
       description={
         success
           ? "Your account has been upgraded to Pro."
-          : "Choose your preferred payment method to activate your Pro subscription."
+          : "Choose your preferred payment method to activate lifetime Pro access (one-time payment, no recurring charges)."
       }
       className="max-w-md"
     >
@@ -216,7 +216,7 @@ export function UpgradePaymentModal({
             /* Stripe Checkout View */
             <div className="space-y-4 rounded-xl border border-sage-border bg-sage-bg/60 dark:bg-[#1C2B22]/40 p-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-semibold text-muted">Subscription Fee</span>
+                <span className="font-semibold text-muted">One-Time Upgrade Fee</span>
                 <span className="text-lg font-black text-forest dark:text-[#8EE0BA]">
                   ${amountUsd} USD
                 </span>
