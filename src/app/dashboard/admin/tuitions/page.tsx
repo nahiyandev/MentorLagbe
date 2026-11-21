@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Loader2, X } from "lucide-react";
+import { Check, CheckSquare, Loader2, Square, X } from "lucide-react";
 import { toast } from "sonner";
 import type { ApprovalStatus, Tuition } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
@@ -20,6 +20,8 @@ export default function AdminTuitionsPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [filter, setFilter] = React.useState<StatusFilter>("all");
   const [busyId, setBusyId] = React.useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = React.useState(false);
 
   const ITEMS_PER_PAGE = 6;
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -90,6 +92,64 @@ export default function AdminTuitionsPage() {
     }
   };
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allCurrentSelected =
+    tuitions.length > 0 &&
+    tuitions
+      .filter((t) => (filter === "all" ? true : t.approvalStatus === filter))
+      .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+      .every((t) => selectedIds.has(t._id));
+
+  const toggleSelectAll = (currentItems: Tuition[]) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const allSelected = currentItems.every((t) => next.has(t._id));
+      if (allSelected) {
+        currentItems.forEach((t) => next.delete(t._id));
+      } else {
+        currentItems.forEach((t) => next.add(t._id));
+      }
+      return next;
+    });
+  };
+
+  const handleBulkModerate = async (action: "approved" | "rejected") => {
+    if (selectedIds.size === 0 || bulkBusy) return;
+    setBulkBusy(true);
+    const ids = Array.from(selectedIds);
+    try {
+      await apiFetch("/api/admin/tuitions/bulk-status", {
+        method: "PATCH",
+        body: JSON.stringify({ tuitionIds: ids, status: action }),
+      });
+      setTuitions((prev) =>
+        prev.map((t) =>
+          selectedIds.has(t._id) ? { ...t, approvalStatus: action } : t
+        )
+      );
+      setSelectedIds(new Set());
+      toast.success(
+        `Successfully ${action} ${ids.length} tuition listing${
+          ids.length > 1 ? "s" : ""
+        }.`
+      );
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to bulk update status"
+      );
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
   const filtered =
     filter === "all"
       ? tuitions
@@ -142,11 +202,76 @@ export default function AdminTuitionsPage() {
         </div>
       )}
 
+      {/* Floating Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="sticky top-20 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-forest/20 bg-forest p-3.5 text-white shadow-lg backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <CheckSquare className="h-4 w-4 text-amber-300" />
+            <span className="text-xs font-bold sm:text-sm">
+              {selectedIds.size} listing{selectedIds.size > 1 ? "s" : ""} selected
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border-0 cursor-pointer"
+              onClick={() => handleBulkModerate("approved")}
+              disabled={bulkBusy}
+            >
+              {bulkBusy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Check className="h-3.5 w-3.5" />
+              )}
+              <span>Approve Selected</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              className="gap-1.5 cursor-pointer"
+              onClick={() => handleBulkModerate("rejected")}
+              disabled={bulkBusy}
+            >
+              {bulkBusy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <X className="h-3.5 w-3.5" />
+              )}
+              <span>Reject Selected</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-white border-white/30 hover:bg-white/10 cursor-pointer"
+              onClick={() => setSelectedIds(new Set())}
+              disabled={bulkBusy}
+            >
+              Clear
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
           <CardTitle>
             Tuition Submissions ({loading ? "…" : filtered.length})
           </CardTitle>
+          {!loading && paginatedTuitions.length > 0 && (
+            <button
+              type="button"
+              onClick={() => toggleSelectAll(paginatedTuitions)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-forest hover:text-clay cursor-pointer"
+            >
+              {allCurrentSelected ? (
+                <CheckSquare className="h-4 w-4 text-forest" />
+              ) : (
+                <Square className="h-4 w-4 text-muted" />
+              )}
+              <span>{allCurrentSelected ? "Deselect Page" : "Select Page"}</span>
+            </button>
+          )}
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -170,7 +295,20 @@ export default function AdminTuitionsPage() {
                     key={t._id}
                     className="flex flex-col justify-between gap-4 rounded-2xl border border-sage-border bg-sage-bg/35 p-4 sm:p-5 lg:flex-row lg:items-center"
                   >
-                    <div className="flex items-start gap-4 min-w-0">
+                    <div className="flex items-start gap-3.5 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => toggleSelect(t._id)}
+                        className="mt-1 shrink-0 text-muted hover:text-forest cursor-pointer"
+                        title={selectedIds.has(t._id) ? "Deselect" : "Select"}
+                      >
+                        {selectedIds.has(t._id) ? (
+                          <CheckSquare className="h-5 w-5 text-forest" />
+                        ) : (
+                          <Square className="h-5 w-5 text-muted/60" />
+                        )}
+                      </button>
+
                       {isValidImageUrl(t.bannerImage) ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
