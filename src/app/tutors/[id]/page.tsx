@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   BookOpen,
   Calendar,
-  CheckCircle2,
   Crown,
   GraduationCap,
   Mail,
@@ -21,6 +20,7 @@ import { SiteShell } from "@/components/layout/site-shell";
 import { TuitionCard } from "@/components/tuitions/tuition-card";
 import { ReviewList } from "@/components/reviews/review-list";
 import { TutorAvailabilityCalendar } from "@/components/tutors/tutor-availability-calendar";
+import { VerifiedBadge } from "@/components/tutors/verified-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -137,9 +137,7 @@ export default function TutorProfilePage() {
                       <h1 className="text-2xl sm:text-3xl font-black text-forest dark:text-[#8EE0BA]">
                         {data.tutor.name}
                       </h1>
-                      <Badge variant="success" className="gap-1">
-                        <CheckCircle2 className="h-3 w-3" /> Verified Tutor
-                      </Badge>
+                      <VerifiedBadge size="md" />
                       {data.tutor.plan === "pro" && (
                         <Badge variant="clay" className="gap-1">
                           <Crown className="h-3 w-3" /> Pro Educator

@@ -17,6 +17,7 @@ import { cn, formatFee, isValidImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useBookmarks } from "@/context/bookmark-context";
+import { VerifiedBadge } from "@/components/tutors/verified-badge";
 
 interface TuitionCardProps {
   tuition: Tuition;
@@ -140,18 +141,21 @@ export function TuitionCard({ tuition, onBookmarkToggle }: TuitionCardProps) {
           {tuition.title}
         </h3>
 
-        <Link
-          href={`/tutors/${encodeURIComponent(tuition.tutorEmail)}`}
-          className="mt-3 inline-flex items-center gap-2 text-sm text-muted hover:text-clay dark:hover:text-[#E58E58] transition-colors w-fit"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-subtle dark:bg-[#1C2B22] text-forest dark:text-[#8EE0BA]">
-            <User className="h-3.5 w-3.5" />
-          </span>
-          <span className="truncate font-semibold text-ink dark:text-[#EFF5F0] hover:underline">
-            {tuition.tutorName}
-          </span>
-        </Link>
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <Link
+            href={`/tutors/${encodeURIComponent(tuition.tutorEmail)}`}
+            className="inline-flex items-center gap-2 text-sm text-muted hover:text-clay dark:hover:text-[#E58E58] transition-colors w-fit"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-subtle dark:bg-[#1C2B22] text-forest dark:text-[#8EE0BA]">
+              <User className="h-3.5 w-3.5" />
+            </span>
+            <span className="truncate font-semibold text-ink dark:text-[#EFF5F0] hover:underline">
+              {tuition.tutorName}
+            </span>
+          </Link>
+          <VerifiedBadge size="sm" />
+        </div>
 
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-sage-border pt-4">
           <div>

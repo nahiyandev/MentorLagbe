@@ -8,6 +8,7 @@ import {
   Bookmark,
   CalendarDays,
   CheckCircle2,
+  Flag,
   GraduationCap,
   Info,
   Mail,
@@ -33,6 +34,8 @@ import { SiteShell } from "@/components/layout/site-shell";
 import { useBookmarks } from "@/context/bookmark-context";
 import { ApplyModal } from "@/components/tuitions/apply-modal";
 import { TuitionChatDialog } from "@/components/chat/tuition-chat-dialog";
+import { ReportListingDialog } from "@/components/tuitions/report-listing-dialog";
+import { VerifiedBadge } from "@/components/tutors/verified-badge";
 import { ReviewDialog } from "@/components/reviews/review-dialog";
 import { ReviewList } from "@/components/reviews/review-list";
 import { TutorAvailabilityCalendar } from "@/components/tutors/tutor-availability-calendar";
@@ -56,6 +59,7 @@ export default function TuitionDetailsPage({
   const [applyOpen, setApplyOpen] = React.useState(false);
   const [applied, setApplied] = React.useState(false);
   const [chatOpen, setChatOpen] = React.useState(false);
+  const [reportOpen, setReportOpen] = React.useState(false);
 
   // Bookmarks state
   const { isBookmarked, toggleBookmark } = useBookmarks();
@@ -583,7 +587,8 @@ export default function TuitionDetailsPage({
                       <p className="truncate text-base font-bold text-forest dark:text-[#8EE0BA]">
                         {tuition.tutorName}
                       </p>
-                      <p className="flex items-center gap-1 truncate text-xs text-muted dark:text-[#9DB3A6]">
+                      <VerifiedBadge size="sm" className="mt-0.5" />
+                      <p className="mt-1 flex items-center gap-1 truncate text-xs text-muted dark:text-[#9DB3A6]">
                         <Mail className="h-3.5 w-3.5 shrink-0" />
                         <span className="truncate">{tuition.tutorEmail}</span>
                       </p>
@@ -596,7 +601,7 @@ export default function TuitionDetailsPage({
                   </div>
 
                   {/* Public Tutor Profile link */}
-                  <div className="mt-4 border-t border-sage-border pt-4">
+                  <div className="mt-4 border-t border-sage-border pt-4 space-y-2">
                     <Link
                       href={`/tutors/${encodeURIComponent(tuition.tutorEmail)}`}
                       className="block"
@@ -606,6 +611,16 @@ export default function TuitionDetailsPage({
                         <span>View Tutor Profile &amp; Batches</span>
                       </Button>
                     </Link>
+
+                    {/* Report listing button */}
+                    <button
+                      type="button"
+                      onClick={() => setReportOpen(true)}
+                      className="flex w-full items-center justify-center gap-1.5 py-1 text-[11px] font-semibold text-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+                    >
+                      <Flag className="h-3 w-3" />
+                      <span>Report this listing for incorrect info</span>
+                    </button>
                   </div>
                 </CardContent>
               </Card>
@@ -643,6 +658,13 @@ export default function TuitionDetailsPage({
             tutorName={tuition.tutorName}
             open={chatOpen}
             onOpenChange={setChatOpen}
+          />
+
+          <ReportListingDialog
+            open={reportOpen}
+            onClose={() => setReportOpen(false)}
+            tuitionId={tuition._id}
+            tuitionTitle={tuition.title}
           />
         </>
       )}
