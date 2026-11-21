@@ -5,10 +5,12 @@ import {
   CalendarClock,
   Check,
   Download,
+  ExternalLink,
   Loader2,
   Mail,
   MessageSquare,
   Phone,
+  Video,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -28,6 +30,9 @@ export default function TutorApplicantsPage() {
   const [updatingId, setUpdatingId] = React.useState<string | null>(null);
   const [slipApp, setSlipApp] = React.useState<Application | null>(null);
   const [slipOpen, setSlipOpen] = React.useState(false);
+  const [meetModalApp, setMeetModalApp] = React.useState<Application | null>(null);
+  const [meetUrlInput, setMeetUrlInput] = React.useState("");
+  const [savingMeet, setSavingMeet] = React.useState(false);
 
   // Track already accepted slots per tuition to highlight conflicts
   const acceptedSlotsByTuition = React.useMemo(() => {
@@ -107,6 +112,36 @@ export default function TutorApplicantsPage() {
       );
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleSaveMeetLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!meetModalApp) return;
+    setSavingMeet(true);
+    try {
+      const updated = await apiFetch<Application>(
+        `/api/applications/${encodeURIComponent(meetModalApp._id)}/meet-link`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ meetLink: meetUrlInput }),
+        }
+      );
+      setApplicants((prev) =>
+        prev.map((item) =>
+          item._id === meetModalApp._id
+            ? { ...item, meetLink: updated.meetLink }
+            : item
+        )
+      );
+      toast.success("Google Meet link saved successfully! Student notified.");
+      setMeetModalApp(null);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update Google Meet link"
+      );
+    } finally {
+      setSavingMeet(false);
     }
   };
 
@@ -205,18 +240,32 @@ export default function TutorApplicantsPage() {
 
                       <div className="flex flex-wrap items-center gap-2 shrink-0">
                         {app.status === "accepted" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-1 text-xs"
-                            onClick={() => {
-                              setSlipApp(app);
-                              setSlipOpen(true);
-                            }}
-                          >
-                            <Download className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
-                            <span>Slip</span>
-                          </Button>
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-1 text-xs border-blue-200 dark:border-blue-900/60 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+                              onClick={() => {
+                                setMeetModalApp(app);
+                                setMeetUrlInput(app.meetLink || "");
+                              }}
+                            >
+                              <Video className="h-3.5 w-3.5" />
+                              <span>{app.meetLink ? "Edit Meet Link" : "Set Meet Link"}</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-1 text-xs"
+                              onClick={() => {
+                                setSlipApp(app);
+                                setSlipOpen(true);
+                              }}
+                            >
+                              <Download className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
+                              <span>Slip</span>
+                            </Button>
+                          </>
                         )}
                         <Button
                           size="sm"
@@ -283,11 +332,39 @@ export default function TutorApplicantsPage() {
                     </div>
 
                     {app.studentNote && (
-                      <div className="flex items-start gap-2 rounded-xl border border-sage-border bg-white p-3 text-xs text-muted">
+                      <div className="flex items-start gap-2 rounded-xl border border-sage-border bg-white dark:bg-[#141F18] p-3 text-xs text-muted">
                         <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-clay" />
-                        <p className="leading-relaxed text-ink">
+                        <p className="leading-relaxed text-ink dark:text-[#EFF5F0]">
                           {app.studentNote}
                         </p>
+                      </div>
+                    )}
+
+                    {app.status === "accepted" && app.meetLink && (
+                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/20 px-3.5 py-2.5 text-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Video className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                          <span className="font-bold text-blue-900 dark:text-blue-200">
+                            Class Meet Link:
+                          </span>
+                          <a
+                            href={app.meetLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-mono text-blue-700 dark:text-blue-300 hover:underline truncate"
+                          >
+                            {app.meetLink}
+                          </a>
+                        </div>
+                        <a
+                          href={app.meetLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline shrink-0"
+                        >
+                          <span>Open Meet</span>
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
                       </div>
                     )}
                   </div>
@@ -303,6 +380,76 @@ export default function TutorApplicantsPage() {
         open={slipOpen}
         onOpenChange={setSlipOpen}
       />
+
+      {/* Set / Edit Google Meet Dialog */}
+      {meetModalApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border border-sage-border bg-white dark:bg-[#141F18] p-6 shadow-xl space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-forest dark:text-[#8EE0BA] flex items-center gap-2">
+                  <Video className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  Class Google Meet Link
+                </h3>
+                <p className="text-xs text-muted dark:text-[#9DB3A6]">
+                  For student: <strong>{meetModalApp.studentName}</strong> ({meetModalApp.tuitionTitle})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMeetModalApp(null)}
+                className="rounded-lg p-1 text-muted hover:bg-sage-subtle dark:hover:bg-[#1C2B22] cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMeetLink} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-ink dark:text-[#EFF5F0]">
+                  Google Meet / Class URL
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://meet.google.com/abc-defg-hij"
+                  value={meetUrlInput}
+                  onChange={(e) => setMeetUrlInput(e.target.value)}
+                  className="w-full rounded-xl border border-sage-border bg-sage-bg/30 dark:bg-[#1C2B22]/50 px-3.5 py-2.5 text-xs text-ink dark:text-[#EFF5F0] focus:border-forest dark:focus:border-[#8EE0BA] focus:outline-hidden"
+                />
+                <p className="text-[11px] text-muted dark:text-[#9DB3A6]">
+                  The student will see a &quot;Join Class&quot; button on their application dashboard and admission slip.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMeetModalApp(null)}
+                  disabled={savingMeet}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={savingMeet}
+                  className="bg-[#1a73e8] hover:bg-[#1557b0] text-white gap-1.5"
+                >
+                  {savingMeet ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Video className="h-3.5 w-3.5" />
+                  )}
+                  Save &amp; Notify Student
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

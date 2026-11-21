@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, Download, Printer, ShieldCheck, X } from "lucide-react";
+import { CheckCircle2, Download, Printer, ShieldCheck, Video, X } from "lucide-react";
 import type { Application } from "@/types";
 import { formatDate, formatFee } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -205,6 +205,30 @@ export function AdmissionSlipDialog({
                   </div>
                 </div>
               </div>
+
+              {/* Google Meet Online Class Link */}
+              {application.meetLink && (
+                <div className="rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/70 dark:bg-blue-950/30 p-3.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-0.5 min-w-0">
+                    <p className="font-bold text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
+                      <Video className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                      Live Class Link (Google Meet):
+                    </p>
+                    <p className="font-mono text-[11px] text-blue-700 dark:text-blue-300 truncate">
+                      {application.meetLink}
+                    </p>
+                  </div>
+                  <a
+                    href={application.meetLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#1a73e8] hover:bg-[#1557b0] px-3 py-1.5 text-xs font-bold text-white transition-colors"
+                  >
+                    <Video className="h-3.5 w-3.5" />
+                    Join Class
+                  </a>
+                </div>
+              )}
 
               {/* Student Note */}
               {application.studentNote && (

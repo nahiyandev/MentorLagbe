@@ -11,6 +11,7 @@ import {
   Pencil,
   Star,
   Trash2,
+  Video,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Application } from "@/types";
@@ -236,6 +237,22 @@ export default function StudentMyApplicationsPage() {
                             <div className="flex items-center justify-end gap-1.5">
                               {app.status === "accepted" && (
                                 <>
+                                  {app.meetLink ? (
+                                    <a
+                                      href={app.meetLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#1a73e8] hover:bg-[#1557b0] px-2.5 py-1.5 text-xs font-semibold text-white transition-colors shadow-xs"
+                                      title="Open Google Meet Class"
+                                    >
+                                      <Video className="h-3.5 w-3.5" />
+                                      Join Class
+                                    </a>
+                                  ) : (
+                                    <span className="text-[11px] text-muted dark:text-[#9DB3A6] italic px-1">
+                                      Meet pending
+                                    </span>
+                                  )}
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -397,31 +414,49 @@ export default function StudentMyApplicationsPage() {
                     </div>
 
                     {app.status === "accepted" && (
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full gap-1 text-xs"
-                          onClick={() => {
-                            setSlipApp(app);
-                            setSlipOpen(true);
-                          }}
-                        >
-                          <Download className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
-                          Download Slip
-                        </Button>
-                        <Button
-                          variant="accent"
-                          size="sm"
-                          className="w-full gap-1 text-xs"
-                          onClick={() => {
-                            setReviewApp(app);
-                            setReviewOpen(true);
-                          }}
-                        >
-                          <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
-                          Rate Tutor
-                        </Button>
+                      <div className="space-y-2 pt-1">
+                        {app.meetLink ? (
+                          <a
+                            href={app.meetLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-[#1a73e8] hover:bg-[#1557b0] px-3 py-2 text-xs font-bold text-white transition-colors w-full shadow-xs"
+                          >
+                            <Video className="h-4 w-4" />
+                            Join Live Class (Google Meet)
+                          </a>
+                        ) : (
+                          <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 px-2.5 py-1.5 text-[11px] text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
+                            <Video className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                            Google Meet link pending from tutor
+                          </div>
+                        )}
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full gap-1 text-xs"
+                            onClick={() => {
+                              setSlipApp(app);
+                              setSlipOpen(true);
+                            }}
+                          >
+                            <Download className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
+                            Download Slip
+                          </Button>
+                          <Button
+                            variant="accent"
+                            size="sm"
+                            className="w-full gap-1 text-xs"
+                            onClick={() => {
+                              setReviewApp(app);
+                              setReviewOpen(true);
+                            }}
+                          >
+                            <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
+                            Rate Tutor
+                          </Button>
+                        </div>
                       </div>
                     )}
 

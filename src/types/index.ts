@@ -60,6 +60,7 @@ export interface Application {
   studentPhone: string;
   preferredSchedule: string;
   selectedSlots?: string[];
+  meetLink?: string;
   studentNote: string;
   status: ApplicationStatus;
   appliedAt?: string;
