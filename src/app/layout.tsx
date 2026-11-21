@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
+import { LanguageProvider } from "@/context/language-context";
 import { BookmarkProvider } from "@/context/bookmark-context";
 import "./globals.css";
 
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="min-h-full flex flex-col bg-sage-bg text-ink font-sans">
-        <BookmarkProvider>{children}</BookmarkProvider>
+        <LanguageProvider>
+          <BookmarkProvider>{children}</BookmarkProvider>
+        </LanguageProvider>
         <Toaster
           position="top-right"
           richColors

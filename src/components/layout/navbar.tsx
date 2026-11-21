@@ -27,24 +27,30 @@ import {
 } from "@/lib/utils";
 import { BrandLogo } from "./brand-logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { LanguageToggle } from "./language-toggle";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/tuitions", label: "Browse Tuitions" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/#how-it-works", label: "How It Works" },
-];
+import { useLanguage } from "@/context/language-context";
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const { t } = useLanguage();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const navLinks = React.useMemo(
+    () => [
+      { href: "/", label: t("nav_home", "Home") },
+      { href: "/tuitions", label: t("nav_tuitions", "Browse Tuitions") },
+      { href: "/pricing", label: t("nav_pricing", "Pricing") },
+      { href: "/#how-it-works", label: t("nav_how_it_works", "How It Works") },
+    ],
+    [t]
+  );
 
   const user = session?.user as
     | {
@@ -104,7 +110,7 @@ export function Navbar() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-1" aria-label="Primary">
-          {NAV_LINKS.map((item) => {
+          {navLinks.map((item) => {
             const isActive =
               item.href === "/"
                 ? pathname === "/"
@@ -130,6 +136,7 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-2.5">
           <NotificationBell />
           <ThemeToggle />
+          <LanguageToggle />
 
           {isPending ? (
             <div className="h-9 w-36 animate-pulse rounded-xl bg-sage-subtle" />
@@ -138,7 +145,7 @@ export function Navbar() {
               <Link href={dashboardHref}>
                 <Button variant="secondary" size="sm">
                   <LayoutDashboard className="h-4 w-4" />
-                  Dashboard
+                  {t("nav_dashboard", "Dashboard")}
                 </Button>
               </Link>
 
@@ -216,7 +223,7 @@ export function Navbar() {
                         className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 cursor-pointer"
                       >
                         <LogOut className="h-4 w-4" />
-                        Sign Out
+                        {t("nav_sign_out", "Sign Out")}
                       </button>
                     </div>
                   </div>
@@ -227,11 +234,11 @@ export function Navbar() {
             <>
               <Link href="/sign-in">
                 <Button variant="ghost" size="sm">
-                  Sign In
+                  {t("nav_sign_in", "Sign In")}
                 </Button>
               </Link>
               <Link href="/sign-up">
-                <Button size="sm">Sign Up</Button>
+                <Button size="sm">{t("nav_sign_up", "Sign Up")}</Button>
               </Link>
             </>
           )}
@@ -241,6 +248,7 @@ export function Navbar() {
         <div className="flex md:hidden items-center gap-2">
           <NotificationBell />
           <ThemeToggle />
+          <LanguageToggle />
           <button
             type="button"
             onClick={() => setMobileOpen((prev) => !prev)}
@@ -258,7 +266,7 @@ export function Navbar() {
         <div className="md:hidden border-t border-sage-border bg-white px-4 pb-5 pt-3 shadow-md">
           <nav className="flex flex-col gap-1">
             <ThemeToggle variant="button" className="mb-1" />
-            {NAV_LINKS.map((item) => {
+            {navLinks.map((item) => {
               const isActive =
                 item.href === "/"
                   ? pathname === "/"

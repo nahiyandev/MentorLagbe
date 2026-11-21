@@ -41,10 +41,12 @@ import {
 } from "@/lib/utils";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/context/language-context";
 
 interface NavItem {
   href: string;
@@ -119,10 +121,49 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const { t, language } = useLanguage();
 
   const [collapsed, setCollapsed] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [unreadMessages, setUnreadMessages] = React.useState(0);
+
+  const getTranslatedLabel = React.useCallback(
+    (item: NavItem) => {
+      switch (item.href) {
+        case "/dashboard/student":
+        case "/dashboard/tutor":
+        case "/dashboard/admin":
+          return t("db_overview", item.label);
+        case "/dashboard/student/my-applications":
+          return t("db_my_applications", item.label);
+        case "/dashboard/student/bookmarks":
+          return t("db_saved_tuitions", item.label);
+        case "/dashboard/messages":
+          return t("db_messages", item.label);
+        case "/tuitions":
+          return t("db_browse_tuitions", item.label);
+        case "/pricing":
+          return t("nav_upgrade", item.label);
+        case "/dashboard/profile":
+          return t("db_update_profile", item.label);
+        case "/dashboard/tutor/post-tuition":
+          return t("db_post_tuition", item.label);
+        case "/dashboard/tutor/my-tuitions":
+          return t("db_my_tuitions", item.label);
+        case "/dashboard/tutor/applicants":
+          return t("db_manage_applicants", item.label);
+        case "/dashboard/admin/users":
+          return t("db_user_management", item.label);
+        case "/dashboard/admin/tuitions":
+          return t("db_tuition_approvals", item.label);
+        case "/dashboard/admin/transactions":
+          return t("db_transactions", item.label);
+        default:
+          return item.label;
+      }
+    },
+    [t]
+  );
 
   const user = session?.user as
     | {
@@ -346,7 +387,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               </div>
               {(!collapsed || isMobile) && (
                 <>
-                  <span className="truncate flex-1">{item.label}</span>
+                  <span className="truncate flex-1">{getTranslatedLabel(item)}</span>
                   {isMessages && unreadMessages > 0 && (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[11px] font-bold text-white shadow-xs">
                       {unreadMessages > 99 ? "99+" : unreadMessages}
@@ -363,27 +404,29 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className="border-t border-sage-border p-3 space-y-1">
         <Link
           href="/"
-          title={collapsed && !isMobile ? "Back to Home" : undefined}
+          title={collapsed && !isMobile ? (language === "bn" ? "হোম পেজে ফিরে যান" : "Back to Home") : undefined}
           className={cn(
             "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-muted hover:bg-sage-subtle/80 dark:hover:bg-[#1C2B22] hover:text-forest dark:hover:text-[#8EE0BA] transition-colors",
             collapsed && !isMobile && "justify-center px-2"
           )}
         >
           <Home className="h-4.5 w-4.5 shrink-0" />
-          {(!collapsed || isMobile) && <span>Back to Home</span>}
+          {(!collapsed || isMobile) && (
+            <span>{language === "bn" ? "হোম পেজে ফিরে যান" : "Back to Home"}</span>
+          )}
         </Link>
 
         <button
           type="button"
           onClick={handleSignOut}
-          title={collapsed && !isMobile ? "Sign Out" : undefined}
+          title={collapsed && !isMobile ? t("nav_sign_out", "Sign Out") : undefined}
           className={cn(
             "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer",
             collapsed && !isMobile && "justify-center px-2"
           )}
         >
           <LogOut className="h-4.5 w-4.5 shrink-0" />
-          {(!collapsed || isMobile) && <span>Sign Out</span>}
+          {(!collapsed || isMobile) && <span>{t("nav_sign_out", "Sign Out")}</span>}
         </button>
       </div>
     </div>
@@ -429,10 +472,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </button>
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-clay">
-                {roleLabel} Workspace
+                {roleLabel} {language === "bn" ? "ওয়ার্কস্পেস" : "Workspace"}
               </p>
               <p className="text-sm font-bold text-forest leading-tight">
-                Welcome, {user.name}
+                {language === "bn" ? `স্বাগতম, ${user.name}` : `Welcome, ${user.name}`}
               </p>
             </div>
           </div>
@@ -440,15 +483,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2.5">
             <NotificationBell />
             <ThemeToggle />
+            <LanguageToggle />
             <Link href="/tuitions" className="hidden sm:inline-block">
               <Button variant="outline" size="sm">
-                Browse Tuitions
+                {t("nav_tuitions", "Browse Tuitions")}
               </Button>
             </Link>
             <Link href="/dashboard/profile">
               <Button variant="secondary" size="sm">
                 <UserPen className="h-4 w-4" />
-                <span className="hidden sm:inline">Profile</span>
+                <span className="hidden sm:inline">{t("nav_profile", "Profile")}</span>
               </Button>
             </Link>
           </div>

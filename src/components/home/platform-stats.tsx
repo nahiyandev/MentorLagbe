@@ -4,6 +4,7 @@ import * as React from "react";
 import { BookOpen, GraduationCap, ShieldCheck, Star } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/context/language-context";
 
 interface StatsData {
   totalTuitions: number;
@@ -14,6 +15,7 @@ interface StatsData {
 }
 
 export function PlatformStats() {
+  const { language } = useLanguage();
   const [stats, setStats] = React.useState<StatsData | null>(null);
 
   React.useEffect(() => {
@@ -73,10 +75,10 @@ export function PlatformStats() {
           </p>
         </div>
         <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
-          Verified Tuitions
+          {language === "bn" ? "সক্রিয় টিউশন" : "Verified Tuitions"}
         </p>
         <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
-          Active batches &amp; 1-on-1 programs
+          {language === "bn" ? "চলমান ব্যাচ ও ১-অন-১ প্রোগ্রাম" : "Active batches & 1-on-1 programs"}
         </p>
       </div>
 
@@ -89,10 +91,10 @@ export function PlatformStats() {
           </p>
         </div>
         <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
-          Core Subjects
+          {language === "bn" ? "প্রধান বিষয়সমূহ" : "Core Subjects"}
         </p>
         <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
-          Math, Physics, IELTS, Science &amp; more
+          {language === "bn" ? "গণিত, পদার্থ, ইংরেজি, বিজ্ঞান ও অন্যান্য" : "Math, Physics, IELTS, Science & more"}
         </p>
       </div>
 
@@ -105,10 +107,10 @@ export function PlatformStats() {
           </p>
         </div>
         <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
-          Admin Verified
+          {language === "bn" ? "যাচাইকৃত টিউটর" : "Admin Verified"}
         </p>
         <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
-          Vetted tutors and transparent fees
+          {language === "bn" ? "শতভাগ বিশ্বস্ত ও স্বচ্ছ ফি" : "Vetted tutors and transparent fees"}
         </p>
       </div>
 
@@ -121,12 +123,16 @@ export function PlatformStats() {
           </p>
         </div>
         <p className="mt-1.5 text-xs sm:text-sm font-bold text-forest dark:text-[#8EE0BA]">
-          Student Satisfaction
+          {language === "bn" ? "শিক্ষার্থীদের সন্তুষ্টি" : "Student Satisfaction"}
         </p>
         <p className="text-[11px] text-muted dark:text-[#9DB3A6] hidden sm:block">
           {stats.totalReviews > 0
-            ? `Real score from ${stats.totalReviews} verified review${stats.totalReviews > 1 ? "s" : ""}`
-            : "Top rated mentors & verified batches"}
+            ? (language === "bn"
+                ? `${stats.totalReviews}টি আসল রিভিউর গড় স্কোর`
+                : `Real score from ${stats.totalReviews} verified review${stats.totalReviews > 1 ? "s" : ""}`)
+            : (language === "bn"
+                ? "শীর্ষ রেটেড মেন্টর ও লাইভ ব্যাচ"
+                : "Top rated mentors & verified batches")}
         </p>
       </div>
     </div>
