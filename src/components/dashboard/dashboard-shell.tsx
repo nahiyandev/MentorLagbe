@@ -52,6 +52,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogoutConfirmDialog } from "@/components/auth/logout-confirm-dialog";
 import { useLanguage } from "@/context/language-context";
+import { useAccountStatus } from "@/context/account-status-context";
 
 interface NavItem {
   href: string;
@@ -227,6 +228,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const role: UserRole = normalizeRole(user?.role);
   const requiredRole = getRequiredRoleForPath(pathname);
+  const { isBlocked, blockedReason } = useAccountStatus();
 
   React.useEffect(() => {
     let active = true;
@@ -591,6 +593,36 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
         </header>
+
+        {/* Blocked Account Banner */}
+        {isBlocked && (
+          <div className="border-b border-red-200 bg-red-50/95 dark:border-red-900/50 dark:bg-red-950/40 px-4 py-3.5 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300">
+                  <ShieldAlert className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold text-red-900 dark:text-red-200">
+                    Your account is blocked{blockedReason ? `: ${blockedReason}` : "."}
+                  </h3>
+                  <p className="mt-0.5 text-xs text-red-700 dark:text-red-300">
+                    You can still browse, but posting, applying, reviewing and payments are disabled until an Admin unblocks you.
+                  </p>
+                </div>
+              </div>
+              <Link href="/dashboard/messages?admin=true" className="shrink-0">
+                <Button
+                  size="sm"
+                  className="bg-red-700 hover:bg-red-800 text-white dark:bg-red-600 dark:hover:bg-red-700 w-full sm:w-auto font-medium"
+                >
+                  <MessageCircle className="h-4 w-4 mr-1.5" />
+                  Message Support
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Page Body */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>

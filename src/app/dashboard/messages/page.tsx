@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Clock,
@@ -23,7 +24,25 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MessagesDashboardPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-64 rounded-xl" />
+          <Skeleton className="h-[580px] w-full rounded-2xl" />
+        </div>
+      }
+    >
+      <MessagesContent />
+    </React.Suspense>
+  );
+}
+
+function MessagesContent() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const shouldOpenAdmin = searchParams.get("admin") === "true";
+
   const [conversations, setConversations] = React.useState<ChatConversation[]>([]);
   const [activeConvo, setActiveConvo] = React.useState<ChatConversation | null>(null);
   const [thread, setThread] = React.useState<ChatMessage[]>([]);
@@ -87,7 +106,7 @@ export default function MessagesDashboardPage() {
     let active = true;
     async function init() {
       const list = await loadConversations();
-      if (active && list.length > 0 && !activeConvo) {
+      if (active && list.length > 0 && !activeConvo && !shouldOpenAdmin) {
         setActiveConvo(list[0]);
       }
     }
@@ -147,7 +166,7 @@ export default function MessagesDashboardPage() {
     scrollToBottom();
   }, [thread, scrollToBottom]);
 
-  const handleStartAdminChat = () => {
+  const handleStartAdminChat = React.useCallback(() => {
     const adminEmail = adminContact?.email || "nahiyanadmin@gmail.com";
     const adminName = adminContact?.name || "Platform Admin";
 
@@ -186,7 +205,13 @@ export default function MessagesDashboardPage() {
     setActiveConvo(adminConvo);
     setThread([]);
     setLoadingThread(false);
-  };
+  }, [adminContact, conversations, myEmail]);
+
+  React.useEffect(() => {
+    if (shouldOpenAdmin && adminContact) {
+      handleStartAdminChat();
+    }
+  }, [shouldOpenAdmin, adminContact, handleStartAdminChat]);
 
   const handleSendReply = async () => {
     if (!replyText.trim() || !activeConvo || !myEmail) return;
