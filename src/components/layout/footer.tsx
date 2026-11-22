@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Globe, Mail, MapPin, Phone } from "lucide-react";
 import { BrandLogo } from "./brand-logo";
 
 function XBrandIcon({ className }: { className?: string }) {
@@ -47,31 +47,44 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-2.5 pt-1">
               <a
-                href="https://x.com"
+                href="https://nahiyandev.vercel.app"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Follow MentorLagbe on X"
+                aria-label="Developer Portfolio"
+                title="Developer Portfolio"
                 className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 dark:bg-white/10 text-white hover:bg-clay dark:hover:bg-clay transition-colors"
               >
-                <XBrandIcon className="h-4 w-4" />
+                <Globe className="h-4 w-4" />
               </a>
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/md-nayem-1413b41b6/"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Follow MentorLagbe on LinkedIn"
+                aria-label="Connect on LinkedIn"
+                title="LinkedIn Profile"
                 className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 dark:bg-white/10 text-white hover:bg-clay dark:hover:bg-clay transition-colors"
               >
                 <LinkedInIcon className="h-4 w-4" />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/Nahiyan24"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Follow MentorLagbe on Facebook"
+                aria-label="Connect on Facebook"
+                title="Facebook Profile"
                 className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 dark:bg-white/10 text-white hover:bg-clay dark:hover:bg-clay transition-colors"
               >
                 <FacebookIcon className="h-4 w-4" />
+              </a>
+              <a
+                href="https://x.com"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Follow MentorLagbe on X"
+                title="X Profile"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 dark:bg-white/10 text-white hover:bg-clay dark:hover:bg-clay transition-colors"
+              >
+                <XBrandIcon className="h-4 w-4" />
               </a>
             </div>
           </div>
@@ -173,6 +186,17 @@ export function Footer() {
                 <span>+880 1924-648788</span>
               </li>
               <li className="flex items-start gap-2.5">
+                <Globe className="mt-0.5 h-4 w-4 shrink-0 text-clay" />
+                <a
+                  href="https://nahiyandev.vercel.app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white dark:hover:text-[#8EE0BA] transition-colors"
+                >
+                  nahiyandev.vercel.app
+                </a>
+              </li>
+              <li className="flex items-start gap-2.5">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-clay" />
                 <span>Dhanmondi, Dhaka 1209, Bangladesh</span>
               </li>
@@ -182,7 +206,18 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/15 pt-6 text-xs text-white/65 sm:flex-row">
           <p>&copy; {year} MentorLagbe. All rights reserved.</p>
-          <p>Built for structured tuition &amp; mentorship discovery.</p>
+          <p>
+            Developed by{" "}
+            <a
+              href="https://nahiyandev.vercel.app"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-white underline underline-offset-2 hover:text-[#8EE0BA] transition-colors"
+            >
+              Nahiyan
+            </a>
+            . Built for structured tuition &amp; mentorship discovery.
+          </p>
         </div>
       </div>
     </footer>
