@@ -7,6 +7,7 @@ import {
   BookOpen,
   Bookmark,
   CalendarCheck,
+  CalendarDays,
   ClipboardList,
   CreditCard,
   Crown,
@@ -102,6 +103,11 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       href: "/dashboard/tutor/applicants",
       label: "Manage Applicants",
       icon: Users,
+    },
+    {
+      href: "/dashboard/tutor/availability",
+      label: "My Availability",
+      icon: CalendarDays,
     },
     {
       href: "/dashboard/tutor/earnings",
