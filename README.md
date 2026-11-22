@@ -49,7 +49,7 @@ Built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**.
 | :--- | :--- | :--- | :--- |
 | **Admin** | `nahiyanadmin@gmail.com` | `Rj612221` | Tuition approval/rejection, user role management, Stripe financial ledger, tutor payout approval, coupon lifecycle management |
 | **Tutor** | `nahiyandev+mltutor@gmail.com` | `Mentor1234` | Tuition posting (Free/Pro limits), applicant review, weekly availability slot manager, class attendance marking (+1 / -1 Undo), bKash/Nagad payout requests |
-| **Student** | `nahiyandev+mls01@gmail.com`<br>*(Alt: `fahim@gmail.com`)* | `Student1234`<br>*(Alt: `12345678`)* | Tuition browsing, slot-based applications, Google Meet class access, payment history & digital money receipts, Pro subscription upgrade, verified reviews |
+| **Student** | `nahiyandev+mls01@gmail.com` | `Student1234` | Tuition browsing, slot-based applications, Google Meet class access, payment history & digital money receipts, Pro subscription upgrade, verified reviews |
 
 ---
 
