@@ -162,7 +162,7 @@ export function TestimonialsSection() {
             Community Voices
           </p>
           <h2 className="mt-1.5 text-3xl font-extrabold text-forest dark:text-[#8EE0BA]">
-            Real Student Reviews &amp; Ratings
+            Students Reviews
           </h2>
           <p className="mt-2 text-sm text-muted dark:text-[#9DB3A6] sm:text-base">
             Verified feedback submitted by students accepted into active tuition batches across Bangladesh.
