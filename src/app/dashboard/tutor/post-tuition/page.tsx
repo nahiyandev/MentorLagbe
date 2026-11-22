@@ -55,6 +55,7 @@ export default function TutorPostTuitionPage() {
   const [location, setLocation] = React.useState("");
   const [monthlyFee, setMonthlyFee] = React.useState("");
   const [daysPerWeek, setDaysPerWeek] = React.useState("3");
+  const [seatLimit, setSeatLimit] = React.useState("5");
   const [description, setDescription] = React.useState("");
   const [bannerImage, setBannerImage] = React.useState("");
 
@@ -110,6 +111,12 @@ export default function TutorPostTuitionPage() {
       return;
     }
 
+    const parsedSeats = Number(seatLimit);
+    if (!Number.isFinite(parsedSeats) || parsedSeats < 1 || parsedSeats > 100) {
+      toast.error("Batch seat limit must be between 1 and 100 students.");
+      return;
+    }
+
     if (!description.trim() || description.trim().length < 20) {
       toast.error("Please provide a detailed description (at least 20 characters).");
       return;
@@ -132,6 +139,7 @@ export default function TutorPostTuitionPage() {
           location: location.trim(),
           monthlyFee: parsedFee,
           daysPerWeek: parsedDays,
+          seatLimit: parsedSeats,
           description: description.trim(),
           bannerImage: bannerImage.trim() || undefined,
           tutorName:
@@ -257,7 +265,7 @@ export default function TutorPostTuitionPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-1.5">
                 <Label htmlFor="mode">Teaching Mode</Label>
                 <Select
@@ -296,6 +304,19 @@ export default function TutorPostTuitionPage() {
                   max={7}
                   value={daysPerWeek}
                   onChange={(e) => setDaysPerWeek(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="seatLimit">Batch Seat Limit</Label>
+                <Input
+                  id="seatLimit"
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={seatLimit}
+                  onChange={(e) => setSeatLimit(e.target.value)}
                   required
                 />
               </div>

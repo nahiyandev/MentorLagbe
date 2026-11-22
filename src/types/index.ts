@@ -45,6 +45,10 @@ export interface Tuition {
   tutorAvailability?: TutorAvailabilitySlot[];
   tutorPhone?: string;
   bookedSlots?: string[];
+  seatLimit?: number;
+  enrolledCount?: number;
+  remainingSeats?: number;
+  isFull?: boolean;
 }
 
 export interface Application {

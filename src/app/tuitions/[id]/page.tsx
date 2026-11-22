@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Star,
   User,
+  Users,
   MessageCircle,
   Zap,
 } from "lucide-react";
@@ -465,9 +466,77 @@ export default function TuitionDetailsPage({
                     </div>
                   </div>
 
+                  {/* Batch Seat Capacity */}
+                  <div className="mt-4 rounded-xl border border-sage-border/80 bg-sage-bg/50 dark:bg-[#1C2B22]/60 p-3.5 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <span className="text-muted dark:text-[#9DB3A6] flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
+                        <span>ব্যাচ সিট ক্যাপাসিটি</span>
+                      </span>
+                      {tuition.isFull || (tuition.remainingSeats !== undefined && tuition.remainingSeats <= 0) ? (
+                        <span className="text-red-600 dark:text-red-400 font-black">ভর্তি পূর্ণ (০ সিট)</span>
+                      ) : (
+                        <span className="text-emerald-700 dark:text-emerald-400 font-black">
+                          {tuition.remainingSeats ?? 5}টি সিট বাকি
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex h-2 w-full overflow-hidden rounded-full bg-sage-border/60 dark:bg-[#141F18]">
+                      <div
+                        className={cn(
+                          "transition-all duration-500",
+                          tuition.isFull || (tuition.remainingSeats !== undefined && tuition.remainingSeats <= 0)
+                            ? "bg-red-500"
+                            : "bg-emerald-500"
+                        )}
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            Math.round(((tuition.enrolledCount || 0) / (tuition.seatLimit || 5)) * 100)
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[11px] text-muted dark:text-[#9DB3A6]">
+                      <span>{tuition.enrolledCount || 0} জন ভর্তি হয়েছে</span>
+                      <span>সর্বোচ্চ আসন: {tuition.seatLimit || 5}</span>
+                    </div>
+                  </div>
+
                   {/* Role-Restricted Application Action */}
                   {sessionLoading ? (
                     <Skeleton className="h-11 w-full rounded-xl" />
+                  ) : applied ? (
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
+                      <CheckCircle2 className="mx-auto h-6 w-6 text-emerald-700" />
+                      <p className="mt-1.5 text-sm font-bold text-emerald-900">
+                        Application Submitted
+                      </p>
+                      <p className="mt-0.5 text-xs text-emerald-800">
+                        Track its status anytime in your dashboard.
+                      </p>
+                      <Link
+                        href="/dashboard/student/my-applications"
+                        className="mt-3 inline-block"
+                      >
+                        <Button variant="outline" size="sm">
+                          View My Applications
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : tuition.isFull || (tuition.remainingSeats !== undefined && tuition.remainingSeats <= 0) ? (
+                    <div className="space-y-2">
+                      <Button
+                        size="lg"
+                        disabled
+                        className="w-full bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300 font-bold border border-red-200 dark:border-red-900 cursor-not-allowed opacity-90"
+                      >
+                        ভর্তি পূর্ণ (Batch Full)
+                      </Button>
+                      <p className="text-center text-xs text-red-600 dark:text-red-400">
+                        এই ব্যাচের সব আসন ইতিমধ্যে পূর্ণ হয়ে গেছে। নতুন আবেদন গ্রহণ বন্ধ আছে।
+                      </p>
+                    </div>
                   ) : !user ? (
                     <div className="space-y-2.5">
                       <Link

@@ -65,7 +65,7 @@ export function TuitionCard({ tuition, onBookmarkToggle }: TuitionCardProps) {
         )}
 
         {/* Category & Mode Badges */}
-        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 max-w-[calc(100%-52px)]">
           <Badge variant="default" className="bg-forest/90 backdrop-blur-sm">
             {tuition.subject}
           </Badge>
@@ -80,6 +80,19 @@ export function TuitionCard({ tuition, onBookmarkToggle }: TuitionCardProps) {
             )}
             {tuition.mode}
           </Badge>
+          {tuition.isFull || (tuition.remainingSeats !== undefined && tuition.remainingSeats <= 0) ? (
+            <Badge variant="danger" className="bg-red-600 text-white font-bold backdrop-blur-sm shadow-xs">
+              ভর্তি পূর্ণ
+            </Badge>
+          ) : tuition.remainingSeats !== undefined && tuition.remainingSeats <= 3 ? (
+            <Badge variant="warning" className="bg-amber-500 text-white font-bold backdrop-blur-sm shadow-xs animate-pulse">
+              {tuition.remainingSeats}টি সিট বাকি
+            </Badge>
+          ) : tuition.remainingSeats !== undefined ? (
+            <Badge variant="sage" className="bg-white/95 dark:bg-[#141F18]/95 font-bold backdrop-blur-sm text-forest dark:text-[#8EE0BA]">
+              {tuition.remainingSeats} সিট বাকি
+            </Badge>
+          ) : null}
         </div>
 
         {/* Bookmark Button */}
@@ -166,12 +179,26 @@ export function TuitionCard({ tuition, onBookmarkToggle }: TuitionCardProps) {
               {formatFee(tuition.monthlyFee)}
             </p>
           </div>
-          <Link href={`/tuitions/${tuition._id}`}>
-            <Button size="sm">
-              View Details
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {tuition.isFull || (tuition.remainingSeats !== undefined && tuition.remainingSeats <= 0) ? (
+              <span className="rounded-full bg-red-100 dark:bg-red-950/40 px-2 py-0.5 text-[11px] font-bold text-red-700 dark:text-red-300">
+                ভর্তি পূর্ণ
+              </span>
+            ) : tuition.remainingSeats !== undefined ? (
+              <span className={cn(
+                "text-[11px] font-bold",
+                tuition.remainingSeats <= 3 ? "text-amber-600 dark:text-amber-400 font-extrabold" : "text-muted dark:text-[#9DB3A6]"
+              )}>
+                {tuition.remainingSeats} সিট বাকি
+              </span>
+            ) : null}
+            <Link href={`/tuitions/${tuition._id}`}>
+              <Button size="sm">
+                View Details
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </article>

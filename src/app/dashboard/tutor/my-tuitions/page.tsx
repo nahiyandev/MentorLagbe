@@ -693,6 +693,18 @@ export default function TutorMyTuitionsPage() {
                             <CalendarDays className="h-3.5 w-3.5 text-clay" />
                             {t.daysPerWeek} days/wk
                           </span>
+                          {t.seatLimit !== undefined && (
+                            <span
+                              className={cn(
+                                "rounded-lg px-2 py-0.5 text-[11px] font-bold border",
+                                t.isFull || (t.remainingSeats !== undefined && t.remainingSeats <= 0)
+                                  ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900"
+                                  : "bg-sage-subtle text-forest border-sage-border dark:bg-[#1C2B22] dark:text-[#8EE0BA] dark:border-[#2A3E31]"
+                              )}
+                            >
+                              {t.enrolledCount ?? 0}/{t.seatLimit} সিট ({t.isFull ? "পূর্ণ" : `${t.remainingSeats ?? t.seatLimit}টি বাকি`})
+                            </span>
+                          )}
                           <span className="font-extrabold text-clay text-sm sm:text-base ml-auto sm:ml-1">
                             {formatFee(t.monthlyFee)}
                             <span className="text-xs font-normal text-muted dark:text-[#9DB3A6]">

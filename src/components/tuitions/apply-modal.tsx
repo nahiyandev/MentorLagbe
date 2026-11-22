@@ -115,6 +115,11 @@ export function ApplyModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (tuition.isFull || (tuition.remainingSeats !== undefined && tuition.remainingSeats <= 0)) {
+      toast.error("This tuition batch is already full. No new applications are accepted.");
+      return;
+    }
+
     if (!phoneValue.trim() || phoneValue.trim().length < 7) {
       toast.error("Please enter a valid phone number.");
       return;
@@ -185,6 +190,24 @@ export function ApplyModal({
       description={`${tuition.title} — ${tuition.subject} (${tuition.classLevel})`}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {tuition.remainingSeats !== undefined && (
+          <div
+            className={cn(
+              "rounded-xl px-3.5 py-2 text-xs font-semibold flex items-center justify-between border",
+              tuition.isFull || tuition.remainingSeats <= 0
+                ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900"
+                : "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900"
+            )}
+          >
+            <span>ব্যাচ সিট স্ট্যাটাস:</span>
+            <span>
+              {tuition.isFull || tuition.remainingSeats <= 0
+                ? "ভর্তি পূর্ণ (০ সিট বাকি)"
+                : `${tuition.remainingSeats}টি আসন বাকি আছে`}
+            </span>
+          </div>
+        )}
+
         <div className="space-y-1.5">
           <Label htmlFor="studentPhone">Contact Phone Number</Label>
           <Input
