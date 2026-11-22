@@ -19,14 +19,14 @@ Built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**.
 
 ---
 
-## 📌 সূচিপত্র (Table of Contents)
+## 📌 Table of Contents
 1. [Live Links & Repositories](#-live-links--repositories)
-2. [Demo Credentials](#-demo-credentials--test-accounts)
-3. [Key Features (প্রধান ফিচারসমূহ)](#-key-features-প্রধান-ফিচারসমূহ)
-4. [Methods & Technical Architecture (ব্যবহৃত মেথড ও আর্কিটেকচার)](#-methods--technical-architecture-ব্যবহৃত-মেথড-ও-আর্কিটেকচার)
+2. [Demo Credentials & Test Accounts](#-demo-credentials--test-accounts)
+3. [Key Features](#-key-features)
+4. [Methods & Technical Architecture](#-methods--technical-architecture)
 5. [Database Collections](#-database-collections)
 6. [Design System — Sage Studio](#-design-system--sage-studio)
-7. [Local Setup Guide](#-local-development-setup)
+7. [Local Development Setup](#-local-development-setup)
 
 ---
 
@@ -43,161 +43,160 @@ Built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**.
 
 ## 🔑 Demo Credentials & Test Accounts
 
-> **পরীক্ষকদের জন্য:** প্ল্যাটফর্মটি যাচাই করার সুবিধার্থে নিচে অ্যাডমিন, টিউটর ও স্টুডেন্ট রোল-ভিত্তিক টেস্ট অ্যাকাউন্ট দেওয়া হলো। নতুন অ্যাকাউন্ট খুলে সাইন-আপ করার সুবিধাও রয়েছে।
+> **For Evaluators:** To facilitate easy testing and grading across all role workflows, pre-configured test credentials for Admin, Tutor, and Student accounts are provided below. Sign-up with new accounts is also fully supported.
 
-| Role | Email | Password | অ্যাক্সেস এবং ফিচারসমূহ |
+| Role | Email | Password | Access & Responsibilities |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `nahiyanadmin@gmail.com` | `Rj612221` | টিউশন অনুমোদন/বাতিল, ইউজার রোল ম্যানেজমেন্ট, স্ট্রাইপ ট্রানজেকশন খতিয়ান, টিউটর উইথড্র রিকোয়েস্ট অনুমোদন, কুপন ম্যানেজমেন্ট |
-| **Tutor** | `nahiyandev+mltutor@gmail.com` | `Mentor1234` | টিউশন পোস্ট (ফ্রি/প্রো লিমিট), আবেদন গ্রহণ/বাতিল, সাপ্তাহিক টাইম স্লট ম্যানেজমেন্ট, ক্লাস অ্যাটেনডেন্স (+1/-1 Undo), বিকাশ/নগদ টাকা তোলার রিকোয়েস্ট |
-| **Student** | `fahim@gmail.com` | `12345678` | টিউশন ব্রাউজিং, স্লট সিলেকশন সহ আবেদন, গুগল মিট ক্লাসে জয়েন, পেমেন্ট হিস্ট্রি ও ডিজিটাল মানি রিসিট, প্রো আপগ্রেড, রিভিউ প্রদান |
+| **Admin** | `nahiyanadmin@gmail.com` | `Rj612221` | Tuition approval/rejection, user role management, Stripe financial ledger, tutor payout approval, coupon lifecycle management |
+| **Tutor** | `nahiyandev+mltutor@gmail.com` | `Mentor1234` | Tuition posting (Free/Pro limits), applicant review, weekly availability slot manager, class attendance marking (+1 / -1 Undo), bKash/Nagad payout requests |
+| **Student** | `fahim@gmail.com` | `12345678` | Tuition browsing, slot-based applications, Google Meet class access, payment history & digital money receipts, Pro subscription upgrade, verified reviews |
 
 ---
 
-## ✨ Key Features (প্রধান ফিচারসমূহ)
+## ✨ Key Features
 
-### ১. 🎯 Find My Tutor (স্মার্ট কম্প্যাটিবিলিটি ম্যাচমেকার)
-- **মাল্টি-প্যারামিটার অ্যালগরিদম**: বিষয় (Subject), ক্লাস (Class Level), এবং মাসিক বাজেট (Budget) দিলে অ্যালগরিদম তাৎক্ষণিকভাবে ১০০ পয়েন্টের ওপর ভিত্তি করে সেরা টিউটর সাজেস্ট করে:
-  - *বিষয় সামঞ্জস্য*: সর্বোচ্চ ৪০ পয়েন্ট
-  - *ক্লাস লেভেল*: সর্বোচ্চ ৩০ পয়েন্ট
-  - *বাজেট ফিটিং*: সর্বোচ্চ ২০ পয়েন্ট (বাজেট সাশ্রয় হাইলাইট)
-  - *রেটিং ও কোয়ালিটি*: সর্বোচ্চ ১০ পয়েন্ট
-- **ইন্সট্যান্ট প্রিভিউ সিঙ্ক**: ড্রপডাউন সিলেক্ট করার সাথে সাথে ফলাফল রিফ্রেশ হয়। এক্সাক্ট ম্যাচ না থাকলে স্বয়ংক্রিয়ভাবে নিকটবর্তী অল্টারনেটিভ ব্যাচ সাজেস্ট করে।
-- **রেজেক্স ভ্যারিয়েন্ট ম্যাচিং**: ক্লাস লেভেলে হাইফেন (`-`) ও এন-ড্যাশ (`–`) উভয় ফরম্যাটই সঠিকভাবে হ্যান্ডল করে।
+### 1. 🎯 Find My Tutor (Smart Compatibility Matchmaker)
+- **Multi-Parameter Matching Algorithm**: Based on the student's selected subject, class level, and maximum monthly budget, the algorithm scores candidates out of 100 points:
+  - *Subject Alignment*: Up to 40 points
+  - *Class Level Match*: Up to 30 points
+  - *Budget Compatibility*: Up to 20 points (highlights cost savings)
+  - *Rating & Quality Weight*: Up to 10 points
+- **Instant Preview Synchronization**: Match results dynamically refresh upon parameter changes. If no exact match is found, alternative nearby batches are automatically recommended.
+- **Hyphen & Dash Normalization**: Robust regex matching supporting both regular hyphens (`-`) and en-dashes (`–`) for uniform batch matching.
 
-### ২. 🛡️ ব্যাচ সিট ক্যাপাসিটি ও ফুল ব্যাচ লক (Seat Limits & Guard)
-- **প্রতি ব্যাচে সিট লিমিট**: টিউটর টিউশন পোস্ট করার সময় ব্যাচের আসন সংখ্যা (যেমন: ৫, ১০ বা ২০ জন) নির্ধারণ করতে পারে।
-- **রিয়েল-টাইম সিট ব্যাজ**: টিউশন কার্ডে `৩টি সিট বাকি` বা `ভর্তি পূর্ণ` ব্যাজ দেখা যায়।
-- **ভিজ্যুয়াল প্রগ্রেস বার**: টিউশন ডিটেইলস পেজে কতজন ভর্তি হয়েছে এবং কয়টি আসন অবশিষ্ট আছে তার ক্যাপাসিটি বার দেখা যায়।
-- **সার্ভার সিকিউরিটি গার্ড**: আসন পূর্ণ হয়ে গেলে ফ্রন্টএন্ডে `Apply Now` ডিসেবল হয়ে যায় এবং সার্ভার লেভেলে কোনো অতিরিক্ত আবেদন গ্রহণ বা অনুমোদন নিষিদ্ধ করা হয় (HTTP 400 Protection)।
+### 2. 🛡️ Batch Seat Limits & Full-Batch Capacity Guard
+- **Per-Batch Seat Quota**: Tutors specify maximum class capacity (e.g., 5, 10, or 20 students) when publishing tuitions.
+- **Real-Time Seat Badges**: Interactive badges display remaining seats (e.g., `2 seats left` or `Batch Full`).
+- **Visual Capacity Bar**: Detailed progress bar on tuition details pages visualizing current enrollment versus total limit.
+- **Server-Side Enforcement**: Once capacity is reached, frontend `Apply Now` buttons are disabled, and backend APIs reject further applications with `HTTP 400 - Batch is already full`.
 
-### ৩. 📅 টিউটর সাপ্তাহিক সময়সূচি ও স্লট বুকিং (Tutor Availability)
-- **সাপ্তাহিক স্লট ম্যানেজার (`/dashboard/tutor/availability`)**: টিউটর সপ্তাহের কোন কোন দিন ও কোন কোন সময়ে ক্লাস নিতে পারবেন তা সেট ও সেভ করতে পারেন।
-- **লাইভ ক্যালেন্ডার প্রিভিউ**: শিক্ষার্থীরা টিউটরের প্রোফাইল ও টিউশন পেজে টিউটরের ফ্রি স্লটগুলো ক্যালেন্ডার আকারে দেখতে পায়।
-- **ডাবল-বুকিং প্রতিরোধ**: কোনো নির্দিষ্ট টাইম-স্লটে একবার একজন শিক্ষার্থী অনুমোদিত হলে, সেই স্লটটি স্বয়ংক্রিয়ভাবে লক হয়ে যায় যাতে অন্য কেউ একই সময়ে বুকিং দিতে না পারে।
+### 3. 📅 Tutor Weekly Availability & Time Slot Booking
+- **Weekly Slot Management (`/dashboard/tutor/availability`)**: Tutors can configure and toggle recurring weekly teaching slots by day and time window.
+- **Live Interactive Calendar**: Students can view tutor availability directly on profiles and tuition detail pages.
+- **Double-Booking Prevention**: When a student application is accepted for a specific slot, that slot is automatically reserved to prevent conflicting bookings.
 
-### ৪. 🎓 ক্লাস সেশন ট্র্যাকার, গুগল মিট ও অ্যাটেনডেন্স (Attendance & Meet)
-- **রিয়েল ক্লাস অ্যাটেনডেন্স**: টিউটর প্রতি ক্লাস শেষে `Done (+1)` বাটন চাপলে ডেটাবেজে সম্পূর্ণ হওয়া ক্লাসের সঠিক সংখ্যা বৃদ্ধি পায়।
-- **ইন্সট্যান্ট Undo বোতাম**: ভুলবশত ক্লিক পড়ে গেলে টিউটর মুহূর্তেই `Undo` বোতাম চেপে ক্লাস সংখ্যা সংশোধন করতে পারেন।
-- **গুগল মিট লিংক ইন্টিগ্রেশন**: আবেদন অনুমোদিত হওয়ার পর টিউটর সরাসরি ক্লাসের Google Meet লিংক প্রদান করতে পারেন, শিক্ষার্থী সেখান থেকেই সরাসরি ক্লাসে যুক্ত হতে পারে।
-- **স্টুডেন্ট ড্যাশবোর্ড ট্র্যাকার**: শিক্ষার্থীর হোম ড্যাশবোর্ডে ক্লাসের অগ্রগতি (`X classes completed`) এবং পরবর্তী ক্লাসের শিডিউল প্রদর্শিত হয়।
+### 4. 🎓 Class Session Tracking, Google Meet & Real Attendance
+- **Real Attendance Marking**: Tutors mark classes with `Done (+1)`, accurately updating completed class counts in the database.
+- **Instant Undo Action**: Tutors can quickly revert accidental clicks with a dedicated `Undo (-1)` action.
+- **Google Meet Integration**: Approved students can access direct Google Meet links provided by their tutors directly from the dashboard.
+- **Student Dashboard Tracker**: Students can track overall progress (`X classes completed`) and view upcoming class timetables.
 
-### ৫. 🧾 স্টুডেন্ট পেমেন্ট হিস্ট্রি ও ডিজিটাল মানি রিসিট (My Payments)
-- **পেমেন্ট ট্র্যাকিং পেজ (`/dashboard/student/payments`)**: শিক্ষার্থী তার সব লেনদেন (Stripe, bKash, Nagad) এক জায়গায় দেখতে পায়।
-- **৪টি সামারি স্ট্যাটকার্ড**: মোট খরচ, সফল লেনদেন, অ্যাক্টিভ সাবস্ক্রিপশন ও কুপন ডিসকাউন্ট হিসেব।
-- **ডিজিটাল রিসিট মোডাল**: যেকোনো পেমেন্টের জন্য প্রিন্ট ও ডাউনলোডযোগ্য ভেরিফাইড মানি রিসিট এবং ট্রানজেকশন আইডি কপি করার সুবিধা।
+### 5. 🧾 Student Payment History & Digital Money Receipts (My Payments)
+- **Centralized Payments Hub (`/dashboard/student/payments`)**: Students can review all payment records across Stripe and mobile financial services (bKash, Nagad) in one place.
+- **Summary Stat Cards**: Visual summaries of total spent, successful transactions, active subscriptions, and coupon savings.
+- **Digital Money Receipt Modal**: Verifiable, printable digital receipts complete with one-click Transaction ID copying.
 
-### ৬. 🏦 টিউটর পে-আউট ও উইথড্র রিকোয়েস্ট (Tutor Payout Flow)
-- **উইথড্র রিকোয়েস্ট মোডাল**: টিউটর তার জমানো আয় থেকে বিকাশ, নগদ কিংবা ব্যাংক অ্যাকাউন্টে টাকা তোলার রিকোয়েস্ট পাঠাতে পারেন।
-- **অ্যাডমিন রিভিউ প্যানেল (`/dashboard/admin/transactions`)**: অ্যাডমিনের কাছে পে-আউট রিকোয়েস্ট যায়; অ্যাডমিন ট্রানজেকশন রেফারেন্স আইডি এবং নোট দিয়ে রিকোয়েস্ট Approve বা Reject করতে পারেন।
+### 6. 🏦 Tutor Payouts & Multi-Channel Withdrawal Pipeline
+- **Withdrawal Request Flow**: Tutors can request payouts of their earnings via bKash, Nagad, or direct bank transfer.
+- **Admin Moderation Interface (`/dashboard/admin/transactions`)**: Administrators review pending payout requests, record reference IDs, add transaction notes, and approve or reject requests.
 
-### ৭. ⚡ ডাইনামিক রেসপন্স টাইম অ্যানালিটিক্স (Response Badge)
-- হার্ডকোডেড সময়ের বদলে টিউটরের আবেদন রিভিউয়ের আসল সময়ের ওপর ভিত্তি করে স্বয়ংক্রিয়ভাবে রেসপন্স টাইম ক্যালকুলেট করা হয়।
-- প্রোফাইল ও টিউশনে ডায়নামিক ব্যাজ প্রদর্শিত হয়:
+### 7. ⚡ Dynamic Tutor Response Time Analytics
+- Computes genuine response times from historical applicant review logs instead of static placeholders.
+- Dynamically generates badges based on tutor activity:
   - `Lightning Fast (⚡ ~15m)`
   - `Fast Responder (~1 hr)`
   - `Responsive (~2 hrs)`
   - `Priority Tutor (⚡ ~30m)`
 
-### ৮. ⭐ ভেরিফাইড রিভিউ ও রেন্ডম সুইপ ক্যারোজেল (Students Reviews)
-- **ভেরিফাইড রেটিং**: শুধুমাত্র ব্যাচে অ্যাকসেপ্টেড হওয়া শিক্ষার্থীরাই রিভিউ দেওয়ার সুযোগ পায়।
-- **স্মার্ট সিঙ্গেল-লাইন ক্যারোজেল**: টাচ-সোয়াইপ জেসচার সাপোর্ট, হোভার করলে অটো-প্লে পজ হওয়া, এবং নিচে ক্লিন ডট ইন্ডিকেটর।
-- **এপিআই রেন্ডমাইজেশন**: প্রতি পেজ রিফ্রেশে ভিন্ন ভিন্ন শিক্ষার্থীর রিভিউ রেন্ডমলি ভেসে ওঠে।
+### 8. ⭐ Verified Reviews & Single-Line Sweeping Carousel
+- **Verified Student Reviews**: Review submissions are restricted exclusively to enrolled students whose applications were accepted.
+- **Modern Touch-Enabled Carousel**: Single-line layout with touch-swipe gesture support, hover-to-pause auto-rotation, and pagination dots.
+- **API Randomization**: Featured testimonials rotate randomly on each page refresh for a dynamic showcase.
 
-### ৯. 📍 জনপ্রিয় এলাকা ও সারাদেশব্যাপী অনলাইন হাব (Popular Areas)
-- হোমপেজে ধানমন্ডি, বনানী, উত্তরা, মিরপুর, গুলশান, মোহাম্মদপুর, চট্টগ্রাম এবং সারাদেশ (অনলাইন) হাবগুলোর আলাদা শোকেস।
-- এক ক্লিকেই ফিল্টারসহ সংশ্লিষ্ট এলাকার টিউশন তালিকা পাওয়া যায়।
+### 9. 📍 Popular Tuition Hubs & Nationwide Filter
+- Dedicated showcase on the homepage highlighting prime tuition areas (Dhanmondi, Banani, Uttara, Mirpur, Gulshan, Mohammadpur, Chattogram, and Nationwide Online).
+- One-click filtering immediately opens the catalog filtered by location.
 
-### ১০. 💬 ইন-অ্যাপ ডিরেক্ট ইনকোয়ারি ও অ্যাডমিন সাপোর্ট চ্যাট
-- টিউশন কার্ড বা ডিটেইলস পেজ থেকে আবেদন করার আগেই টিউটরের সাথে সরাসরি মেসেজিংয়ের মাধ্যমে সিলেবাস বা ফি নিয়ে আলোচনার সুবিধা।
-- প্ল্যাটফর্ম ব্যবহারকারীদের জন্য ডেডিকেটেড অ্যাডমিন সাপোর্ট মেসেজ চ্যানেল।
+### 10. 💬 In-App Direct Inquiries & Admin Support Messaging
+- Direct real-time messaging between students and tutors to inquire about syllabus details or class policies prior to enrollment.
+- Dedicated support channel connecting users with platform administrators.
 
-### ১১. 🏷️ কুপন ও ডিসকাউন্ট ভ্যালিডেশন
-- অ্যাডমিন প্যানেল থেকে প্রো সাবস্ক্রিপশনের জন্য স্পেশাল প্রোমো কোড/কুপন তৈরি করা যায়।
-- স্ট্রাইপ চেকআউটে তাৎক্ষণিকভাবে কুপন যাচাই ও ডিসকাউন্ট কার্যকর হয়।
+### 11. 🏷️ Coupon Codes & Instant Checkout Discounting
+- Admin creation and lifecycle management of promotional discount codes.
+- Instant validation and real-time discount calculation during Stripe checkout.
 
-### ১২. 🌐 দ্বিভাষিক সাপোর্ট (English & বাংলা)
-- এক ক্লিকেই পুরো প্ল্যাটফর্ম ইংরেজি অথবা বাংলায় রূপান্তর করার জন্য গ্লোবাল ল্যাঙ্গুয়েজ কনটেক্সট প্রোভাইডার।
+### 12. 🌐 Dual-Language Support (English & Bengali)
+- Complete global language switcher enabling instant toggling between English and Bengali interfaces.
 
 ---
 
-## 🛠️ Methods & Technical Architecture (ব্যবহৃত মেথড ও আর্কিটেকচার)
+## 🛠️ Methods & Technical Architecture
 
-প্ল্যাটফর্মটিতে আধুনিক ফুলস্ট্যাক আর্কিটেকচার ও ইন্ডাস্ট্রির বেস্ট প্র্যাকটিস মেথডগুলো অনুসরণ করা হয়েছে:
+The platform follows modern fullstack architectural best practices and production-ready design patterns:
 
-### ১. হাইব্রিড অথেন্টিকেশন ও অটোমেটিক জেডব্লিউটি এক্সচেঞ্জ মেথড
-- **BetterAuth + Express JWT সিঙ্ক**: ক্লায়েন্টে BetterAuth সেশন তৈরি হওয়ার পর `src/lib/api.ts` স্বয়ংক্রিয়ভাবে `POST /api/auth/jwt` এর মাধ্যমে ব্যাকএন্ড সিক্রেট সাইন্ড JWT টোকেন এক্সচেঞ্জ করে।
-- **লোকালস্টোরেজ ক্যাশিং ও ইন্টারসেপ্টর**: প্রতিটি প্রোটেক্টেড রিকোয়েস্টে `Authorization: Bearer <token>` যুক্ত করা হয়। টোকেন এক্সপায়ার হলে সেশন থেকে পুনরায় রিফ্রেশ মেথড চালানো হয়।
+### 1. Hybrid Authentication & Automated JWT Exchange
+- **BetterAuth + Express JWT Synchronization**: Following BetterAuth session creation on the client, `src/lib/api.ts` automatically exchanges the session for a backend-signed JWT token via `POST /api/auth/jwt`.
+- **LocalStorage Caching & Interceptors**: All protected API calls attach `Authorization: Bearer <token>`. Automatic token refresh handles expired sessions transparently.
 
-### ২. ডেটাবেজ অ্যাগ্রিগেশন ও সিট ক্যালকুলেশন মেথড
-- **MongoDB Aggregation Pipeline (`$match`, `$group`, `$sum`)**: 
-  - `GET /api/tuitions` এবং `GET /api/tuitions/my-tuitions` এন্ডপয়েন্টে একাধিক কুয়েরির বদলে অ্যাগ্রিগেশনের মাধ্যমে একবারে সমস্ত ব্যাচের `enrolledCount` হিসেব করা হয়।
-  - `remainingSeats = Math.max(0, seatLimit - enrolledCount)` সূত্রের মাধ্যমে মেমরিতে ফিল্টার ও ওভার-এনরোলমেন্ট গার্ড তৈরি করা হয়।
+### 2. Database Aggregation & Seat Calculation Methods
+- **MongoDB Aggregation Pipelines (`$match`, `$group`, `$sum`)**: 
+  - Batches calculate `enrolledCount` in a single query pass across `/api/tuitions` and `/api/tuitions/my-tuitions`.
+  - Seat capacity logic (`remainingSeats = Math.max(0, seatLimit - enrolledCount)`) prevents race conditions and over-enrollment.
 
-### ৩. সিকিউরিটি ও রোল-বেসড এক্সেস কন্ট্রোল (RBAC Middleware)
-- **`verifyToken`**: ইনকামিং JWT টোকেনের বৈধতা ও সিগনেচার যাচাই করে।
-- **`verifyStudent` / `verifyTutor` / `verifyAdmin`**: রোল অনুযায়ী নির্দিষ্ট এন্ডপয়েন্টের এক্সেস নিয়ন্ত্রণ করে।
-- **সেলফ-ডিমোশন গার্ড**: অ্যাডমিন নিজের রোল পরিবর্তন করে প্ল্যাটফর্মকে অ্যাডমিনহীন করা থেকে সুরক্ষিত।
-- **সার্ভারলেস আইসোলেশন ও এক্সিট প্রিভেনশন**: Vercel Serverless পরিবেশে আনহ্যান্ডেল্ড এক্সেপশনে `process.exit()` বাদ দিয়ে রেসপন্স রিটার্ন নিশ্চিত করা হয়েছে।
+### 3. Security & Role-Based Access Control (RBAC)
+- **`verifyToken`**: Validates JWT cryptographic signatures, expiration, and payload integrity.
+- **`verifyStudent` / `verifyTutor` / `verifyAdmin`**: Granular route guards securing protected endpoints by role.
+- **Self-Demotion Guard**: Protects against accidental removal of the sole system administrator.
+- **Serverless Crash Prevention**: Avoids `process.exit()` in serverless environments, returning structured JSON errors.
 
-### ৪. স্ট্রাইপ চেকআউট ও ওয়েবহুক ভেরিফিকেশন মেথড
-- **Stripe Checkout Sessions**: ক্লায়েন্ট সরাসরি স্ট্রাইপের সিকিউর চেকআউট পেজে রিডিরেক্ট হয়।
-- **Raw Body Signature Validation**: `express.raw({ type: "application/json" })` ব্যবহার করে স্ট্রাইপ ওয়েবহুকের ক্রিপ্টোগ্রাফিক সিগনেচার (`stripe-signature`) ভেরিফাই করা হয় যাতে কোনো ফেক পেমেন্ট রিকোয়েস্ট সিস্টেমে ঢুকতে না পারে।
+### 4. Stripe Checkout & Cryptographic Webhook Validation
+- **Stripe Checkout Sessions**: Secure hosted checkout flow for subscription upgrades and student payments.
+- **Raw Body Signature Verification**: Validates incoming Stripe webhooks using `express.raw({ type: "application/json" })` and `stripe.webhooks.constructEvent()` against `stripe-signature` headers.
 
-### ৫. রেসপন্সিভ ইউজার ইন্টারফেস ও পারফরম্যান্স অপ্টিমাইজেশন
-- **Next.js 16 App Router & Turbopack**: দ্রুত পেজ লোড ও এসএসআর (SSR) সুবিধা।
-- **Tailwind CSS v4 ক্যানোনিক্যাল গ্রাফিক্স**: আধুনিক `bg-linear-to-*` গ্রেডিয়েন্ট ও ডিজাইন টোকেন।
-- **অপটিমিস্টিক লোডার ও স্কেলিটন**: ডাটা ফেচিংয়ের সময়ে কনটেন্ট বাউন্সিং এড়াতে স্কেলিটন লোডার ব্যবহার করা হয়েছে।
-- **টাচ-সোয়াইপ লিসেনার**: মোবাইল ব্যবহারকারীদের জন্য ন্যাচারাল টাচ জেসচার হ্যান্ডলিং।
+### 5. Responsive UI Engineering & Performance Optimizations
+- **Next.js 16 App Router & Turbopack**: High-speed server rendering (SSR), optimized bundle splitting, and zero client-side layout shift.
+- **Tailwind CSS v4 Design Tokens**: Canonical utility classes (`bg-linear-to-*`), custom theme tokens, and complete dark mode compatibility.
+- **Optimistic Skeleton Loaders**: Skeleton states preventing layout shifts while fetching data asynchronously.
 
 ---
 
 ## 🗄️ Database Collections
 
-MongoDB Atlas ক্লাস্টারের `mentorlagbe` ডেটাবেজে ব্যবহৃত প্রধান কালেকশনসমূহ:
+Hosted on **MongoDB Atlas** in the `mentorlagbe` database:
 
-1. **`users`**: ব্যবহারকারীর নাম, ইমেইল, পাসওয়ার্ড হ্যাশ, ছবি, ভূমিকা (`student` | `tutor` | `admin`), ফোন, বায়ো, সাপ্তাহিক প্রাপ্যতা (`availability`), রেসপন্স টাইম ও মেম্বারশিপ প্ল্যান (`free` | `pro`)।
-2. **`tuitions`**: টিউটরের টিউশন পোস্ট, সাবজেক্ট, ক্লাস, মোড, ফি, দিন, ব্যানার, আসন সংখ্যা (`seatLimit`), স্ট্যাটাস (`pending` | `approved` | `rejected`), এবং সক্রিয়তা (`isActive`)।
-3. **`applications`**: ব্যাচে আবেদন, নির্বাচিত টাইম-স্লট, শিডিউল, স্টুডেন্ট নোট, অনুমোদন অবস্থা (`pending` | `accepted` | `rejected`), সম্পূর্ণ ক্লাসের সংখ্যা (`completedClasses`), ক্লাসের ইতিহাস (`attendanceHistory`), এবং গুগল মিট লিংক (`meetLink`)।
-4. **`payments`**: স্ট্রাইপ ও ম্যানুয়াল সাবস্ক্রিপশন লেনদেনের তথ্য (অ্যামাউন্ট, ট্রানজেকশন আইডি, স্ট্যাটাস, তারিখ)।
-5. **`payoutrequests`**: টিউটরের টাকা তোলার রিকোয়েস্ট, মাধ্যম (বিকাশ/নগদ/ব্যাংক), অ্যাকাউন্ট নম্বর, অ্যাডমিন অনুমোদন স্ট্যাটাস ও রেফারেন্স।
-6. **`reviews`**: শুধুমাত্র ব্যাচে ভর্তি হওয়া শিক্ষার্থীদের দেওয়া টিউশন রেটিং (১-৫ স্টার) ও লিখিত ফিডব্যাক।
-7. **`messages`**: শিক্ষার্থী ও টিউটরদের মধ্যকার ইনকোয়ারি এবং অ্যাডমিন সাপোর্ট চ্যাট হিস্ট্রি।
-8. **`notifications`**: আবেদন গ্রহণ, বাতিল, পে-আউট ও ক্লাসের নোটিফিকেশন লগ।
-9. **`coupons`**: ডিসকাউন্ট কোড, শতাংশ, মেয়াদ ও ব্যবহারের পরিসংখ্যান।
-10. **`bookmarks`**: শিক্ষার্থীদের সেভ করে রাখা টিউশন বুকমার্কস।
+1. **`users`**: User records, hashed passwords, roles (`student` | `tutor` | `admin`), profile data, availability slots, response time metrics, and membership tier (`free` | `pro`).
+2. **`tuitions`**: Tuition postings, subject, class level, mode, monthly fee, weekly frequency, banner image, seat quota (`seatLimit`), approval status (`pending` | `approved` | `rejected`), and active state (`isActive`).
+3. **`applications`**: Enrollment requests, selected time slot, schedule, applicant notes, approval state (`pending` | `accepted` | `rejected`), completed sessions counter (`completedClasses`), attendance log (`attendanceHistory`), and Google Meet link (`meetLink`).
+4. **`payments`**: Transaction records for Stripe and manual payments (amount, provider, transaction ID, status, date).
+5. **`payoutrequests`**: Tutor withdrawal requests, payment method (bKash / Nagad / Bank), recipient account, admin approval state, and transaction reference.
+6. **`reviews`**: Verified tuition reviews (1–5 stars) and detailed written feedback from enrolled students.
+7. **`messages`**: Inquiries between students and tutors, and platform admin support message threads.
+8. **`notifications`**: System notifications for application status updates, payments, classes, and payouts.
+9. **`coupons`**: Promotional discount codes, percentage, expiry dates, and usage counters.
+10. **`bookmarks`**: Saved tuition listings bookmarked by students.
 
 ---
 
 ## 🎨 Design System — Sage Studio
 
-প্ল্যাটফর্মের ইউজার ইন্টারফেসে একটি রুচিশীল ও চোখের জন্য আরামদায়ক **Sage Studio** প্যালেট অনুসরণ করা হয়েছে:
+The UI follows the custom **Sage Studio** design language, crafted for clarity, elegance, and visual comfort:
 
-| Token | Color Code | ব্যবহার |
+| Token | Color Code | Usage |
 | :--- | :--- | :--- |
-| **Forest (Primary)** | `#1E3A2F` | প্রধান হেডিং, ব্র্যান্ড লোগো, প্রাইমারি বাটন, কার্ড বর্ডার |
-| **Warm Clay (Accent)** | `#C2703D` | কল-টু-অ্যাকশন (CTA), মূল্যমান/ফি, প্রমিনেন্ট ব্যাজ, হাইলাইট |
-| **Light Sage (Surface)** | `#EFF3EC` | ব্যাকগ্রাউন্ড সারফেস, সাবটেল কার্ড, অল্টারনেট রো |
-| **Emerald (Success)** | `#10B981` | এপ্রুভড স্ট্যাটাস, পেমেন্ট সাকসেস, গুগল মিট বাটন |
-| **Ink (Typography)** | `#1C2B23` | মূল বডি টেক্সট, টেবিল কনটেন্ট |
-| **Dark Theme Slate** | `#0E1712` | ডার্ক মোডের ডিপ ব্যাকগ্রাউন্ড ও কনট্রাস্ট সারফেস |
+| **Forest (Primary)** | `#1E3A2F` | Headings, brand logo, primary action buttons, card borders |
+| **Warm Clay (Accent)** | `#C2703D` | Call-to-action (CTA), pricing/fees, highlights, prominent badges |
+| **Light Sage (Surface)** | `#EFF3EC` | Background canvas, subtle card backgrounds, alternating rows |
+| **Emerald (Success)** | `#10B981` | Approved status badges, payment successes, Google Meet action buttons |
+| **Ink (Typography)** | `#1C2B23` | High-contrast body text, table content |
+| **Dark Theme Slate** | `#0E1712` | Deep contrast background surfaces in dark mode |
 
 ---
 
 ## 💻 Local Development Setup
 
-### ১. রিপোজিটরি ক্লোন করুন
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/nahiyandev/MentorLagbe.git
 cd MentorLagbe
 ```
 
-### ২. ডিপেন্ডেন্সি ইনস্টল করুন
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-### ৩. এনভায়রনমেন্ট ভ্যারিয়েবল কনফিগারেশন
-রুট ডিরেক্টরিতে একটি `.env.local` ফাইল তৈরি করুন:
+### 3. Configure Environment Variables
+Create a `.env.local` file in the root directory:
 ```env
 # Database
 MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/mentorlagbe?retryWrites=true&w=majority
@@ -216,13 +215,13 @@ NEXT_PUBLIC_IMGBB_API_KEY=your-imgbb-api-key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
-### ৪. ডেভেলপমেন্ট সার্ভার চালু করুন
+### 4. Start Development Server
 ```bash
 npm run dev
 ```
-ব্রাউজারে [http://localhost:3000](http://localhost:3000) ওপেন করুন।
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### ৫. প্রডাকশন বিল্ড যাচাই
+### 5. Production Build Verification
 ```bash
 npm run build
 npm run start
