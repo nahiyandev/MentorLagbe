@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import {
   BookOpen,
+  CalendarClock,
   ChevronDown,
   ChevronUp,
   Download,
@@ -168,6 +169,7 @@ export default function StudentMyApplicationsPage() {
                       <th className="pb-3 pr-4 font-bold">Tuition</th>
                       <th className="pb-3 px-4 font-bold">Tutor</th>
                       <th className="pb-3 px-4 font-bold">Monthly Fee</th>
+                      <th className="pb-3 px-4 font-bold">Booked Slot</th>
                       <th className="pb-3 px-4 font-bold">Applied Date</th>
                       <th className="pb-3 px-4 font-bold">Status &amp; Timeline</th>
                       <th className="pb-3 pl-4 text-right font-bold">Actions</th>
@@ -197,6 +199,26 @@ export default function StudentMyApplicationsPage() {
                           </td>
                           <td className="py-4 px-4 font-bold text-clay">
                             {formatFee(app.monthlyFee)}
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5 text-xs font-semibold text-forest dark:text-[#8EE0BA]">
+                                <CalendarClock className="h-3.5 w-3.5 text-clay shrink-0" />
+                                <span>{app.preferredSchedule}</span>
+                              </div>
+                              {app.selectedSlots && app.selectedSlots.length > 0 && (
+                                <div className="flex flex-wrap gap-1 pt-0.5">
+                                  {app.selectedSlots.map((slot) => (
+                                    <span
+                                      key={slot}
+                                      className="inline-flex items-center rounded-md bg-sage-subtle dark:bg-[#1C2B22] px-2 py-0.5 text-[10px] font-bold text-forest dark:text-[#8EE0BA]"
+                                    >
+                                      {slot}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </td>
                           <td className="py-4 px-4 text-muted dark:text-[#9DB3A6]">
                             {formatDate(app.appliedAt || app.createdAt)}
@@ -320,7 +342,7 @@ export default function StudentMyApplicationsPage() {
                         {/* Expandable Step-by-Step Progress Timeline */}
                         {expandedId === app._id && (
                           <tr className="bg-sage-bg/30 dark:bg-[#101A14]/70">
-                            <td colSpan={6} className="p-4 sm:p-5">
+                            <td colSpan={7} className="p-4 sm:p-5">
                               <ApplicationTimeline application={app} />
                             </td>
                           </tr>
@@ -383,6 +405,27 @@ export default function StudentMyApplicationsPage() {
                         <strong className="text-ink dark:text-[#EFF5F0]">Applied:</strong>{" "}
                         {formatDate(app.appliedAt || app.createdAt)}
                       </p>
+                      <div className="pt-0.5">
+                        <strong className="text-ink dark:text-[#EFF5F0] flex items-center gap-1 mb-1">
+                          <CalendarClock className="h-3.5 w-3.5 text-clay shrink-0" />
+                          Booked Slot:
+                        </strong>
+                        <span className="font-medium text-forest dark:text-[#8EE0BA] block">
+                          {app.preferredSchedule}
+                        </span>
+                        {app.selectedSlots && app.selectedSlots.length > 0 && (
+                          <div className="flex flex-wrap gap-1 pt-1">
+                            {app.selectedSlots.map((slot) => (
+                              <span
+                                key={slot}
+                                className="inline-flex items-center rounded-md bg-sage-subtle dark:bg-[#1C2B22] px-2 py-0.5 text-[10px] font-bold text-forest dark:text-[#8EE0BA]"
+                              >
+                                {slot}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Step-by-Step Timeline Preview */}
