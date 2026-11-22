@@ -662,7 +662,7 @@ export default function TuitionDetailsPage({
                         <VerifiedBadge size="sm" />
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:text-emerald-300">
                           <Zap className="h-2.5 w-2.5 fill-emerald-500 text-emerald-500 shrink-0" />
-                          <span>~1 hr response</span>
+                          <span>{tuition.responseBadge || (tuition.responseTime ? `${tuition.responseTime} response` : "Active response")}</span>
                         </span>
                       </div>
                       <p className="mt-1 flex items-center gap-1 truncate text-xs text-muted dark:text-[#9DB3A6]">

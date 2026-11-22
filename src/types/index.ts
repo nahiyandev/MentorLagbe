@@ -21,6 +21,8 @@ export interface UserRecord {
   bio?: string;
   plan: UserPlan;
   availability?: TutorAvailabilitySlot[];
+  responseTime?: string;
+  responseBadge?: string;
   createdAt?: string;
 }
 
@@ -49,6 +51,8 @@ export interface Tuition {
   enrolledCount?: number;
   remainingSeats?: number;
   isFull?: boolean;
+  responseTime?: string;
+  responseBadge?: string;
 }
 
 export interface Application {
@@ -251,6 +255,8 @@ export interface TutorProfileData {
     role: UserRole;
     plan: UserPlan;
     availability?: TutorAvailabilitySlot[];
+    responseTime?: string;
+    responseBadge?: string;
     createdAt?: string;
   };
   tuitions: Tuition[];

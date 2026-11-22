@@ -152,7 +152,7 @@ export default function TutorProfilePage() {
                       )}
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-3 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-xs">
                         <Zap className="h-3.5 w-3.5 fill-emerald-500 text-emerald-500 shrink-0" />
-                        <span>Fast Responder &bull; ~1 hr response time</span>
+                        <span>{data.tutor.responseBadge || (data.tutor.responseTime ? `Replies in ${data.tutor.responseTime}` : "Fast Responder")}</span>
                       </span>
                     </div>
 
