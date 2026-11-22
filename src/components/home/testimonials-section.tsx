@@ -17,15 +17,6 @@ import { formatDate, getInitials, isValidImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function areSimilarFeedback(textA?: string, textB?: string): boolean {
-  if (!textA || !textB) return false;
-  const a = textA.toLowerCase().replace(/[^\w\s]/g, "").trim();
-  const b = textB.toLowerCase().replace(/[^\w\s]/g, "").trim();
-  if (a === b) return true;
-  if (a.slice(0, 25) === b.slice(0, 25)) return true;
-  return false;
-}
-
 export function TestimonialsSection() {
   const [reviews, setReviews] = React.useState<Review[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -42,57 +33,8 @@ export function TestimonialsSection() {
         const res = await apiFetch<Review[]>("/api/reviews/featured");
         const list = extractList<Review>(res);
         if (active) {
-          // Guarantee unique student and distinct feedback across testimonial cards
-          const seenStudents = new Set<string>();
-          const seenFeedbacks: string[] = [];
-          const uniqueList: Review[] = [];
-
-          for (const item of list) {
-            const studentKey = (
-              item.studentEmail ||
-              item.studentName ||
-              ""
-            )
-              .toLowerCase()
-              .trim();
-            if (!studentKey || seenStudents.has(studentKey)) continue;
-
-            const isDuplicate = seenFeedbacks.some((fb) =>
-              areSimilarFeedback(fb, item.feedback)
-            );
-            if (isDuplicate) continue;
-
-            seenStudents.add(studentKey);
-            seenFeedbacks.push(item.feedback);
-            uniqueList.push(item);
-            if (uniqueList.length >= 6) break;
-          }
-
-          // Fallback if needed
-          if (uniqueList.length < 6) {
-            for (const item of list) {
-              const studentKey = (
-                item.studentEmail ||
-                item.studentName ||
-                ""
-              )
-                .toLowerCase()
-                .trim();
-              if (studentKey && !seenStudents.has(studentKey)) {
-                seenStudents.add(studentKey);
-                uniqueList.push(item);
-                if (uniqueList.length >= 6) break;
-              }
-            }
-          }
-
-          const finalList = uniqueList.length > 0 ? uniqueList : list.slice(0, 6);
-          // Shuffle randomly on load
-          const shuffled = [...finalList].sort(() => Math.random() - 0.5);
-          setReviews(shuffled);
-          if (shuffled.length > 0) {
-            setCurrentIndex(Math.floor(Math.random() * shuffled.length));
-          }
+          setReviews(list);
+          setCurrentIndex(0);
         }
       } catch {
         // Non-blocking
@@ -111,24 +53,12 @@ export function TestimonialsSection() {
 
   const nextSlide = React.useCallback(() => {
     if (total <= 1) return;
-    setCurrentIndex((prev) => {
-      let next = Math.floor(Math.random() * total);
-      if (next === prev) {
-        next = (prev + 1) % total;
-      }
-      return next;
-    });
+    setCurrentIndex((prev) => (prev + 1) % total);
   }, [total]);
 
   const prevSlide = React.useCallback(() => {
     if (total <= 1) return;
-    setCurrentIndex((prev) => {
-      let next = Math.floor(Math.random() * total);
-      if (next === prev) {
-        next = (prev - 1 + total) % total;
-      }
-      return next;
-    });
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
   }, [total]);
 
   const goToSlide = (idx: number) => {
@@ -327,43 +257,21 @@ export function TestimonialsSection() {
               </div>
             </div>
 
-            {/* Bottom Controls: Pill Indicators & Reviewer Avatars */}
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              {/* Slide Indicator Dots */}
-              <div className="flex items-center gap-2">
-                {reviews.map((_, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => goToSlide(idx)}
-                    aria-label={`Go to review ${idx + 1}`}
-                    className={`h-2.5 transition-all duration-300 rounded-full cursor-pointer ${
-                      currentIndex === idx
-                        ? "w-8 bg-forest dark:bg-[#8EE0BA]"
-                        : "w-2.5 bg-sage-border dark:bg-[#1C2B22] hover:bg-clay"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              {/* Reviewer Quick Selection Pills */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5">
-                {reviews.map((r, idx) => (
-                  <button
-                    key={r._id || idx}
-                    type="button"
-                    onClick={() => goToSlide(idx)}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-all cursor-pointer ${
-                      currentIndex === idx
-                        ? "bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] shadow-xs scale-105"
-                        : "bg-white/80 dark:bg-[#141F18] border border-sage-border text-muted dark:text-[#9DB3A6] hover:text-forest dark:hover:text-[#8EE0BA]"
-                    }`}
-                  >
-                    <span className={`h-2 w-2 rounded-full ${currentIndex === idx ? "bg-amber-400" : "bg-clay"}`} />
-                    <span className="max-w-24 truncate">{r.studentName.split(" ")[0]}</span>
-                  </button>
-                ))}
-              </div>
+            {/* Centered Slide Indicator Dots (Names removed per design) */}
+            <div className="mt-6 flex items-center justify-center gap-2">
+              {reviews.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => goToSlide(idx)}
+                  aria-label={`Go to review ${idx + 1}`}
+                  className={`h-2.5 transition-all duration-300 rounded-full cursor-pointer ${
+                    currentIndex === idx
+                      ? "w-8 bg-forest dark:bg-[#8EE0BA]"
+                      : "w-2.5 bg-sage-border dark:bg-[#1C2B22] hover:bg-clay"
+                  }`}
+                />
+              ))}
             </div>
           </div>
         ) : (
