@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, Clock, Info, Loader2, Sparkles } from "lucide-react";
+import { CalendarDays, Info, Loader2, Sparkles } from "lucide-react";
 import type { TutorAvailabilitySlot, UserRecord } from "@/types";
 import { apiFetch } from "@/lib/api";
 import { TutorAvailabilityManager } from "@/components/dashboard/tutor-availability-manager";
