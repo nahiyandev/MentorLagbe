@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
 import { normalizeRole } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
+import { useAccountStatus } from "@/context/account-status-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +24,7 @@ type CheckoutPlan = "student_pro" | "tutor_pro";
 export default function PricingPage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const { isBlocked } = useAccountStatus();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [selectedPlan, setSelectedPlan] = React.useState<CheckoutPlan>("student_pro");
 
@@ -42,6 +44,11 @@ export default function PricingPage() {
     if (!user) {
       toast.info("Please sign in first to subscribe to a Pro plan.");
       router.push("/sign-in?callbackUrl=/pricing");
+      return;
+    }
+
+    if (isBlocked) {
+      toast.error("Your account is blocked. Contact support to appeal.");
       return;
     }
 
@@ -176,10 +183,13 @@ export default function PricingPage() {
                   variant="accent"
                   size="lg"
                   className="w-full"
-                  disabled={isPro}
+                  disabled={isPro || isBlocked}
+                  title={isBlocked ? "Your account is blocked." : undefined}
                   onClick={() => handleSubscribe("student_pro")}
                 >
-                  {isPro ? (
+                  {isBlocked ? (
+                    "Account Blocked"
+                  ) : isPro ? (
                     "Already on Pro Plan"
                   ) : (
                     <>
@@ -234,10 +244,13 @@ export default function PricingPage() {
                   variant="accent"
                   size="lg"
                   className="w-full"
-                  disabled={isPro}
+                  disabled={isPro || isBlocked}
+                  title={isBlocked ? "Your account is blocked." : undefined}
                   onClick={() => handleSubscribe("tutor_pro")}
                 >
-                  {isPro ? (
+                  {isBlocked ? (
+                    "Account Blocked"
+                  ) : isPro ? (
                     "Already on Pro Plan"
                   ) : (
                     <>

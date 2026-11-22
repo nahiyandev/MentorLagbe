@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import type { Application } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
+import { useAccountStatus } from "@/context/account-status-context";
 import { AdmissionSlipDialog } from "@/components/tuitions/admission-slip-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TutorApplicantsPage() {
+  const { isBlocked } = useAccountStatus();
   const [applicants, setApplicants] = React.useState<Application[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -93,6 +95,10 @@ export default function TutorApplicantsPage() {
     id: string,
     status: "accepted" | "rejected"
   ) => {
+    if (isBlocked) {
+      toast.error("Your account is blocked. Contact support to appeal.");
+      return;
+    }
     setUpdatingId(id);
     try {
       await apiFetch(`/api/applications/${encodeURIComponent(id)}/status`, {
@@ -344,11 +350,14 @@ export default function TutorApplicantsPage() {
                           size="sm"
                           disabled={
                             isUpdating ||
+                            isBlocked ||
                             app.status === "accepted" ||
                             hasSlotConflict
                           }
                           title={
-                            hasSlotConflict
+                            isBlocked
+                              ? "Your account is blocked."
+                              : hasSlotConflict
                               ? "Cannot accept: this time slot is already taken by another student."
                               : undefined
                           }
@@ -364,7 +373,8 @@ export default function TutorApplicantsPage() {
                         <Button
                           variant="destructive"
                           size="sm"
-                          disabled={isUpdating || app.status === "rejected"}
+                          disabled={isUpdating || isBlocked || app.status === "rejected"}
+                          title={isBlocked ? "Your account is blocked." : undefined}
                           onClick={() => updateStatus(app._id, "rejected")}
                         >
                           <X className="h-3.5 w-3.5" />

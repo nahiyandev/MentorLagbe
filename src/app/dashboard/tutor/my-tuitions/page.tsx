@@ -35,6 +35,7 @@ import {
   type TuitionMode,
 } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
+import { useAccountStatus } from "@/context/account-status-context";
 import { uploadImageToImgBB } from "@/lib/imgbb";
 import { cn, formatDate, formatFee, isValidImageUrl } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +52,7 @@ import { Textarea } from "@/components/ui/textarea";
 type StatusFilter = "all" | "approved" | "pending" | "active" | "closed";
 
 export default function TutorMyTuitionsPage() {
+  const { isBlocked } = useAccountStatus();
   const [tuitions, setTuitions] = React.useState<Tuition[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -736,7 +738,8 @@ export default function TutorMyTuitionsPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        disabled={isBusy}
+                        disabled={isBusy || isBlocked}
+                        title={isBlocked ? "Your account is blocked." : undefined}
                         onClick={() => openEditModal(t)}
                         className="h-8.5 gap-1.5 hover:border-forest/40"
                       >
@@ -749,7 +752,8 @@ export default function TutorMyTuitionsPage() {
                         type="button"
                         variant="secondary"
                         size="sm"
-                        disabled={isBusy || t.approvalStatus === "rejected"}
+                        disabled={isBusy || t.approvalStatus === "rejected" || isBlocked}
+                        title={isBlocked ? "Your account is blocked." : undefined}
                         onClick={() => handleToggleActive(t)}
                         className="h-8.5 gap-1.5"
                       >
@@ -766,7 +770,8 @@ export default function TutorMyTuitionsPage() {
                         type="button"
                         variant="destructive"
                         size="sm"
-                        disabled={isBusy}
+                        disabled={isBusy || isBlocked}
+                        title={isBlocked ? "Your account is blocked." : undefined}
                         onClick={() => setDeleting(t)}
                         className="h-8.5 gap-1.5"
                       >

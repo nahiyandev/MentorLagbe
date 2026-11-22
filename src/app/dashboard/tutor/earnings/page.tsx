@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import type { Application, PayoutRequest, Tuition } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatDate, formatFee, formatWhatsAppUrl } from "@/lib/utils";
+import { useAccountStatus } from "@/context/account-status-context";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,7 @@ interface MonthlyGroup {
 }
 
 export default function TutorEarningsPage() {
+  const { isBlocked } = useAccountStatus();
   const [tuitions, setTuitions] = React.useState<Tuition[]>([]);
   const [applicants, setApplicants] = React.useState<Application[]>([]);
   const [analytics, setAnalytics] = React.useState<TutorAnalyticsData | null>(null);
@@ -321,8 +323,10 @@ export default function TutorEarningsPage() {
         <div className="flex items-center gap-2.5">
           <Button
             size="sm"
+            disabled={isBlocked}
+            title={isBlocked ? "Your account is blocked." : undefined}
             onClick={() => setPayoutModalOpen(true)}
-            className="gap-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold cursor-pointer"
+            className="gap-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowDownToLine className="h-3.5 w-3.5" />
             <span>Request Payout</span>
@@ -497,8 +501,10 @@ export default function TutorEarningsPage() {
             </div>
             <Button
               size="sm"
+              disabled={isBlocked}
+              title={isBlocked ? "Your account is blocked." : undefined}
               onClick={() => setPayoutModalOpen(true)}
-              className="gap-1.5 text-xs bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] cursor-pointer"
+              className="gap-1.5 text-xs bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ArrowDownToLine className="h-3.5 w-3.5" />
               <span>Request Payout</span>

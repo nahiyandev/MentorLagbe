@@ -35,30 +35,39 @@ export default function AdminUsersPage() {
   const ITEMS_PER_PAGE = 8;
   const [currentPage, setCurrentPage] = React.useState(1);
 
-  const loadUsers = React.useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiFetch<unknown>("/api/admin/users");
-      setUsers(extractList<UserRecord>(res, "users"));
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        setError(
-          "Backend JWT token is missing or expired. Once POST /api/auth/jwt is live on the server, sign in again to manage users."
-        );
-      } else {
-        setError(
-          err instanceof Error ? err.message : "Could not load users."
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   React.useEffect(() => {
-    void loadUsers();
-  }, [loadUsers]);
+    let active = true;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await apiFetch<unknown>("/api/admin/users");
+        if (active) {
+          setUsers(extractList<UserRecord>(res, "users"));
+        }
+      } catch (err) {
+        if (active) {
+          if (err instanceof ApiError && err.status === 401) {
+            setError(
+              "Backend JWT token is missing or expired. Once POST /api/auth/jwt is live on the server, sign in again to manage users."
+            );
+          } else {
+            setError(
+              err instanceof Error ? err.message : "Could not load users."
+            );
+          }
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+    void load();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleRoleChange = async (userId: string, nextRole: UserRole) => {
     setUpdatingId(userId);

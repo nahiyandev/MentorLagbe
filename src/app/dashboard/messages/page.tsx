@@ -61,28 +61,6 @@ function MessagesContent() {
   const myEmail = session?.user?.email;
   const isAdmin = session?.user?.role === "admin";
 
-  React.useEffect(() => {
-    async function fetchAdminContact() {
-      try {
-        const res = await apiFetch<{
-          name: string;
-          email: string;
-          role: string;
-        }>("/api/messages/admin-contact");
-        if (res && res.email) {
-          setAdminContact(res);
-        }
-      } catch {
-        setAdminContact({
-          name: "Platform Admin",
-          email: "nahiyanadmin@gmail.com",
-          role: "admin",
-        });
-      }
-    }
-    void fetchAdminContact();
-  }, []);
-
   const scrollToBottom = React.useCallback(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -105,16 +83,79 @@ function MessagesContent() {
   React.useEffect(() => {
     let active = true;
     async function init() {
-      const list = await loadConversations();
-      if (active && list.length > 0 && !activeConvo && !shouldOpenAdmin) {
-        setActiveConvo(list[0]);
+      let adminData = {
+        name: "Platform Admin",
+        email: "nahiyanadmin@gmail.com",
+        role: "admin",
+      };
+
+      try {
+        const [adminRes, convoRes] = await Promise.allSettled([
+          apiFetch<{ name: string; email: string; role: string }>("/api/messages/admin-contact"),
+          apiFetch<ChatConversation[]>("/api/messages/conversations"),
+        ]);
+
+        if (adminRes.status === "fulfilled" && adminRes.value?.email) {
+          adminData = adminRes.value;
+        }
+
+        let list: ChatConversation[] = [];
+        if (convoRes.status === "fulfilled") {
+          list = extractList<ChatConversation>(convoRes.value);
+        }
+
+        if (!active) return;
+
+        setAdminContact(adminData);
+        setConversations(list);
+        setLoadingList(false);
+
+        if (shouldOpenAdmin) {
+          const existing = list.find(
+            (c) => c.otherParty.email.toLowerCase() === adminData.email.toLowerCase()
+          );
+          if (existing) {
+            setActiveConvo(existing);
+            setLoadingThread(true);
+          } else {
+            const pair = [myEmail?.toLowerCase() || "", adminData.email.toLowerCase()]
+              .sort()
+              .join("___");
+            const adminConvo: ChatConversation = {
+              conversationId: pair,
+              tuitionId: null,
+              tuitionTitle: "Platform Support & Inquiries",
+              otherParty: {
+                email: adminData.email,
+                name: adminData.name,
+                role: "admin",
+              },
+              lastMessage: {
+                text: "Direct channel with Platform Admin. Ask questions regarding payments, verification, or platform support.",
+                senderEmail: adminData.email,
+                senderName: adminData.name,
+                createdAt: new Date().toISOString(),
+                isRead: true,
+              },
+              unreadCount: 0,
+            };
+            setActiveConvo(adminConvo);
+            setThread([]);
+            setLoadingThread(false);
+          }
+        } else if (list.length > 0) {
+          setActiveConvo(list[0]);
+        }
+      } catch {
+        if (active) setLoadingList(false);
       }
     }
+
     void init();
     return () => {
       active = false;
     };
-  }, [loadConversations, activeConvo]);
+  }, [myEmail, shouldOpenAdmin]);
 
   React.useEffect(() => {
     let active = true;
@@ -206,12 +247,6 @@ function MessagesContent() {
     setThread([]);
     setLoadingThread(false);
   }, [adminContact, conversations, myEmail]);
-
-  React.useEffect(() => {
-    if (shouldOpenAdmin && adminContact) {
-      handleStartAdminChat();
-    }
-  }, [shouldOpenAdmin, adminContact, handleStartAdminChat]);
 
   const handleSendReply = async () => {
     if (!replyText.trim() || !activeConvo || !myEmail) return;

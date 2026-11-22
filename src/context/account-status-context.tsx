@@ -10,7 +10,7 @@ interface AccountStatusContextValue {
   blockedReason: string;
   profile: UserRecord | null;
   loading: boolean;
-  refetch: () => Promise<void>;
+  refetch: () => void;
 }
 
 const AccountStatusContext = React.createContext<AccountStatusContextValue>({
@@ -18,7 +18,7 @@ const AccountStatusContext = React.createContext<AccountStatusContextValue>({
   blockedReason: "",
   profile: null,
   loading: false,
-  refetch: async () => {},
+  refetch: () => {},
 });
 
 export function AccountStatusProvider({
@@ -29,31 +29,41 @@ export function AccountStatusProvider({
   const { data: session } = useSession();
   const [profile, setProfile] = React.useState<UserRecord | null>(null);
   const [loading, setLoading] = React.useState(false);
-
-  const fetchProfile = React.useCallback(async () => {
-    if (!session?.user?.email) {
-      setProfile(null);
-      return;
-    }
-    try {
-      setLoading(true);
-      const res = await apiFetch<UserRecord>("/api/profile");
-      if (res) {
-        setProfile(res);
-      }
-    } catch {
-      // Non-blocking
-    } finally {
-      setLoading(false);
-    }
-  }, [session?.user?.email]);
+  const [refreshKey, setRefreshKey] = React.useState(0);
 
   React.useEffect(() => {
-    void fetchProfile();
-  }, [fetchProfile]);
+    let active = true;
+
+    async function load() {
+      if (!session?.user?.email) {
+        setProfile(null);
+        return;
+      }
+      try {
+        setLoading(true);
+        const res = await apiFetch<UserRecord>("/api/profile");
+        if (active && res) {
+          setProfile(res);
+        }
+      } catch {
+        // Non-blocking
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void load();
+    return () => {
+      active = false;
+    };
+  }, [session?.user?.email, refreshKey]);
 
   const isBlocked = profile?.status === "blocked";
   const blockedReason = profile?.blockedReason || "";
+
+  const refetch = React.useCallback(() => {
+    setRefreshKey((k) => k + 1);
+  }, []);
 
   return (
     <AccountStatusContext.Provider
@@ -62,7 +72,7 @@ export function AccountStatusProvider({
         blockedReason,
         profile,
         loading,
-        refetch: fetchProfile,
+        refetch,
       }}
     >
       {children}

@@ -4,6 +4,7 @@ import * as React from "react";
 import { Loader2, Star, X } from "lucide-react";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
+import { useAccountStatus } from "@/context/account-status-context";
 import { Button } from "@/components/ui/button";
 
 interface ReviewDialogProps {
@@ -198,9 +199,14 @@ function ReviewForm({
   const [hoverRating, setHoverRating] = React.useState<number>(0);
   const [feedback, setFeedback] = React.useState<string>(initialData.feedback);
   const [submitting, setSubmitting] = React.useState<boolean>(false);
+  const { isBlocked } = useAccountStatus();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isBlocked) {
+      toast.error("Your account is blocked. Contact support to appeal.");
+      return;
+    }
     if (!feedback.trim()) {
       toast.error("Please enter your feedback comment.");
       return;
@@ -293,30 +299,40 @@ function ReviewForm({
         />
       </div>
 
-      <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-sage-border">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => onOpenChange(false)}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          size="sm"
-          disabled={submitting}
-          className="gap-1.5"
-        >
-          {submitting ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Saving...</span>
-            </>
-          ) : (
-            <span>{initialData.isExisting ? "Update Review" : "Submit Review"}</span>
-          )}
-        </Button>
+      <div className="flex items-center justify-between gap-2.5 pt-2 border-t border-sage-border">
+        {isBlocked ? (
+          <p className="text-xs text-red-600 dark:text-red-400 font-semibold">
+            Your account is blocked.
+          </p>
+        ) : (
+          <span />
+        )}
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            size="sm"
+            disabled={submitting || isBlocked}
+            className="gap-1.5"
+            title={isBlocked ? "Your account is blocked." : undefined}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <span>{initialData.isExisting ? "Update Review" : "Submit Review"}</span>
+            )}
+          </Button>
+        </div>
       </div>
     </form>
   );

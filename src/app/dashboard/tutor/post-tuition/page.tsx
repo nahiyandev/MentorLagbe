@@ -23,6 +23,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { uploadImageToImgBB } from "@/lib/imgbb";
 import { isValidImageUrl } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
+import { useAccountStatus } from "@/context/account-status-context";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -39,6 +40,7 @@ import { Textarea } from "@/components/ui/textarea";
 export default function TutorPostTuitionPage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const { isBlocked } = useAccountStatus();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const user = session?.user as
@@ -124,6 +126,11 @@ export default function TutorPostTuitionPage() {
 
     if (bannerImage.trim() && !isValidImageUrl(bannerImage.trim())) {
       toast.error("Please provide a valid image link (e.g. https://...).");
+      return;
+    }
+
+    if (isBlocked) {
+      toast.error("Your account is blocked. Contact support to appeal.");
       return;
     }
 
@@ -456,9 +463,12 @@ export default function TutorPostTuitionPage() {
               <Button
                 type="submit"
                 size="lg"
-                disabled={submitting || uploadingImage}
+                disabled={submitting || uploadingImage || isBlocked}
+                title={isBlocked ? "Your account is blocked." : undefined}
               >
-                {submitting ? (
+                {isBlocked ? (
+                  "Account Blocked"
+                ) : submitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Publishing...

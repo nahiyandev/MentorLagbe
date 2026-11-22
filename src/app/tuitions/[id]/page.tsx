@@ -35,6 +35,7 @@ import {
 } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
 import { useBookmarks } from "@/context/bookmark-context";
+import { useAccountStatus } from "@/context/account-status-context";
 import { ApplyModal } from "@/components/tuitions/apply-modal";
 import { TuitionChatDialog } from "@/components/chat/tuition-chat-dialog";
 import { ReportListingDialog } from "@/components/tuitions/report-listing-dialog";
@@ -54,6 +55,7 @@ export default function TuitionDetailsPage({
 }) {
   const { id } = React.use(params);
   const { data: session, isPending: sessionLoading } = useSession();
+  const { isBlocked } = useAccountStatus();
 
   const [tuition, setTuition] = React.useState<Tuition | null>(null);
   const [loadedId, setLoadedId] = React.useState<string | null>(null);
@@ -572,6 +574,19 @@ export default function TuitionDetailsPage({
                             View My Applications
                           </Button>
                         </Link>
+                      </div>
+                    ) : isBlocked ? (
+                      <div className="space-y-2">
+                        <Button
+                          size="lg"
+                          disabled
+                          className="w-full bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 border border-red-200 cursor-not-allowed"
+                        >
+                          Account Blocked
+                        </Button>
+                        <p className="text-center text-xs text-red-600 dark:text-red-400 font-medium">
+                          Your account is blocked. Contact support to appeal.
+                        </p>
                       </div>
                     ) : (
                       <Button
