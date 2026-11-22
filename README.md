@@ -13,7 +13,7 @@
 **A modern, production-grade EdTech tuition discovery, class management, and 1-on-1 mentorship platform.**  
 Built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**.
 
-[Live Demo](https://mentor-lagbe.vercel.app) • [Backend API](https://mentor-lagbe-server.vercel.app) • [Frontend Repo](https://github.com/nahiyandev/MentorLagbe) • [Backend Repo](https://github.com/nahiyandev/MentorLagbe-server)
+[Live Demo](https://mentor-lagbe.vercel.app) • [Backend API](https://mentor-lagbe-server.vercel.app) • [Frontend Repo](https://github.com/Nahiyandev/MentorLagbe) • [Backend Repo](https://github.com/Nahiyandev/MentorLagbe-server)
 
 </div>
 
@@ -36,8 +36,8 @@ Built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**.
 | :--- | :--- |
 | **Frontend Live Web App** | [https://mentor-lagbe.vercel.app](https://mentor-lagbe.vercel.app) |
 | **Backend REST API** | [https://mentor-lagbe-server.vercel.app](https://mentor-lagbe-server.vercel.app) |
-| **Client GitHub Repository** | [https://github.com/nahiyandev/MentorLagbe](https://github.com/nahiyandev/MentorLagbe) |
-| **Server GitHub Repository** | [https://github.com/nahiyandev/MentorLagbe-server](https://github.com/nahiyandev/MentorLagbe-server) |
+| **Client GitHub Repository** | [https://github.com/Nahiyandev/MentorLagbe](https://github.com/Nahiyandev/MentorLagbe) |
+| **Server GitHub Repository** | [https://github.com/Nahiyandev/MentorLagbe-server](https://github.com/Nahiyandev/MentorLagbe-server) |
 
 ---
 
@@ -47,8 +47,8 @@ Built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**.
 
 | Role | Email | Password | অ্যাক্সেস এবং ফিচারসমূহ |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `nahiyanadmin@gmail.com` | `12345678` | টিউশন অনুমোদন/বাতিল, ইউজার রোল ম্যানেজমেন্ট, স্ট্রাইপ ট্রানজেকশন খতিয়ান, টিউটর উইথড্র রিকোয়েস্ট অনুমোদন, কুপন ম্যানেজমেন্ট |
-| **Tutor** | `nahiyan@gmail.com` | `12345678` | টিউশন পোস্ট (ফ্রি/প্রো লিমিট), আবেদন গ্রহণ/বাতিল, সাপ্তাহিক টাইম স্লট ম্যানেজমেন্ট, ক্লাস অ্যাটেনডেন্স (+1/-1 Undo), বিকাশ/নগদ টাকা তোলার রিকোয়েস্ট |
+| **Admin** | `nahiyanadmin@gmail.com` | `Rj612221` | টিউশন অনুমোদন/বাতিল, ইউজার রোল ম্যানেজমেন্ট, স্ট্রাইপ ট্রানজেকশন খতিয়ান, টিউটর উইথড্র রিকোয়েস্ট অনুমোদন, কুপন ম্যানেজমেন্ট |
+| **Tutor** | `nahiyandev+mltutor@gmail.com` | `Mentor1234` | টিউশন পোস্ট (ফ্রি/প্রো লিমিট), আবেদন গ্রহণ/বাতিল, সাপ্তাহিক টাইম স্লট ম্যানেজমেন্ট, ক্লাস অ্যাটেনডেন্স (+1/-1 Undo), বিকাশ/নগদ টাকা তোলার রিকোয়েস্ট |
 | **Student** | `fahim@gmail.com` | `12345678` | টিউশন ব্রাউজিং, স্লট সিলেকশন সহ আবেদন, গুগল মিট ক্লাসে জয়েন, পেমেন্ট হিস্ট্রি ও ডিজিটাল মানি রিসিট, প্রো আপগ্রেড, রিভিউ প্রদান |
 
 ---
