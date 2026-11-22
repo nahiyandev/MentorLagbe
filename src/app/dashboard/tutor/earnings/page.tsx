@@ -261,30 +261,30 @@ export default function TutorEarningsPage() {
         <StatCard
           label="Total Monthly Revenue"
           value={loading ? "..." : formatFee(totalEarnings)}
-          helpText="Recurring monthly income from all accepted students"
+          helper="Recurring monthly income from all accepted students"
           icon={Banknote}
-          variant="forest"
+          tone="forest"
         />
         <StatCard
           label="Active Enrolled Students"
           value={loading ? "..." : acceptedApps.length}
-          helpText="Students currently learning in your batches"
+          helper="Students currently learning in your batches"
           icon={UserCheck}
-          variant="sage"
+          tone="emerald"
         />
         <StatCard
           label="Pending Fee Pipeline"
           value={loading ? "..." : formatFee(pendingEarnings)}
-          helpText={`${pendingApps.length} student application${pendingApps.length === 1 ? "" : "s"} awaiting review`}
+          helper={`${pendingApps.length} student application${pendingApps.length === 1 ? "" : "s"} awaiting review`}
           icon={Clock}
-          variant="clay"
+          tone="amber"
         />
         <StatCard
           label="Avg. Revenue Per Student"
           value={loading ? "..." : formatFee(avgFeePerStudent)}
-          helpText={`Across ${activeBatchesCount} earning tuition batch${activeBatchesCount === 1 ? "" : "es"}`}
+          helper={`Across ${activeBatchesCount} earning tuition batch${activeBatchesCount === 1 ? "" : "es"}`}
           icon={TrendingUp}
-          variant="default"
+          tone="clay"
         />
       </div>
 

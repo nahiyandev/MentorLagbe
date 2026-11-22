@@ -263,30 +263,30 @@ export default function StudentSessionsPage() {
         <StatCard
           label="Active Enrolled Batches"
           value={loading ? "..." : acceptedApps.length}
-          helpText="Batches currently learning with verified tutors"
+          helper="Batches currently learning with verified tutors"
           icon={CalendarCheck}
-          variant="forest"
+          tone="forest"
         />
         <StatCard
           label="Total Classes Completed"
           value={loading ? "..." : totalCompletedClasses}
-          helpText="Live sessions attended across all batches"
+          helper="Live sessions attended across all batches"
           icon={CheckCircle2}
-          variant="sage"
+          tone="emerald"
         />
         <StatCard
           label="Live Meet Links Ready"
           value={loading ? "..." : activeMeetLinksCount}
-          helpText="Tutors who provided class Google Meet links"
+          helper="Tutors who provided class Google Meet links"
           icon={Video}
-          variant="clay"
+          tone="clay"
         />
         <StatCard
           label="Pending Applications"
           value={loading ? "..." : pendingApps.length}
-          helpText="Batches waiting for tutor acceptance"
+          helper="Batches waiting for tutor acceptance"
           icon={Clock}
-          variant="default"
+          tone="amber"
         />
       </div>
 
@@ -566,9 +566,9 @@ export default function StudentSessionsPage() {
       {reviewApp && (
         <ReviewDialog
           open={reviewOpen}
-          onClose={() => {
-            setReviewOpen(false);
-            setReviewApp(null);
+          onOpenChange={(open) => {
+            setReviewOpen(open);
+            if (!open) setReviewApp(null);
           }}
           tuitionId={reviewApp.tuitionId}
           tuitionTitle={reviewApp.tuitionTitle}
