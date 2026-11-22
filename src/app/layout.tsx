@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import { LanguageProvider } from "@/context/language-context";
 import { BookmarkProvider } from "@/context/bookmark-context";
+import { AccountStatusProvider } from "@/context/account-status-context";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -45,7 +46,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col bg-sage-bg text-ink font-sans">
         <LanguageProvider>
-          <BookmarkProvider>{children}</BookmarkProvider>
+          <BookmarkProvider>
+            <AccountStatusProvider>{children}</AccountStatusProvider>
+          </BookmarkProvider>
         </LanguageProvider>
         <Toaster
           position="top-right"

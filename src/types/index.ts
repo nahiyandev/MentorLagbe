@@ -1,5 +1,6 @@
 export type UserRole = "student" | "tutor" | "admin";
 export type UserPlan = "free" | "pro";
+export type UserStatus = "active" | "blocked";
 export type TuitionMode = "Online" | "Offline";
 export type ApprovalStatus = "pending" | "approved" | "rejected";
 export type ApplicationStatus = "pending" | "accepted" | "rejected";
@@ -20,6 +21,9 @@ export interface UserRecord {
   phone?: string;
   bio?: string;
   plan: UserPlan;
+  status?: UserStatus;
+  blockedReason?: string;
+  blockedAt?: string | null;
   availability?: TutorAvailabilitySlot[];
   responseTime?: string;
   responseBadge?: string;
