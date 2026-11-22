@@ -72,6 +72,11 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       icon: CalendarCheck,
     },
     {
+      href: "/dashboard/student/payments",
+      label: "My Payments",
+      icon: Receipt,
+    },
+    {
       href: "/dashboard/student/bookmarks",
       label: "Saved Tuitions",
       icon: Bookmark,
@@ -184,6 +189,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           return t("db_earnings", item.label);
         case "/dashboard/student/sessions":
           return t("db_class_sessions", item.label);
+        case "/dashboard/student/payments":
+          return t("db_student_payments", item.label);
         case "/dashboard/admin/users":
           return t("db_user_management", item.label);
         case "/dashboard/admin/tuitions":

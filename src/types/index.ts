@@ -81,8 +81,10 @@ export interface PaymentRecord {
   amount: number;
   currency?: string;
   paymentMethod?: string;
+  senderNumber?: string;
   transactionId: string;
   stripeSessionId?: string;
+  couponCode?: string;
   paymentStatus: string;
   paidAt?: string;
   createdAt?: string;
