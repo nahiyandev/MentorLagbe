@@ -4,14 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowRight,
   Banknote,
   BookOpen,
+  Check,
   CheckCircle2,
   GraduationCap,
   Loader2,
+  MessageCircle,
   Search,
   Sparkles,
+  Star,
   Trophy,
+  User,
   Zap,
 } from "lucide-react";
 import {
@@ -21,9 +26,9 @@ import {
   type Tuition,
 } from "@/types";
 import { apiFetch, extractList } from "@/lib/api";
-import { formatFee } from "@/lib/utils";
+import { cn, formatFee, formatWhatsAppUrl, getInitials } from "@/lib/utils";
 import { SiteShell } from "@/components/layout/site-shell";
-import { TuitionCard } from "@/components/tuitions/tuition-card";
+import { VerifiedBadge } from "@/components/tutors/verified-badge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,6 +37,201 @@ interface ScoredTuition {
   tuition: Tuition;
   matchScore: number;
   matchReasons: string[];
+}
+
+function MatchedTutorCard({
+  item,
+  rank,
+  userBudget,
+  isFallback = false,
+}: {
+  item: ScoredTuition;
+  rank: number;
+  userBudget: number;
+  isFallback?: boolean;
+}) {
+  const { tuition, matchScore, matchReasons } = item;
+  const savings = userBudget - tuition.monthlyFee;
+  const rating = tuition.averageRating || 5.0;
+
+  return (
+    <div className="relative flex flex-col rounded-2xl border border-sage-border bg-white dark:bg-[#141F18] shadow-xs hover:shadow-md transition-all overflow-hidden">
+      {/* Top Match Rank Banner */}
+      <div
+        className={cn(
+          "flex items-center justify-between px-4 py-2.5 text-xs border-b border-sage-border",
+          rank === 1 && !isFallback
+            ? "bg-linear-to-r from-amber-500/15 via-emerald-500/10 to-forest/10 dark:from-amber-950/40 dark:to-[#1C2B22]"
+            : "bg-sage-bg/60 dark:bg-[#1C2B22]/60"
+        )}
+      >
+        <div className="flex items-center gap-1.5 font-extrabold text-forest dark:text-[#8EE0BA]">
+          {rank === 1 && !isFallback ? (
+            <>
+              <Trophy className="h-4 w-4 text-amber-500 fill-amber-500" />
+              <span>Top Best Match</span>
+            </>
+          ) : isFallback ? (
+            <>
+              <Sparkles className="h-4 w-4 text-amber-500" />
+              <span>Alternative Recommendation #{rank}</span>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Matched Tutor #{rank}</span>
+            </>
+          )}
+        </div>
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-black",
+            rank === 1 && !isFallback
+              ? "bg-emerald-600 text-white dark:bg-emerald-500 dark:text-black"
+              : isFallback
+                ? "bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
+                : "bg-forest/10 text-forest dark:bg-[#8EE0BA]/20 dark:text-[#8EE0BA]"
+          )}
+        >
+          {matchScore}% Match
+        </span>
+      </div>
+
+      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+        {/* Tutor Identity Profile Header */}
+        <div className="flex items-start gap-3.5">
+          <div className="relative shrink-0">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-forest dark:bg-[#8EE0BA] text-base font-extrabold text-white dark:text-[#0C130F] ring-2 ring-forest/20 shadow-xs">
+              {getInitials(tuition.tutorName)}
+            </span>
+            <span
+              className="absolute -bottom-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white dark:ring-[#141F18]"
+              title="Verified Educator"
+            >
+              <Check className="h-3 w-3 stroke-[3]" />
+            </span>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <Link
+                href={`/tutors/${encodeURIComponent(tuition.tutorEmail)}`}
+                className="text-base font-extrabold text-forest dark:text-[#8EE0BA] hover:underline truncate"
+              >
+                {tuition.tutorName}
+              </Link>
+              <VerifiedBadge size="sm" />
+            </div>
+
+            {/* Response Time Badge & Rating */}
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:text-emerald-300">
+                <Zap className="h-2.5 w-2.5 fill-emerald-500 text-emerald-500 shrink-0" />
+                <span>Fast Responder &bull; ~1 hr</span>
+              </span>
+
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                <span>{rating.toFixed(1)}</span>
+                <span className="text-muted dark:text-[#9DB3A6] font-normal">
+                  ({tuition.totalReviews ? `${tuition.totalReviews} reviews` : "Verified"})
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Matched Batch Offering */}
+        <div className="rounded-xl border border-sage-border/80 bg-sage-bg/40 dark:bg-[#101A14]/60 p-3.5 space-y-2.5">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+              Matching Batch Offering
+            </span>
+            <h4 className="text-sm font-bold text-ink dark:text-[#EFF5F0] truncate">
+              {tuition.title}
+            </h4>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted dark:text-[#9DB3A6]">
+            <span className="rounded-md bg-white dark:bg-[#1C2B22] px-2 py-0.5 font-semibold text-forest dark:text-[#8EE0BA] border border-sage-border/60">
+              {tuition.subject}
+            </span>
+            <span>&bull;</span>
+            <span>{tuition.classLevel}</span>
+            <span>&bull;</span>
+            <span className="capitalize">{tuition.mode}</span>
+          </div>
+
+          {/* Fee & Budget Comparison */}
+          <div className="flex items-center justify-between pt-1 border-t border-sage-border/60">
+            <div>
+              <span className="text-base font-extrabold text-forest dark:text-[#8EE0BA]">
+                {formatFee(tuition.monthlyFee)}
+              </span>
+              <span className="text-[11px] text-muted dark:text-[#9DB3A6]"> / month</span>
+            </div>
+
+            {savings >= 0 ? (
+              <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 px-2 py-0.5">
+                {savings > 0 ? `Saves ৳${savings.toLocaleString()}` : "Exact Budget"}
+              </span>
+            ) : (
+              <span className="rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-[10px] font-bold text-amber-800 dark:text-amber-300 px-2 py-0.5">
+                ৳{Math.abs(savings).toLocaleString()} over budget
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Why this Tutor Matches (Match Reasons) */}
+        {matchReasons && matchReasons.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {matchReasons.map((reason, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1 rounded-md bg-forest/5 dark:bg-[#8EE0BA]/10 text-[10px] font-medium text-forest dark:text-[#8EE0BA] px-2 py-0.5"
+              >
+                <Check className="h-2.5 w-2.5 text-emerald-600 dark:text-emerald-400" />
+                <span>{reason}</span>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Action Buttons: WhatsApp + Profile + Apply */}
+        <div className="pt-2 border-t border-sage-border flex flex-col sm:flex-row items-stretch gap-2">
+          {tuition.tutorPhone && (
+            <a
+              href={formatWhatsAppUrl(tuition.tutorPhone, tuition.tutorName)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white px-3 py-2 text-xs font-bold transition-all shadow-xs cursor-pointer"
+              title="Chat directly on WhatsApp"
+            >
+              <MessageCircle className="h-3.5 w-3.5 fill-white" />
+              <span>WhatsApp</span>
+            </a>
+          )}
+
+          <Link
+            href={`/tutors/${encodeURIComponent(tuition.tutorEmail)}`}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-sage-border bg-white dark:bg-[#1C2B22] text-forest dark:text-[#8EE0BA] hover:bg-sage-subtle dark:hover:bg-[#25382D] px-3 py-2 text-xs font-bold transition-all"
+          >
+            <User className="h-3.5 w-3.5" />
+            <span>Profile</span>
+          </Link>
+
+          <Link
+            href={`/tuitions/${tuition._id}`}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] hover:bg-forest/90 dark:hover:bg-[#7DCFA9] px-3.5 py-2 text-xs font-extrabold transition-all shadow-xs"
+          >
+            <span>Apply to Batch</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function FindTutorPage() {
@@ -495,34 +695,12 @@ export default function FindTutorPage() {
           {!loading && matchedResults.length > 0 && (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {matchedResults.map((item, idx) => (
-                <div key={item.tuition._id} className="relative flex flex-col">
-                  {/* Match Banner Header */}
-                  <div className="flex items-center justify-between rounded-t-2xl border-t border-x border-sage-border bg-linear-to-r from-forest/10 via-sage-bg to-forest/5 dark:from-[#1C2B22] dark:to-[#141F18] px-4 py-2 text-xs">
-                    <span className="font-extrabold text-forest dark:text-[#8EE0BA] flex items-center gap-1.5">
-                      {idx === 0 ? (
-                        <>
-                          <Trophy className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                          <span>Top Best Match</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="h-3.5 w-3.5 text-forest dark:text-[#8EE0BA]" />
-                          <span>Match #{idx + 1}</span>
-                        </>
-                      )}
-                    </span>
-                    <Badge
-                      variant={idx === 0 ? "success" : "default"}
-                      className="text-[10px] font-extrabold px-2 py-0.5"
-                    >
-                      {item.matchScore}% Match
-                    </Badge>
-                  </div>
-
-                  <div className="flex-1">
-                    <TuitionCard tuition={item.tuition} />
-                  </div>
-                </div>
+                <MatchedTutorCard
+                  key={item.tuition._id}
+                  item={item}
+                  rank={idx + 1}
+                  userBudget={budget}
+                />
               ))}
             </div>
           )}
@@ -541,19 +719,13 @@ export default function FindTutorPage() {
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {fallbackResults.map((item, idx) => (
-                  <div key={item.tuition._id} className="relative flex flex-col">
-                    <div className="flex items-center justify-between rounded-t-2xl border-t border-x border-sage-border bg-sage-bg/60 dark:bg-[#1C2B22] px-4 py-2 text-xs">
-                      <span className="font-bold text-forest dark:text-[#8EE0BA]">
-                        Alternative Recommendation #{idx + 1}
-                      </span>
-                      <Badge variant="warning" className="text-[10px] font-bold">
-                        {item.matchScore}% Match
-                      </Badge>
-                    </div>
-                    <div className="flex-1">
-                      <TuitionCard tuition={item.tuition} />
-                    </div>
-                  </div>
+                  <MatchedTutorCard
+                    key={item.tuition._id}
+                    item={item}
+                    rank={idx + 1}
+                    userBudget={budget}
+                    isFallback={true}
+                  />
                 ))}
               </div>
             </div>
