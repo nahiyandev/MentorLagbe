@@ -36,12 +36,24 @@ export function ReviewList({
 
   const nextSlide = React.useCallback(() => {
     if (total <= 1) return;
-    setCurrentIndex((prev) => (prev + 1) % total);
+    setCurrentIndex((prev) => {
+      let next = Math.floor(Math.random() * total);
+      if (next === prev) {
+        next = (prev + 1) % total;
+      }
+      return next;
+    });
   }, [total]);
 
   const prevSlide = React.useCallback(() => {
     if (total <= 1) return;
-    setCurrentIndex((prev) => (prev - 1 + total) % total);
+    setCurrentIndex((prev) => {
+      let next = Math.floor(Math.random() * total);
+      if (next === prev) {
+        next = (prev - 1 + total) % total;
+      }
+      return next;
+    });
   }, [total]);
 
   const goToSlide = (idx: number) => {
