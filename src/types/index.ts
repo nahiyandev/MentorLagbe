@@ -62,6 +62,9 @@ export interface Application {
   selectedSlots?: string[];
   meetLink?: string;
   studentNote: string;
+  completedClasses?: number;
+  lastClassDate?: string;
+  attendanceHistory?: { date: string; topic?: string; note?: string }[];
   status: ApplicationStatus;
   appliedAt?: string;
   decidedAt?: string;

@@ -8,6 +8,7 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  Loader2,
   MessageCircle,
   PlusCircle,
   RefreshCw,
@@ -16,6 +17,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { toast } from "sonner";
 import type { Application, Tuition } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatFee, formatWhatsAppUrl } from "@/lib/utils";
@@ -64,6 +66,41 @@ export default function TutorEarningsPage() {
   const [analytics, setAnalytics] = React.useState<TutorAnalyticsData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [markingAttendanceId, setMarkingAttendanceId] = React.useState<string | null>(null);
+
+  const handleMarkAttendance = async (
+    applicationId: string,
+    action: "increment" | "decrement" = "increment"
+  ) => {
+    setMarkingAttendanceId(applicationId);
+    try {
+      const res = await apiFetch<Application>(
+        `/api/applications/${encodeURIComponent(applicationId)}/attendance`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ action }),
+        }
+      );
+      setApplicants((prev) =>
+        prev.map((item) =>
+          item._id === applicationId
+            ? { ...item, completedClasses: res.completedClasses }
+            : item
+        )
+      );
+      toast.success(
+        action === "increment"
+          ? `Class marked completed! Total: ${res.completedClasses || 1} classes done.`
+          : `Class count adjusted to ${res.completedClasses || 0}.`
+      );
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update attendance."
+      );
+    } finally {
+      setMarkingAttendanceId(null);
+    }
+  };
 
   const handleRefresh = async () => {
     setLoading(true);
@@ -566,6 +603,7 @@ export default function TutorEarningsPage() {
                     <th className="pb-2.5 font-bold">Tuition Batch</th>
                     <th className="pb-2.5 font-bold">Monthly Fee</th>
                     <th className="pb-2.5 font-bold">Enrolled Schedule / Slot</th>
+                    <th className="pb-2.5 font-bold">Classes Done</th>
                     <th className="pb-2.5 font-bold">Status</th>
                     <th className="pb-2.5 font-bold">Quick Contact</th>
                   </tr>
@@ -594,6 +632,26 @@ export default function TutorEarningsPage() {
                         {app.selectedSlots && app.selectedSlots.length > 0
                           ? app.selectedSlots.join(", ")
                           : app.preferredSchedule || "Standard Schedule"}
+                      </td>
+                      <td className="py-3">
+                        <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-xs">
+                          <span className="font-bold text-emerald-800 dark:text-emerald-300">
+                            {app.completedClasses || 0}
+                          </span>
+                          <button
+                            type="button"
+                            disabled={markingAttendanceId === app._id}
+                            onClick={() => void handleMarkAttendance(app._id, "increment")}
+                            className="inline-flex items-center gap-1 font-black text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 rounded px-1.5 py-0.5 text-[10px] cursor-pointer"
+                            title="Click Done after class completes to increment count"
+                          >
+                            {markingAttendanceId === app._id ? (
+                              <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                            ) : (
+                              "+1 Done"
+                            )}
+                          </button>
+                        </div>
                       </td>
                       <td className="py-3">
                         <Badge variant="success">Enrolled & Active</Badge>

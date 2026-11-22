@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   CalendarClock,
   Check,
+  CheckCircle2,
   Download,
   ExternalLink,
   Loader2,
@@ -28,6 +29,7 @@ export default function TutorApplicantsPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [updatingId, setUpdatingId] = React.useState<string | null>(null);
+  const [markingAttendanceId, setMarkingAttendanceId] = React.useState<string | null>(null);
   const [slipApp, setSlipApp] = React.useState<Application | null>(null);
   const [slipOpen, setSlipOpen] = React.useState(false);
   const [meetModalApp, setMeetModalApp] = React.useState<Application | null>(null);
@@ -112,6 +114,42 @@ export default function TutorApplicantsPage() {
       );
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const markAttendance = async (
+    applicationId: string,
+    action: "increment" | "decrement" = "increment"
+  ) => {
+    setMarkingAttendanceId(applicationId);
+    try {
+      const res = await apiFetch<Application>(
+        `/api/applications/${encodeURIComponent(applicationId)}/attendance`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ action }),
+        }
+      );
+      setApplicants((prev) =>
+        prev.map((item) =>
+          item._id === applicationId
+            ? { ...item, completedClasses: res.completedClasses }
+            : item
+        )
+      );
+      toast.success(
+        action === "increment"
+          ? `Class marked completed! Total: ${res.completedClasses || 1} classes done.`
+          : `Class count adjusted to ${res.completedClasses || 0}.`
+      );
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Could not update class attendance."
+      );
+    } finally {
+      setMarkingAttendanceId(null);
     }
   };
 
@@ -241,6 +279,39 @@ export default function TutorApplicantsPage() {
                       <div className="flex flex-wrap items-center gap-2 shrink-0">
                         {app.status === "accepted" && (
                           <>
+                            {/* Attendance Marking Control */}
+                            <div className="flex items-center gap-1.5 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50/80 dark:bg-emerald-950/40 px-2.5 py-1 text-xs">
+                              <span className="font-bold text-emerald-800 dark:text-emerald-300 whitespace-nowrap">
+                                {app.completedClasses || 0} done
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 px-1.5 text-xs text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200/60 dark:hover:bg-emerald-900/60 font-black gap-1 cursor-pointer"
+                                disabled={markingAttendanceId === app._id}
+                                onClick={() => void markAttendance(app._id, "increment")}
+                                title="Click after finishing a class to mark Done (+1)"
+                              >
+                                {markingAttendanceId === app._id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                                )}
+                                <span>Done (+1)</span>
+                              </Button>
+                              {(app.completedClasses || 0) > 0 && (
+                                <button
+                                  type="button"
+                                  className="text-[10px] text-muted hover:text-red-500 px-1 py-0.5 rounded cursor-pointer"
+                                  disabled={markingAttendanceId === app._id}
+                                  onClick={() => void markAttendance(app._id, "decrement")}
+                                  title="Reduce 1 class if marked by mistake"
+                                >
+                                  -1
+                                </button>
+                              )}
+                            </div>
+
                             <Button
                               variant="outline"
                               size="sm"

@@ -116,25 +116,6 @@ function calculateNextClass(
   };
 }
 
-function calculateCompletedClasses(
-  startDateStr?: string,
-  slotsCount = 3
-): number {
-  if (!startDateStr) return 1;
-  const start = new Date(startDateStr).getTime();
-  const now = Date.now();
-  if (isNaN(start) || start > now) return 1;
-
-  const diffInDays = Math.max(0, Math.floor((now - start) / (1000 * 60 * 60 * 24)));
-  const weeks = Math.floor(diffInDays / 7);
-  const daysRemainder = diffInDays % 7;
-  const frequency = Math.max(1, slotsCount || 3);
-
-  const completed =
-    weeks * frequency + Math.min(frequency, Math.floor((daysRemainder / 7) * frequency));
-  return Math.max(1, completed);
-}
-
 export default function StudentSessionsPage() {
   const [applications, setApplications] = React.useState<Application[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -200,13 +181,10 @@ export default function StudentSessionsPage() {
   );
 
   const totalCompletedClasses = React.useMemo(() => {
-    return acceptedApps.reduce((sum, app) => {
-      const slotsCount =
-        app.selectedSlots && app.selectedSlots.length > 0
-          ? app.selectedSlots.length
-          : 3;
-      return sum + calculateCompletedClasses(app.decidedAt || app.appliedAt, slotsCount);
-    }, 0);
+    return acceptedApps.reduce(
+      (sum, app) => sum + (app.completedClasses || 0),
+      0
+    );
   }, [acceptedApps]);
 
   const activeMeetLinksCount = React.useMemo(() => {
@@ -353,10 +331,7 @@ export default function StudentSessionsPage() {
                 app.selectedSlots && app.selectedSlots.length > 0
                   ? app.selectedSlots.length
                   : 3;
-              const completedCount = calculateCompletedClasses(
-                app.decidedAt || app.appliedAt,
-                slotsCount
-              );
+              const completedCount = app.completedClasses !== undefined ? app.completedClasses : 0;
               const nextClass = calculateNextClass(
                 app.selectedSlots,
                 app.preferredSchedule
@@ -492,11 +467,13 @@ export default function StudentSessionsPage() {
                               {completedCount}
                             </span>
                             <span className="text-xs text-muted dark:text-[#9DB3A6]">
-                              classes finished since enrollment
+                              classes completed
                             </span>
                           </div>
                           <p className="text-[11px] text-muted dark:text-[#9DB3A6] mt-1">
-                            Regularly attending scheduled weekly sessions with tutor.
+                            {completedCount > 0
+                              ? `Verified by tutor (Last completed class: ${formatDate(app.lastClassDate || app.updatedAt)}).`
+                              : "Tutor will mark 'Done' here after each live class ends."}
                           </p>
                         </div>
                       </div>
