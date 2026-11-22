@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen,
   Bookmark,
+  CalendarCheck,
   ClipboardList,
   CreditCard,
   Crown,
@@ -24,6 +25,7 @@ import {
   TicketPercent,
   UserPen,
   Users,
+  Wallet,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -65,6 +67,11 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       icon: ClipboardList,
     },
     {
+      href: "/dashboard/student/sessions",
+      label: "Class Sessions",
+      icon: CalendarCheck,
+    },
+    {
       href: "/dashboard/student/bookmarks",
       label: "Saved Tuitions",
       icon: Bookmark,
@@ -90,6 +97,11 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItem[]> = {
       href: "/dashboard/tutor/applicants",
       label: "Manage Applicants",
       icon: Users,
+    },
+    {
+      href: "/dashboard/tutor/earnings",
+      label: "Earnings & Revenue",
+      icon: Wallet,
     },
     { href: "/dashboard/messages", label: "Inquiries & Chat", icon: MessageCircle },
     { href: "/tuitions", label: "Browse Tuitions", icon: BookOpen },
@@ -168,6 +180,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           return t("db_my_tuitions", item.label);
         case "/dashboard/tutor/applicants":
           return t("db_manage_applicants", item.label);
+        case "/dashboard/tutor/earnings":
+          return t("db_earnings", item.label);
+        case "/dashboard/student/sessions":
+          return t("db_class_sessions", item.label);
         case "/dashboard/admin/users":
           return t("db_user_management", item.label);
         case "/dashboard/admin/tuitions":
