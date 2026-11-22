@@ -21,12 +21,13 @@ Built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**.
 
 ## 📌 Table of Contents
 1. [Live Links & Repositories](#-live-links--repositories)
-2. [Demo Credentials & Test Accounts](#-demo-credentials--test-accounts)
-3. [Key Features](#-key-features)
-4. [Methods & Technical Architecture](#-methods--technical-architecture)
-5. [Database Collections](#-database-collections)
-6. [Design System — Sage Studio](#-design-system--sage-studio)
-7. [Local Development Setup](#-local-development-setup)
+2. [Tech Stack & NPM Packages Used](#-tech-stack--npm-packages-used)
+3. [Demo Credentials & Test Accounts](#-demo-credentials--test-accounts)
+4. [Key Features](#-key-features)
+5. [Methods & Technical Architecture](#-methods--technical-architecture)
+6. [Database Collections](#-database-collections)
+7. [Design System — Sage Studio](#-design-system--sage-studio)
+8. [Local Development Setup](#-local-development-setup)
 
 ---
 
@@ -38,6 +39,13 @@ Built for **Programming Hero Batch 14 — Assignment 9 (Category 001)**.
 | **Backend REST API** | [https://mentor-lagbe-server.vercel.app](https://mentor-lagbe-server.vercel.app) |
 | **Client GitHub Repository** | [https://github.com/Nahiyandev/MentorLagbe](https://github.com/Nahiyandev/MentorLagbe) |
 | **Server GitHub Repository** | [https://github.com/Nahiyandev/MentorLagbe-server](https://github.com/Nahiyandev/MentorLagbe-server) |
+
+---
+
+## 📦 Tech Stack & NPM Packages Used
+- next, react, typescript
+- tailwindcss, shadcn/ui, lucide-react
+- better-auth, sonner
 
 ---
 
