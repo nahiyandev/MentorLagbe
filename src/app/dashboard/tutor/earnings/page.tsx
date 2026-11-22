@@ -15,6 +15,7 @@ import {
   MessageCircle,
   PlusCircle,
   RefreshCw,
+  RotateCcw,
   Smartphone,
   TrendingUp,
   UserCheck,
@@ -778,7 +779,7 @@ export default function TutorEarningsPage() {
                       <td className="py-3">
                         <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-xs">
                           <span className="font-bold text-emerald-800 dark:text-emerald-300">
-                            {app.completedClasses || 0}
+                            {app.completedClasses || 0} done
                           </span>
                           <button
                             type="button"
@@ -793,6 +794,18 @@ export default function TutorEarningsPage() {
                               "+1 Done"
                             )}
                           </button>
+                          {(app.completedClasses || 0) > 0 && (
+                            <button
+                              type="button"
+                              disabled={markingAttendanceId === app._id}
+                              onClick={() => void handleMarkAttendance(app._id, "decrement")}
+                              className="inline-flex items-center gap-1 font-bold text-amber-700 dark:text-amber-400 hover:text-amber-900 bg-amber-100/80 hover:bg-amber-200 dark:bg-amber-950/60 rounded px-1.5 py-0.5 text-[10px] cursor-pointer transition-colors"
+                              title="ভুল হলে আন্ডু করুন (Undo last class)"
+                            >
+                              <RotateCcw className="h-2.5 w-2.5" />
+                              <span>Undo</span>
+                            </button>
+                          )}
                         </div>
                       </td>
                       <td className="py-3">

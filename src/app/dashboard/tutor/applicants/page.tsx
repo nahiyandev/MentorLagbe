@@ -11,6 +11,7 @@ import {
   Mail,
   MessageSquare,
   Phone,
+  RotateCcw,
   Video,
   X,
 } from "lucide-react";
@@ -302,12 +303,13 @@ export default function TutorApplicantsPage() {
                               {(app.completedClasses || 0) > 0 && (
                                 <button
                                   type="button"
-                                  className="text-[10px] text-muted hover:text-red-500 px-1 py-0.5 rounded cursor-pointer"
+                                  className="inline-flex items-center gap-1 font-bold text-amber-700 dark:text-amber-400 hover:text-amber-900 bg-amber-100/80 hover:bg-amber-200 dark:bg-amber-950/60 px-1.5 py-0.5 rounded text-[11px] cursor-pointer transition-colors"
                                   disabled={markingAttendanceId === app._id}
                                   onClick={() => void markAttendance(app._id, "decrement")}
-                                  title="Reduce 1 class if marked by mistake"
+                                  title="ভুল হলে আন্ডু করুন (Undo last class)"
                                 >
-                                  -1
+                                  <RotateCcw className="h-2.5 w-2.5" />
+                                  <span>Undo</span>
                                 </button>
                               )}
                             </div>
