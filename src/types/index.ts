@@ -90,6 +90,20 @@ export interface PaymentRecord {
   createdAt?: string;
 }
 
+export interface PayoutRequest {
+  _id: string;
+  tutorEmail: string;
+  tutorName: string;
+  amount: number;
+  paymentMethod: "bkash" | "nagad" | "bank";
+  accountNumber: string;
+  status: "pending" | "approved" | "rejected";
+  adminNote?: string;
+  transactionReference?: string;
+  requestedAt: string;
+  processedAt?: string;
+}
+
 export interface AdminStats {
   totalUsers: number;
   totalTutors: number;

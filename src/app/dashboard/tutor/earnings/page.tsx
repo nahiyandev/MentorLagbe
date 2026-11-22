@@ -3,24 +3,29 @@
 import * as React from "react";
 import Link from "next/link";
 import {
+  ArrowDownToLine,
   Banknote,
   BookOpen,
+  Building,
   Calendar,
+  Check,
   CheckCircle2,
   Clock,
   Loader2,
   MessageCircle,
   PlusCircle,
   RefreshCw,
+  Smartphone,
   TrendingUp,
   UserCheck,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { Application, Tuition } from "@/types";
+import type { Application, PayoutRequest, Tuition } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
-import { formatFee, formatWhatsAppUrl } from "@/lib/utils";
+import { formatDate, formatFee, formatWhatsAppUrl } from "@/lib/utils";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,9 +69,17 @@ export default function TutorEarningsPage() {
   const [tuitions, setTuitions] = React.useState<Tuition[]>([]);
   const [applicants, setApplicants] = React.useState<Application[]>([]);
   const [analytics, setAnalytics] = React.useState<TutorAnalyticsData | null>(null);
+  const [payouts, setPayouts] = React.useState<PayoutRequest[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [markingAttendanceId, setMarkingAttendanceId] = React.useState<string | null>(null);
+
+  // Payout Request Modal States
+  const [payoutModalOpen, setPayoutModalOpen] = React.useState(false);
+  const [payoutAmount, setPayoutAmount] = React.useState("");
+  const [payoutMethod, setPayoutMethod] = React.useState<"bkash" | "nagad" | "bank">("bkash");
+  const [payoutAccount, setPayoutAccount] = React.useState("");
+  const [submittingPayout, setSubmittingPayout] = React.useState(false);
 
   const handleMarkAttendance = async (
     applicationId: string,
@@ -106,14 +119,16 @@ export default function TutorEarningsPage() {
     setLoading(true);
     setError(null);
     try {
-      const [tuitionRes, applicantRes, analyticsRes] = await Promise.all([
+      const [tuitionRes, applicantRes, analyticsRes, payoutsRes] = await Promise.all([
         apiFetch<unknown>("/api/tuitions/my-tuitions"),
         apiFetch<unknown>("/api/applications/tutor"),
         apiFetch<TutorAnalyticsData>("/api/tuitions/tutor/analytics").catch(() => null),
+        apiFetch<unknown>("/api/payouts/my-requests").catch(() => []),
       ]);
       setTuitions(extractList<Tuition>(tuitionRes, "tuitions"));
       setApplicants(extractList<Application>(applicantRes, "applications"));
       if (analyticsRes) setAnalytics(analyticsRes);
+      setPayouts(extractList<PayoutRequest>(payoutsRes, "payouts"));
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError("Session expired or unauthorized. Please re-authenticate.");
@@ -129,15 +144,17 @@ export default function TutorEarningsPage() {
     let active = true;
     async function init() {
       try {
-        const [tuitionRes, applicantRes, analyticsRes] = await Promise.all([
+        const [tuitionRes, applicantRes, analyticsRes, payoutsRes] = await Promise.all([
           apiFetch<unknown>("/api/tuitions/my-tuitions"),
           apiFetch<unknown>("/api/applications/tutor"),
           apiFetch<TutorAnalyticsData>("/api/tuitions/tutor/analytics").catch(() => null),
+          apiFetch<unknown>("/api/payouts/my-requests").catch(() => []),
         ]);
         if (active) {
           setTuitions(extractList<Tuition>(tuitionRes, "tuitions"));
           setApplicants(extractList<Application>(applicantRes, "applications"));
           if (analyticsRes) setAnalytics(analyticsRes);
+          setPayouts(extractList<PayoutRequest>(payoutsRes, "payouts"));
         }
       } catch (err) {
         if (active) {
@@ -158,6 +175,40 @@ export default function TutorEarningsPage() {
       active = false;
     };
   }, []);
+
+  const handleRequestPayout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amountNum = Number(payoutAmount);
+    if (isNaN(amountNum) || amountNum < 100) {
+      toast.error("Please enter a valid amount (minimum ৳100).");
+      return;
+    }
+    if (!payoutAccount.trim() || payoutAccount.trim().length < 6) {
+      toast.error("Please provide a valid account or mobile number.");
+      return;
+    }
+
+    setSubmittingPayout(true);
+    try {
+      const res = await apiFetch<PayoutRequest>("/api/payouts", {
+        method: "POST",
+        body: JSON.stringify({
+          amount: amountNum,
+          paymentMethod: payoutMethod,
+          accountNumber: payoutAccount.trim(),
+        }),
+      });
+      setPayouts((prev) => [res, ...prev]);
+      toast.success("Payout request submitted successfully! Admin will review soon.");
+      setPayoutModalOpen(false);
+      setPayoutAmount("");
+      setPayoutAccount("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit payout request.");
+    } finally {
+      setSubmittingPayout(false);
+    }
+  };
 
   // Calculations
   const acceptedApps = React.useMemo(
@@ -267,6 +318,14 @@ export default function TutorEarningsPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <Button
+            size="sm"
+            onClick={() => setPayoutModalOpen(true)}
+            className="gap-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold cursor-pointer"
+          >
+            <ArrowDownToLine className="h-3.5 w-3.5" />
+            <span>Request Payout</span>
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -419,6 +478,89 @@ export default function TutorEarningsPage() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Payout & Withdrawal Requests Section */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base font-bold text-forest dark:text-[#8EE0BA] flex items-center gap-2">
+                <ArrowDownToLine className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <span>Payout & Withdrawal Requests</span>
+              </CardTitle>
+              <p className="text-xs text-muted dark:text-[#9DB3A6]">
+                Withdraw your earned tuition income directly to your bKash, Nagad, or Bank account.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setPayoutModalOpen(true)}
+              className="gap-1.5 text-xs bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] cursor-pointer"
+            >
+              <ArrowDownToLine className="h-3.5 w-3.5" />
+              <span>Request Payout</span>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full rounded-xl" />
+            </div>
+          ) : payouts.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-sage-border p-6 text-center text-xs text-muted dark:text-[#9DB3A6]">
+              No payout requests submitted yet. Click &quot;Request Payout&quot; to withdraw your confirmed earnings.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-sage-border text-muted dark:text-[#9DB3A6]">
+                    <th className="pb-2 font-bold">Request Date</th>
+                    <th className="pb-2 font-bold">Amount</th>
+                    <th className="pb-2 font-bold">Method & Account</th>
+                    <th className="pb-2 font-bold">Status</th>
+                    <th className="pb-2 font-bold">Admin Ref / Note</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-sage-border/60">
+                  {payouts.map((p) => (
+                    <tr key={p._id} className="hover:bg-sage-bg/30">
+                      <td className="py-2.5 font-medium">{formatDate(p.requestedAt)}</td>
+                      <td className="py-2.5 font-black text-forest dark:text-[#8EE0BA]">
+                        {formatFee(p.amount)}
+                      </td>
+                      <td className="py-2.5">
+                        <span className="uppercase font-bold text-[10px] bg-sage-subtle dark:bg-[#1C2B22] px-1.5 py-0.5 rounded border border-sage-border">
+                          {p.paymentMethod}
+                        </span>{" "}
+                        <span className="font-mono text-muted">{p.accountNumber}</span>
+                      </td>
+                      <td className="py-2.5">
+                        <Badge
+                          variant={
+                            p.status === "approved"
+                              ? "success"
+                              : p.status === "rejected"
+                                ? "danger"
+                                : "warning"
+                          }
+                          className="capitalize"
+                        >
+                          {p.status}
+                        </Badge>
+                      </td>
+                      <td className="py-2.5 text-muted">
+                        {p.transactionReference || p.adminNote || "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -679,6 +821,180 @@ export default function TutorEarningsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Request Payout Modal */}
+      {payoutModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+        >
+          <div className="relative w-full max-w-md rounded-2xl border border-sage-border bg-white dark:bg-[#141F18] p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-sage-border pb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                  <ArrowDownToLine className="h-4 w-4" />
+                </div>
+                <h3 className="text-base font-bold text-forest dark:text-[#8EE0BA]">
+                  Request Earnings Payout
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPayoutModalOpen(false)}
+                className="rounded-lg p-1 text-muted hover:bg-sage-subtle hover:text-ink cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRequestPayout} className="space-y-4 text-xs">
+              {/* Confirmed Balance Highlight */}
+              <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/20 p-3.5 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-300">
+                    Confirmed Earnings
+                  </span>
+                  <div className="text-xl font-black text-emerald-900 dark:text-emerald-200">
+                    {formatFee(totalEarnings)}
+                  </div>
+                </div>
+                <Badge variant="success">Available for Payout</Badge>
+              </div>
+
+              {/* Amount Input */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-ink dark:text-[#EFF5F0]">
+                  Withdrawal Amount (BDT)
+                </label>
+                <input
+                  type="number"
+                  min={100}
+                  max={totalEarnings > 0 ? totalEarnings : undefined}
+                  value={payoutAmount}
+                  onChange={(e) => setPayoutAmount(e.target.value)}
+                  placeholder="e.g. 2000"
+                  required
+                  className="w-full rounded-xl border border-sage-border bg-white dark:bg-[#1C2B22] px-3 py-2 text-xs text-ink dark:text-[#EFF5F0] focus:outline-hidden focus:ring-2 focus:ring-forest/30"
+                />
+                <div className="flex items-center gap-1.5 pt-1">
+                  {[500, 1000, 2000].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setPayoutAmount(String(preset))}
+                      className="rounded-md border border-sage-border/80 bg-sage-bg dark:bg-[#1C2B22] px-2 py-0.5 text-[10px] font-semibold text-forest dark:text-[#8EE0BA] hover:bg-forest/10 cursor-pointer"
+                    >
+                      ৳{preset}
+                    </button>
+                  ))}
+                  {totalEarnings > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setPayoutAmount(String(totalEarnings))}
+                      className="rounded-md border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 cursor-pointer"
+                    >
+                      Full Amount (৳{totalEarnings})
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Method Selector */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-ink dark:text-[#EFF5F0]">
+                  Payout Channel
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPayoutMethod("bkash")}
+                    className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      payoutMethod === "bkash"
+                        ? "border-[#E2136E] bg-[#E2136E]/10 text-[#E2136E] font-bold ring-1 ring-[#E2136E]"
+                        : "border-sage-border bg-white dark:bg-[#1C2B22] text-muted hover:text-ink"
+                    }`}
+                  >
+                    <Smartphone className="h-4 w-4 mb-1" />
+                    <span>bKash</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPayoutMethod("nagad")}
+                    className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      payoutMethod === "nagad"
+                        ? "border-[#F7941D] bg-[#F7941D]/10 text-[#F7941D] font-bold ring-1 ring-[#F7941D]"
+                        : "border-sage-border bg-white dark:bg-[#1C2B22] text-muted hover:text-ink"
+                    }`}
+                  >
+                    <Smartphone className="h-4 w-4 mb-1" />
+                    <span>Nagad</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPayoutMethod("bank")}
+                    className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      payoutMethod === "bank"
+                        ? "border-forest dark:border-[#8EE0BA] bg-forest/10 dark:bg-[#8EE0BA]/15 text-forest dark:text-[#8EE0BA] font-bold ring-1 ring-forest/30"
+                        : "border-sage-border bg-white dark:bg-[#1C2B22] text-muted hover:text-ink"
+                    }`}
+                  >
+                    <Building className="h-4 w-4 mb-1" />
+                    <span>Bank</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Account Number Input */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-ink dark:text-[#EFF5F0]">
+                  {payoutMethod === "bank"
+                    ? "Bank Account Details (Bank Name, A/C No, Branch)"
+                    : `${payoutMethod === "bkash" ? "bKash" : "Nagad"} Personal Number`}
+                </label>
+                <input
+                  type="text"
+                  value={payoutAccount}
+                  onChange={(e) => setPayoutAccount(e.target.value)}
+                  placeholder={
+                    payoutMethod === "bank"
+                      ? "e.g. DBBL, A/C: 123456789, Dhanmondi Branch"
+                      : "e.g. 017XXXXXXXX"
+                  }
+                  required
+                  className="w-full rounded-xl border border-sage-border bg-white dark:bg-[#1C2B22] px-3 py-2 text-xs text-ink dark:text-[#EFF5F0] focus:outline-hidden focus:ring-2 focus:ring-forest/30"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-sage-border">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPayoutModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={submittingPayout}
+                  className="gap-1.5 bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F]"
+                >
+                  {submittingPayout ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                  <span>Submit Payout Request</span>
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
