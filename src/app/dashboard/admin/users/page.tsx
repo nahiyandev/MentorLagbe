@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, ShieldAlert } from "lucide-react";
+import { Loader2, Search, ShieldAlert, X } from "lucide-react";
 import { toast } from "sonner";
 import type { UserRecord, UserRole } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pagination } from "@/components/ui/pagination";
 import { Select } from "@/components/ui/select";
@@ -34,6 +35,40 @@ export default function AdminUsersPage() {
 
   const ITEMS_PER_PAGE = 8;
   const [currentPage, setCurrentPage] = React.useState(1);
+
+  // Search and Filter states
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [roleFilter, setRoleFilter] = React.useState("all");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [planFilter, setPlanFilter] = React.useState("all");
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleRoleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRoleFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatusFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handlePlanFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPlanFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setRoleFilter("all");
+    setStatusFilter("all");
+    setPlanFilter("all");
+    setCurrentPage(1);
+  };
 
   React.useEffect(() => {
     let active = true;
@@ -160,10 +195,48 @@ export default function AdminUsersPage() {
     }
   };
 
-  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
-  const paginatedUsers = users.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+  const isFiltered =
+    searchQuery.trim() !== "" ||
+    roleFilter !== "all" ||
+    statusFilter !== "all" ||
+    planFilter !== "all";
+
+  const filteredUsers = React.useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return users.filter((u) => {
+      // Search: name or email contains query (substring, case-insensitive)
+      if (q) {
+        const nameMatch = u.name?.toLowerCase().includes(q);
+        const emailMatch = u.email?.toLowerCase().includes(q);
+        if (!nameMatch && !emailMatch) return false;
+      }
+
+      // Role filter
+      if (roleFilter !== "all" && u.role !== roleFilter) {
+        return false;
+      }
+
+      // Status filter: missing status treated as "active"
+      const userStatus = u.status === "blocked" ? "blocked" : "active";
+      if (statusFilter !== "all" && userStatus !== statusFilter) {
+        return false;
+      }
+
+      // Plan filter: missing plan treated as "free"
+      const userPlan = (u.plan || "free").toLowerCase();
+      if (planFilter !== "all" && userPlan !== planFilter.toLowerCase()) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [users, searchQuery, roleFilter, statusFilter, planFilter]);
+
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+  const safeCurrentPage = Math.min(currentPage, Math.max(1, totalPages));
+  const paginatedUsers = filteredUsers.slice(
+    (safeCurrentPage - 1) * ITEMS_PER_PAGE,
+    safeCurrentPage * ITEMS_PER_PAGE
   );
 
   return (
@@ -186,10 +259,16 @@ export default function AdminUsersPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Registered Users ({loading ? "…" : users.length})
+            Registered Users (
+            {loading
+              ? "…"
+              : isFiltered
+                ? `${filteredUsers.length} of ${users.length}`
+                : users.length}
+            )
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -197,14 +276,93 @@ export default function AdminUsersPage() {
               ))}
             </div>
           ) : users.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-sage-border bg-sage-bg/50 p-10 text-center">
-              <p className="text-sm font-semibold text-forest">
+            <div className="rounded-xl border border-dashed border-sage-border bg-sage-bg/50 dark:bg-[#1C2B22]/30 p-10 text-center">
+              <p className="text-sm font-semibold text-forest dark:text-[#8EE0BA]">
                 No users found.
               </p>
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              {/* Filter Bar */}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative flex-1 min-w-50 sm:min-w-60">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted dark:text-[#9DB3A6]" />
+                  <Input
+                    type="search"
+                    placeholder="Search by name or email…"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    className="h-10 pl-9 text-xs sm:text-sm bg-white dark:bg-[#141F18]"
+                    aria-label="Search users"
+                  />
+                </div>
+
+                <Select
+                  value={roleFilter}
+                  onChange={handleRoleFilterChange}
+                  className="h-10 w-full sm:w-36 text-xs sm:text-sm bg-white dark:bg-[#141F18]"
+                  aria-label="Filter by role"
+                >
+                  <option value="all">All roles</option>
+                  <option value="student">Student</option>
+                  <option value="tutor">Tutor</option>
+                  <option value="admin">Admin</option>
+                </Select>
+
+                <Select
+                  value={statusFilter}
+                  onChange={handleStatusFilterChange}
+                  className="h-10 w-full sm:w-36 text-xs sm:text-sm bg-white dark:bg-[#141F18]"
+                  aria-label="Filter by status"
+                >
+                  <option value="all">All statuses</option>
+                  <option value="active">Active</option>
+                  <option value="blocked">Blocked</option>
+                </Select>
+
+                <Select
+                  value={planFilter}
+                  onChange={handlePlanFilterChange}
+                  className="h-10 w-full sm:w-32 text-xs sm:text-sm bg-white dark:bg-[#141F18]"
+                  aria-label="Filter by plan"
+                >
+                  <option value="all">All plans</option>
+                  <option value="free">Free</option>
+                  <option value="pro">Pro</option>
+                </Select>
+
+                {isFiltered && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClearFilters}
+                    className="h-10 text-xs font-semibold text-muted hover:text-forest dark:text-[#9DB3A6] dark:hover:text-[#8EE0BA] cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5 mr-1" />
+                    Clear filters
+                  </Button>
+                )}
+              </div>
+
+              {filteredUsers.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-sage-border bg-sage-bg/50 dark:bg-[#1C2B22]/30 p-10 text-center space-y-3">
+                  <p className="text-sm font-semibold text-forest dark:text-[#8EE0BA]">
+                    No users match your filters.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClearFilters}
+                    className="cursor-pointer"
+                  >
+                    Clear filters
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-sage-border text-xs uppercase tracking-wider text-muted">
@@ -355,13 +513,15 @@ export default function AdminUsersPage() {
                 </table>
               </div>
 
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={users.length}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
-              />
+                  <Pagination
+                    currentPage={safeCurrentPage}
+                    totalPages={totalPages}
+                    totalItems={filteredUsers.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={setCurrentPage}
+                  />
+                </>
+              )}
             </>
           )}
         </CardContent>
