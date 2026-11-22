@@ -18,6 +18,7 @@ import {
   Star,
   User,
   MessageCircle,
+  Zap,
 } from "lucide-react";
 import type { Review, Tuition } from "@/types";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -588,7 +589,13 @@ export default function TuitionDetailsPage({
                       <p className="truncate text-base font-bold text-forest dark:text-[#8EE0BA]">
                         {tuition.tutorName}
                       </p>
-                      <VerifiedBadge size="sm" className="mt-0.5" />
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <VerifiedBadge size="sm" />
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:text-emerald-300">
+                          <Zap className="h-2.5 w-2.5 fill-emerald-500 text-emerald-500 shrink-0" />
+                          <span>~1 hr response</span>
+                        </span>
+                      </div>
                       <p className="mt-1 flex items-center gap-1 truncate text-xs text-muted dark:text-[#9DB3A6]">
                         <Mail className="h-3.5 w-3.5 shrink-0" />
                         <span className="truncate">{tuition.tutorEmail}</span>
