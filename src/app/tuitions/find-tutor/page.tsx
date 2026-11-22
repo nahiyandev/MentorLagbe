@@ -259,25 +259,29 @@ export default function FindTutorPage() {
       let score = 0;
       const reasons: string[] = [];
 
+      const normClass = (s: string) =>
+        s.replace(/[\u2013\u2014–—]/g, "-").toLowerCase().trim();
+      const normSub = (s: string) => s.toLowerCase().trim();
+
       // Subject Match (Up to 40 pts)
-      if (t.subject.toLowerCase() === targetSubject.toLowerCase()) {
+      if (normSub(t.subject) === normSub(targetSubject)) {
         score += 40;
         reasons.push("Exact Subject Match");
       } else if (
-        t.subject.toLowerCase().includes(targetSubject.toLowerCase()) ||
-        targetSubject.toLowerCase().includes(t.subject.toLowerCase())
+        normSub(t.subject).includes(normSub(targetSubject)) ||
+        normSub(targetSubject).includes(normSub(t.subject))
       ) {
         score += 25;
         reasons.push("Related Subject Match");
       }
 
       // Class Level Match (Up to 30 pts)
-      if (t.classLevel === targetClass) {
+      if (normClass(t.classLevel) === normClass(targetClass)) {
         score += 30;
         reasons.push("Target Class Level");
       } else if (
-        t.classLevel.toLowerCase().includes(targetClass.toLowerCase()) ||
-        targetClass.toLowerCase().includes(t.classLevel.toLowerCase())
+        normClass(t.classLevel).includes(normClass(targetClass)) ||
+        normClass(targetClass).includes(normClass(t.classLevel))
       ) {
         score += 20;
         reasons.push("Compatible Class Level");
@@ -394,6 +398,7 @@ export default function FindTutorPage() {
           setMatchedResults(scored);
           setFallbackResults([]);
         } else {
+          setMatchedResults([]);
           const fallbackRes = await apiFetch<unknown>(
             `/api/tuitions?subject=${encodeURIComponent(subject)}`
           );
