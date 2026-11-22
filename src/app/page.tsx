@@ -11,6 +11,7 @@ import {
   Globe,
   Languages,
   Layers,
+  MapPin,
   Search,
   ShieldCheck,
   Sparkles,
@@ -24,6 +25,66 @@ import { TestimonialsSection } from "@/components/home/testimonials-section";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+
+const POPULAR_AREAS = [
+  {
+    name: "Dhanmondi",
+    district: "Dhanmondi",
+    city: "Dhaka",
+    tagline: "Science, Math & English Coaching Hub",
+    badge: "Top Choice",
+  },
+  {
+    name: "Banani",
+    district: "Banani",
+    city: "Dhaka",
+    tagline: "English Medium, O/A Levels & ICT",
+    badge: "Trending",
+  },
+  {
+    name: "Uttara",
+    district: "Uttara",
+    city: "Dhaka",
+    tagline: "SSC, HSC & Comprehensive Mentorship",
+    badge: "Popular",
+  },
+  {
+    name: "Mirpur",
+    district: "Mirpur",
+    city: "Dhaka",
+    tagline: "Academic Batches & University Prep",
+    badge: "Active",
+  },
+  {
+    name: "Gulshan",
+    district: "Gulshan",
+    city: "Dhaka",
+    tagline: "1-on-1 Mentorship & Language Coaching",
+    badge: "Premium",
+  },
+  {
+    name: "Mohammadpur",
+    district: "Mohammadpur",
+    city: "Dhaka",
+    tagline: "School & College Foundation Batches",
+    badge: "Active",
+  },
+  {
+    name: "Chittagong",
+    district: "Chittagong",
+    city: "Chittagong Division",
+    tagline: "Board Exam Special & Science Tuitions",
+    badge: "Regional Hub",
+  },
+  {
+    name: "Online (সারাদেশ)",
+    district: "",
+    mode: "Online",
+    city: "Nationwide",
+    tagline: "Live Interactive Classes via Zoom & Meet",
+    badge: "Everywhere",
+  },
+];
 
 const STEPS = [
   {
@@ -266,6 +327,70 @@ export default function HomePage() {
         </div>
 
         <FeaturedTuitions />
+      </section>
+
+      {/* Popular Tuition Areas & Locations */}
+      <section className="border-t border-sage-border bg-sage-bg/30 dark:bg-[#0E1712] py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end mb-8">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-clay">
+                Locations &amp; Hubs
+              </p>
+              <h2 className="mt-1.5 text-3xl font-extrabold text-forest dark:text-[#8EE0BA]">
+                Popular Tuition Areas
+              </h2>
+              <p className="mt-2 text-sm text-muted dark:text-[#9DB3A6] sm:text-base">
+                Find certified tutors and active batches near your neighborhood or join live online cohorts from anywhere.
+              </p>
+            </div>
+            <Link href="/tuitions">
+              <Button variant="ghost" className="gap-1.5">
+                <span>View All Locations</span>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {POPULAR_AREAS.map((area) => (
+              <Link
+                key={area.name}
+                href={
+                  area.mode === "Online"
+                    ? "/tuitions?mode=Online"
+                    : `/tuitions?district=${encodeURIComponent(area.district)}`
+                }
+                className="group flex flex-col justify-between rounded-2xl border border-sage-border bg-white dark:bg-[#141F18] p-5 shadow-xs transition-all hover:-translate-y-1 hover:border-forest/40 dark:hover:border-forest/50 hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-forest/10 dark:bg-[#1C2B22] text-forest dark:text-[#8EE0BA] group-hover:bg-forest group-hover:text-white dark:group-hover:bg-[#8EE0BA] dark:group-hover:text-[#0C130F] transition-colors">
+                      <MapPin className="h-4 w-4" />
+                    </span>
+                    <span className="rounded-full bg-sage-subtle dark:bg-[#1C2B22] px-2.5 py-0.5 text-[10px] font-bold text-forest dark:text-[#8EE0BA]">
+                      {area.badge}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-forest dark:text-[#8EE0BA] group-hover:text-clay dark:group-hover:text-[#E58E58] transition-colors">
+                    {area.name}
+                  </h3>
+                  <p className="text-[11px] font-semibold text-muted dark:text-[#9DB3A6]">
+                    {area.city}
+                  </p>
+                  <p className="mt-2 text-xs text-muted dark:text-[#9DB3A6] line-clamp-2">
+                    {area.tagline}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-sage-border/60 flex items-center justify-between text-xs font-bold text-forest dark:text-[#8EE0BA] group-hover:text-clay dark:group-hover:text-[#E58E58]">
+                  <span>Explore Batches</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* 4. How MentorLagbe Works */}
