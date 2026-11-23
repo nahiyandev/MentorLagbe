@@ -303,6 +303,13 @@ export interface AdminUserSummary {
   applicationsAccepted: number;
   reviewsGiven: number;
   tuitionsTotal: number;
+  latestApplications?: {
+    tuitionId: string;
+    tuitionTitle: string;
+    status: string;
+    appliedAt?: string;
+    createdAt?: string;
+  }[];
   latestReviews: {
     tuitionId: string;
     tuitionTitle: string;

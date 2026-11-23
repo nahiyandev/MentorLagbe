@@ -42,6 +42,8 @@ function MessagesContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const shouldOpenAdmin = searchParams.get("admin") === "true";
+  const userParam = searchParams.get("user");
+  const targetUserEmail = userParam?.trim().toLowerCase();
 
   const [conversations, setConversations] = React.useState<ChatConversation[]>([]);
   const [activeConvo, setActiveConvo] = React.useState<ChatConversation | null>(null);
@@ -110,7 +112,41 @@ function MessagesContent() {
         setConversations(list);
         setLoadingList(false);
 
-        if (shouldOpenAdmin) {
+        if (targetUserEmail) {
+          const existing = list.find(
+            (c) => c.otherParty.email.toLowerCase() === targetUserEmail
+          );
+          if (existing) {
+            setActiveConvo(existing);
+            setLoadingThread(true);
+          } else {
+            const pair = [myEmail?.toLowerCase() || "", targetUserEmail]
+              .sort()
+              .join("___");
+            const userConvo: ChatConversation = {
+              conversationId: pair,
+              tuitionId: null,
+              tuitionTitle: "Direct Message",
+              otherParty: {
+                email: targetUserEmail,
+                name: targetUserEmail.split("@")[0],
+                role: "student",
+              },
+              lastMessage: {
+                text: "Direct message channel.",
+                senderEmail: targetUserEmail,
+                senderName: targetUserEmail.split("@")[0],
+                createdAt: new Date().toISOString(),
+                isRead: true,
+              },
+              unreadCount: 0,
+            };
+            setConversations((prev) => [userConvo, ...prev]);
+            setActiveConvo(userConvo);
+            setThread([]);
+            setLoadingThread(false);
+          }
+        } else if (shouldOpenAdmin) {
           const existing = list.find(
             (c) => c.otherParty.email.toLowerCase() === adminData.email.toLowerCase()
           );
@@ -155,7 +191,7 @@ function MessagesContent() {
     return () => {
       active = false;
     };
-  }, [myEmail, shouldOpenAdmin]);
+  }, [myEmail, shouldOpenAdmin, targetUserEmail]);
 
   React.useEffect(() => {
     let active = true;

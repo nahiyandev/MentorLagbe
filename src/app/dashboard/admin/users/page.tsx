@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ExternalLink,
   Loader2,
+  MessageCircle,
   Search,
   ShieldAlert,
   Star,
@@ -12,7 +13,13 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { AdminUserSummary, TutorProfileData, UserRecord, UserRole } from "@/types";
+import type {
+  AdminUserSummary,
+  PaymentRecord,
+  TutorProfileData,
+  UserRecord,
+  UserRole,
+} from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { useSession } from "@/lib/auth-client";
 import { formatDate, getInitials, isValidImageUrl } from "@/lib/utils";
@@ -48,6 +55,7 @@ export default function AdminUsersPage() {
   const [profileLoading, setProfileLoading] = React.useState(false);
   const [tutorStats, setTutorStats] = React.useState<TutorProfileData | null>(null);
   const [studentStats, setStudentStats] = React.useState<AdminUserSummary | null>(null);
+  const [allTransactions, setAllTransactions] = React.useState<PaymentRecord[] | null>(null);
 
   const handleOpenProfileDialog = (u: UserRecord) => {
     setProfileUser(u);
@@ -71,6 +79,16 @@ export default function AdminUsersPage() {
 
     async function loadStats() {
       try {
+        if (!allTransactions) {
+          try {
+            const txRes = await apiFetch<PaymentRecord[]>("/api/admin/transactions");
+            const txList = extractList<PaymentRecord>(txRes);
+            if (active) setAllTransactions(txList);
+          } catch (txErr) {
+            console.warn("Could not load transactions:", txErr);
+          }
+        }
+
         if (targetUser.role === "tutor") {
           const res = await apiFetch<TutorProfileData>(
             `/api/profile/tutor/${encodeURIComponent(targetUser.email)}`
@@ -94,7 +112,7 @@ export default function AdminUsersPage() {
     return () => {
       active = false;
     };
-  }, [profileDialogOpen, profileUser]);
+  }, [profileDialogOpen, profileUser, allTransactions]);
 
   const ITEMS_PER_PAGE = 8;
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -179,6 +197,11 @@ export default function AdminUsersPage() {
           (u._id || u.id) === userId ? { ...u, role: nextRole } : u
         )
       );
+      setProfileUser((prev) =>
+        prev && (prev._id || prev.id || prev.email) === userId
+          ? { ...prev, role: nextRole }
+          : prev
+      );
       toast.success(`Role updated to ${nextRole}.`);
     } catch (err) {
       toast.error(
@@ -221,6 +244,15 @@ export default function AdminUsersPage() {
             : u
         )
       );
+      setProfileUser((prev) =>
+        prev && (prev._id || prev.id || prev.email) === uid
+          ? {
+              ...prev,
+              status: "blocked",
+              blockedReason: res?.blockedReason || blockReason.trim(),
+            }
+          : prev
+      );
       toast.success(`User ${selectedUser.name} has been blocked.`);
       setBlockDialogOpen(false);
       setSelectedUser(null);
@@ -249,6 +281,11 @@ export default function AdminUsersPage() {
             ? { ...userItem, status: "active", blockedReason: "" }
             : userItem
         )
+      );
+      setProfileUser((prev) =>
+        prev && (prev._id || prev.id || prev.email) === uid
+          ? { ...prev, status: "active", blockedReason: "" }
+          : prev
       );
       toast.success(`User ${u.name} has been unblocked.`);
     } catch (err) {
@@ -603,318 +640,474 @@ export default function AdminUsersPage() {
         description="Inspect account attributes, contact details, platform statistics, and recent activity."
         className="max-w-xl"
       >
-        {profileUser && (
-          <div className="space-y-5 pt-2">
-            {/* Profile Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pb-2 border-b border-sage-border">
-              {isValidImageUrl(profileUser.image) ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profileUser.image!}
-                  alt={profileUser.name}
-                  className="h-[72px] w-[72px] shrink-0 rounded-full object-cover ring-4 ring-sage-border shadow-xs"
-                />
-              ) : (
-                <span className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-full bg-forest text-2xl font-black text-white ring-4 ring-sage-border shadow-xs">
-                  {getInitials(profileUser.name)}
-                </span>
-              )}
+        {profileUser && (() => {
+          const profileUid = profileUser._id || profileUser.id || profileUser.email;
+          const isProfileSelf =
+            Boolean(session?.user?.id && (session.user.id === profileUid || session.user.id === profileUser._id)) ||
+            Boolean(session?.user?.email && session.user.email.toLowerCase() === profileUser.email.toLowerCase());
+          const isProfileAdmin = profileUser.role === "admin";
+          const cannotBlockProfile = isProfileSelf || isProfileAdmin;
+          const isUpdatingProfile = updatingId === profileUid;
+          const userPayments = (allTransactions || []).filter(
+            (p) => p.userEmail?.toLowerCase() === profileUser.email.toLowerCase()
+          );
 
-              <div className="space-y-1 min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-black text-forest dark:text-[#8EE0BA] truncate">
-                    {profileUser.name}
-                  </h3>
-                  <Badge
-                    variant={profileUser.role === "admin" ? "clay" : "sage"}
-                    className="capitalize text-xs font-bold"
-                  >
-                    {profileUser.role}
-                  </Badge>
-                  <Badge
-                    variant={profileUser.plan === "pro" ? "clay" : "outline"}
-                    className="capitalize text-xs font-bold"
-                  >
-                    {profileUser.plan || "free"} plan
-                  </Badge>
-                </div>
-
-                <p className="text-xs text-muted dark:text-[#9DB3A6] truncate">
-                  {profileUser.email}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted dark:text-[#9DB3A6] pt-0.5">
-                  <span>
-                    Phone: <strong className="text-ink dark:text-[#EFF5F0]">{profileUser.phone || "—"}</strong>
-                  </span>
-                  <span>
-                    Member since:{" "}
-                    <strong className="text-ink dark:text-[#EFF5F0]">
-                      {profileUser.createdAt ? formatDate(profileUser.createdAt) : "—"}
-                    </strong>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Badges & Status Row */}
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="font-semibold text-muted dark:text-[#9DB3A6]">
-                  Status:
-                </span>
-                {profileUser.status === "blocked" ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-950/60 border border-red-200 dark:border-red-900 px-2.5 py-0.5 text-xs font-bold text-red-700 dark:text-red-400">
-                    Blocked
-                  </span>
+          return (
+            <div className="space-y-5 pt-2">
+              {/* Profile Header */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pb-2 border-b border-sage-border">
+                {isValidImageUrl(profileUser.image) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profileUser.image!}
+                    alt={profileUser.name}
+                    className="h-[72px] w-[72px] shrink-0 rounded-full object-cover ring-4 ring-sage-border shadow-xs"
+                  />
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                    Active
+                  <span className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-full bg-forest text-2xl font-black text-white ring-4 ring-sage-border shadow-xs">
+                    {getInitials(profileUser.name)}
                   </span>
                 )}
 
-                {(profileUser.responseBadge || tutorStats?.tutor?.responseBadge) && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
-                    <Zap className="h-3 w-3 fill-emerald-500 text-emerald-500" />
-                    {profileUser.responseBadge || tutorStats?.tutor?.responseBadge}
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-xl font-black text-forest dark:text-[#8EE0BA] truncate">
+                      {profileUser.name}
+                    </h3>
+                    <Badge
+                      variant={profileUser.role === "admin" ? "clay" : "sage"}
+                      className="capitalize text-xs font-bold"
+                    >
+                      {profileUser.role}
+                    </Badge>
+                    <Badge
+                      variant={profileUser.plan === "pro" ? "clay" : "outline"}
+                      className="capitalize text-xs font-bold"
+                    >
+                      {profileUser.plan || "free"} plan
+                    </Badge>
+                  </div>
+
+                  <p className="text-xs text-muted dark:text-[#9DB3A6] truncate">
+                    {profileUser.email}
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted dark:text-[#9DB3A6] pt-0.5">
+                    <span>
+                      Phone: <strong className="text-ink dark:text-[#EFF5F0]">{profileUser.phone || "—"}</strong>
+                    </span>
+                    <span>
+                      Member since:{" "}
+                      <strong className="text-ink dark:text-[#EFF5F0]">
+                        {profileUser.createdAt ? formatDate(profileUser.createdAt) : "—"}
+                      </strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Badges & Status Row */}
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="font-semibold text-muted dark:text-[#9DB3A6]">
+                    Status:
                   </span>
+                  {profileUser.status === "blocked" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-950/60 border border-red-200 dark:border-red-900 px-2.5 py-0.5 text-xs font-bold text-red-700 dark:text-red-400">
+                      Blocked
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                      Active
+                    </span>
+                  )}
+
+                  {(profileUser.responseBadge || tutorStats?.tutor?.responseBadge) && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                      <Zap className="h-3 w-3 fill-emerald-500 text-emerald-500" />
+                      {profileUser.responseBadge || tutorStats?.tutor?.responseBadge}
+                    </span>
+                  )}
+                </div>
+
+                {profileUser.status === "blocked" && profileUser.blockedReason && (
+                  <div className="rounded-xl border border-red-200 bg-red-50/80 p-2.5 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
+                    <strong className="font-bold">Block Reason:</strong> {profileUser.blockedReason}
+                  </div>
                 )}
               </div>
 
-              {profileUser.status === "blocked" && profileUser.blockedReason && (
-                <div className="rounded-xl border border-red-200 bg-red-50/80 p-2.5 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
-                  <strong className="font-bold">Block Reason:</strong> {profileUser.blockedReason}
-                </div>
-              )}
-            </div>
+              {/* Bio Section */}
+              <div className="space-y-1">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                  Biography
+                </p>
+                <p className="text-xs text-ink/80 dark:text-[#EFF5F0]/80 leading-relaxed bg-sage-subtle/30 dark:bg-[#1C2B22]/20 p-3 rounded-xl border border-sage-border/60">
+                  {profileUser.bio || "No bio added yet."}
+                </p>
+              </div>
 
-            {/* Bio Section */}
-            <div className="space-y-1">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                Biography
-              </p>
-              <p className="text-xs text-ink/80 dark:text-[#EFF5F0]/80 leading-relaxed bg-sage-subtle/30 dark:bg-[#1C2B22]/20 p-3 rounded-xl border border-sage-border/60">
-                {profileUser.bio || "No bio added yet."}
-              </p>
-            </div>
-
-            {/* Stats Row (4 Stat Cards) */}
-            <div className="space-y-1.5">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                Platform Statistics
-              </p>
-
-              {profileLoading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="h-18 rounded-xl" />
-                  ))}
-                </div>
-              ) : profileUser.role === "tutor" ? (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Active Batches
-                    </p>
-                    <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
-                      {tutorStats?.stats?.totalBatches ?? "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Subjects
-                    </p>
-                    <p className="mt-1 text-lg font-black text-clay">
-                      {tutorStats?.stats?.subjects?.length ?? "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Avg Rating
-                    </p>
-                    <div className="mt-1 flex items-center gap-1">
-                      <span className="text-lg font-black text-forest dark:text-[#8EE0BA]">
-                        {tutorStats?.stats?.averageRating ? tutorStats.stats.averageRating.toFixed(1) : "—"}
-                      </span>
-                      {Boolean(tutorStats?.stats?.averageRating) && (
-                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Total Reviews
-                    </p>
-                    <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
-                      {tutorStats?.stats?.totalReviews ?? "—"}
-                    </p>
-                  </div>
-                </div>
-              ) : profileUser.role === "student" ? (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Applications
-                    </p>
-                    <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
-                      {studentStats?.applicationsTotal ?? "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Accepted
-                    </p>
-                    <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-400">
-                      {studentStats?.applicationsAccepted ?? "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Reviews Given
-                    </p>
-                    <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
-                      {studentStats?.reviewsGiven ?? "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Plan Status
-                    </p>
-                    <p className="mt-1 text-lg font-black text-clay uppercase">
-                      {profileUser.plan || "free"}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Privilege
-                    </p>
-                    <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
-                      Full Admin
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Access
-                    </p>
-                    <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-400">
-                      Platform
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Status
-                    </p>
-                    <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
-                      Active
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                      Audits
-                    </p>
-                    <p className="mt-1 text-lg font-black text-clay">
-                      Enabled
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Latest Activity (max 3 items) */}
-            {profileUser.role === "tutor" && tutorStats?.tuitions && tutorStats.tuitions.length > 0 && (
+              {/* Stats Row (4 Stat Cards) */}
               <div className="space-y-1.5">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                  Latest Tuitions
+                  Platform Statistics
                 </p>
-                <div className="space-y-1.5">
-                  {tutorStats.tuitions.slice(0, 3).map((t) => (
-                    <div
-                      key={t._id}
-                      className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-sage-subtle/40 dark:bg-[#1C2B22]/30 border border-sage-border/60"
-                    >
-                      <span className="font-semibold text-forest dark:text-[#8EE0BA] truncate max-w-[260px]">
-                        {t.title}
-                      </span>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="font-bold text-ink dark:text-[#EFF5F0]">৳{t.monthlyFee}</span>
-                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 capitalize">
-                          {t.approvalStatus}
-                        </Badge>
+
+                {profileLoading ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="h-18 rounded-xl" />
+                    ))}
+                  </div>
+                ) : profileUser.role === "tutor" ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Active Batches
+                      </p>
+                      <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
+                        {tutorStats?.stats?.totalBatches ?? "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Subjects
+                      </p>
+                      <p className="mt-1 text-lg font-black text-clay">
+                        {tutorStats?.stats?.subjects?.length ?? "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Avg Rating
+                      </p>
+                      <div className="mt-1 flex items-center gap-1">
+                        <span className="text-lg font-black text-forest dark:text-[#8EE0BA]">
+                          {tutorStats?.stats?.averageRating ? tutorStats.stats.averageRating.toFixed(1) : "—"}
+                        </span>
+                        {Boolean(tutorStats?.stats?.averageRating) && (
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                        )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {profileUser.role === "student" && studentStats?.latestReviews && studentStats.latestReviews.length > 0 && (
-              <div className="space-y-1.5">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
-                  Latest Reviews Given
-                </p>
-                <div className="space-y-1.5">
-                  {studentStats.latestReviews.slice(0, 3).map((r, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-sage-subtle/40 dark:bg-[#1C2B22]/30 border border-sage-border/60"
-                    >
-                      <span className="font-semibold text-forest dark:text-[#8EE0BA] truncate max-w-[260px]">
-                        {r.tuitionTitle}
-                      </span>
-                      <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
-                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                        {r.rating}
-                      </span>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Total Reviews
+                      </p>
+                      <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
+                        {tutorStats?.stats?.totalReviews ?? "—"}
+                      </p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ) : profileUser.role === "student" ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Applications
+                      </p>
+                      <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
+                        {studentStats?.applicationsTotal ?? "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Accepted
+                      </p>
+                      <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-400">
+                        {studentStats?.applicationsAccepted ?? "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Reviews Given
+                      </p>
+                      <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
+                        {studentStats?.reviewsGiven ?? "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Plan Status
+                      </p>
+                      <p className="mt-1 text-lg font-black text-clay uppercase">
+                        {profileUser.plan || "free"}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Privilege
+                      </p>
+                      <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
+                        Full Admin
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Access
+                      </p>
+                      <p className="mt-1 text-lg font-black text-emerald-700 dark:text-emerald-400">
+                        Platform
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Status
+                      </p>
+                      <p className="mt-1 text-lg font-black text-forest dark:text-[#8EE0BA]">
+                        Active
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sage-subtle/50 dark:bg-[#1C2B22]/50 p-3 border border-sage-border/60">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                        Audits
+                      </p>
+                      <p className="mt-1 text-lg font-black text-clay">
+                        Enabled
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* Dialog Footer with View Profile button */}
-            <div className="flex items-center justify-between gap-3 pt-3 border-t border-sage-border mt-4">
-              {profileUser.role === "tutor" ? (
-                <Link
-                  href={`/tutors/${encodeURIComponent(profileUser.email)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1"
-                >
-                  <Button type="button" className="w-full gap-2 cursor-pointer font-bold">
-                    <ExternalLink className="h-4 w-4" />
-                    View Profile
-                  </Button>
-                </Link>
-              ) : profileUser.role === "student" ? (
-                <Link
-                  href={`/students/${encodeURIComponent(profileUser.email)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1"
-                >
-                  <Button type="button" className="w-full gap-2 cursor-pointer font-bold">
-                    <ExternalLink className="h-4 w-4" />
-                    View Profile
-                  </Button>
-                </Link>
-              ) : (
-                <div className="flex-1" />
+              {/* Latest Activity (max 3 items) */}
+              {profileUser.role === "tutor" && tutorStats?.tuitions && tutorStats.tuitions.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                    Latest Tuitions
+                  </p>
+                  <div className="space-y-1.5">
+                    {tutorStats.tuitions.slice(0, 3).map((t) => (
+                      <div
+                        key={t._id}
+                        className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-sage-subtle/40 dark:bg-[#1C2B22]/30 border border-sage-border/60"
+                      >
+                        <span className="font-semibold text-forest dark:text-[#8EE0BA] truncate max-w-[260px]">
+                          {t.title}
+                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="font-bold text-ink dark:text-[#EFF5F0]">৳{t.monthlyFee}</span>
+                          <Badge variant="outline" className="text-[10px] py-0 px-1.5 capitalize">
+                            {t.approvalStatus}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
 
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handleCloseProfileDialog}
-                className="cursor-pointer"
-              >
-                Close
-              </Button>
+              {profileUser.role === "student" && studentStats?.latestApplications && studentStats.latestApplications.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                    Latest Applications
+                  </p>
+                  <div className="space-y-1.5">
+                    {studentStats.latestApplications.slice(0, 3).map((a, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-sage-subtle/40 dark:bg-[#1C2B22]/30 border border-sage-border/60"
+                      >
+                        <span className="font-semibold text-forest dark:text-[#8EE0BA] truncate max-w-[260px]">
+                          {a.tuitionTitle}
+                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <Badge variant="outline" className="text-[10px] py-0 px-1.5 capitalize">
+                            {a.status}
+                          </Badge>
+                          {a.appliedAt && (
+                            <span className="text-[11px] text-muted dark:text-[#9DB3A6]">
+                              {formatDate(a.appliedAt)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {profileUser.role === "student" && studentStats?.latestReviews && studentStats.latestReviews.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                    Latest Reviews Given
+                  </p>
+                  <div className="space-y-1.5">
+                    {studentStats.latestReviews.slice(0, 3).map((r, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-sage-subtle/40 dark:bg-[#1C2B22]/30 border border-sage-border/60"
+                      >
+                        <span className="font-semibold text-forest dark:text-[#8EE0BA] truncate max-w-[260px]">
+                          {r.tuitionTitle}
+                        </span>
+                        <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
+                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                          {r.rating}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Payments Section */}
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#9DB3A6]">
+                  Payments History
+                </p>
+                {userPayments.length === 0 ? (
+                  <p className="text-xs text-muted dark:text-[#9DB3A6] italic py-1">
+                    No payments yet.
+                  </p>
+                ) : (
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto pr-0.5">
+                    {userPayments.map((p, idx) => (
+                      <div
+                        key={p._id || p.transactionId || idx}
+                        className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-sage-subtle/40 dark:bg-[#1C2B22]/30 border border-sage-border/60"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <span className="font-bold text-forest dark:text-[#8EE0BA] block truncate capitalize">
+                            {p.planName || "Pro Subscription"}
+                          </span>
+                          <span className="text-[11px] text-muted dark:text-[#9DB3A6]">
+                            {p.paidAt ? formatDate(p.paidAt) : "—"} via{" "}
+                            <span className="capitalize font-medium text-ink dark:text-[#EFF5F0]">
+                              {p.paymentMethod || "Stripe"}
+                            </span>
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="font-bold text-ink dark:text-[#EFF5F0]">
+                            {(p.currency || "BDT").toUpperCase()} {p.amount}
+                          </span>
+                          <Badge
+                            variant={p.paymentStatus === "completed" ? "sage" : "outline"}
+                            className="text-[10px] py-0 px-1.5 capitalize"
+                          >
+                            {p.paymentStatus}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Admin Actions Row */}
+              <div className="pt-2 border-t border-sage-border flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-muted dark:text-[#9DB3A6]">
+                    Role:
+                  </span>
+                  {isUpdatingProfile && (
+                    <Loader2 className="h-4 w-4 animate-spin text-forest" />
+                  )}
+                  <Select
+                    value={profileUser.role}
+                    disabled={isUpdatingProfile || isProfileSelf}
+                    aria-label={`Change role for ${profileUser.name}`}
+                    className="h-8 w-28 capitalize text-xs bg-white dark:bg-[#141F18]"
+                    onChange={(e) =>
+                      handleRoleChange(profileUid, e.target.value as UserRole)
+                    }
+                  >
+                    {ROLES.map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+
+                {!cannotBlockProfile && (
+                  <div>
+                    {profileUser.status === "blocked" ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={isUpdatingProfile}
+                        onClick={() => handleUnblock(profileUser)}
+                        className="h-8 border-emerald-600 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950/40 text-xs font-semibold cursor-pointer"
+                      >
+                        Unblock Account
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={isUpdatingProfile}
+                        onClick={() => handleOpenBlockDialog(profileUser)}
+                        className="h-8 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/40 text-xs font-semibold cursor-pointer"
+                      >
+                        Block Account
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Dialog Footer with View Profile and Message button */}
+              <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-sage-border mt-3">
+                <div className="flex flex-wrap items-center gap-2 flex-1">
+                  {profileUser.role === "tutor" ? (
+                    <Link
+                      href={`/tutors/${encodeURIComponent(profileUser.email)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0"
+                    >
+                      <Button type="button" className="gap-2 cursor-pointer font-bold">
+                        <ExternalLink className="h-4 w-4" />
+                        View Profile
+                      </Button>
+                    </Link>
+                  ) : profileUser.role === "student" ? (
+                    <Link
+                      href={`/students/${encodeURIComponent(profileUser.email)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0"
+                    >
+                      <Button type="button" className="gap-2 cursor-pointer font-bold">
+                        <ExternalLink className="h-4 w-4" />
+                        View Profile
+                      </Button>
+                    </Link>
+                  ) : null}
+
+                  <Link
+                    href={`/dashboard/messages?user=${encodeURIComponent(profileUser.email)}`}
+                    className="shrink-0"
+                  >
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="gap-2 cursor-pointer font-semibold"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Message
+                    </Button>
+                  </Link>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleCloseProfileDialog}
+                  className="cursor-pointer"
+                >
+                  Close
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </Dialog>
 
       {/* Block Confirmation Dialog */}
