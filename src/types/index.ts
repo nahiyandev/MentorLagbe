@@ -273,6 +273,45 @@ export interface TutorProfileData {
   };
 }
 
+export interface StudentProfileData {
+  student: {
+    _id?: string | null;
+    name: string;
+    image?: string | null;
+    bio?: string;
+    role: UserRole;
+    plan: UserPlan;
+    createdAt?: string | null;
+  };
+  stats: {
+    applicationsTotal: number;
+    applicationsAccepted: number;
+    reviewsGiven: number;
+    averageRating: number;
+  };
+  reviews: {
+    tuitionId: string;
+    tuitionTitle: string;
+    rating: number;
+    feedback: string;
+    createdAt: string;
+  }[];
+}
+
+export interface AdminUserSummary {
+  applicationsTotal: number;
+  applicationsAccepted: number;
+  reviewsGiven: number;
+  tuitionsTotal: number;
+  latestReviews: {
+    tuitionId: string;
+    tuitionTitle: string;
+    rating: number;
+    feedback: string;
+    createdAt: string;
+  }[];
+}
+
 export interface ChatMessage {
   _id: string;
   conversationId: string;
