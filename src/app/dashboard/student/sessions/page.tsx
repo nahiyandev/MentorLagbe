@@ -3,11 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import {
+  Bell,
+  BellRing,
   BookOpen,
   Calendar,
   CalendarCheck,
   CheckCircle2,
   Clock,
+  Download,
   ExternalLink,
   MessageCircle,
   RefreshCw,
@@ -17,9 +20,11 @@ import {
   Video,
   Zap,
 } from "lucide-react";
+import { toast } from "sonner";
 import type { Application } from "@/types";
 import { ApiError, apiFetch, extractList } from "@/lib/api";
 import { formatDate, formatFee } from "@/lib/utils";
+import { getGoogleCalendarUrl, downloadIcsFile } from "@/lib/calendar";
 import { ReviewDialog } from "@/components/reviews/review-dialog";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Badge } from "@/components/ui/badge";
@@ -192,6 +197,57 @@ export default function StudentSessionsPage() {
     return acceptedApps.filter((a) => Boolean(a.meetLink && a.meetLink.trim())).length;
   }, [acceptedApps]);
 
+  let urgentSession: { app: Application; info: NextClassInfo } | null = null;
+  for (const app of acceptedApps) {
+    const info = calculateNextClass(app.selectedSlots, app.preferredSchedule);
+    if (info.isToday || info.isTomorrow) {
+      urgentSession = { app, info };
+      break;
+    }
+  }
+
+  const handleSetReminder = async (app: Application, timeText: string) => {
+    try {
+      if (
+        typeof window !== "undefined" &&
+        "Notification" in window &&
+        Notification.permission === "default"
+      ) {
+        void Notification.requestPermission();
+      }
+
+      await apiFetch("/api/notifications/session-reminder", {
+        method: "POST",
+        body: JSON.stringify({
+          tuitionTitle: app.tuitionTitle,
+          timeText,
+          meetLink: app.meetLink,
+        }),
+      });
+
+      toast.success(
+        `⏰ Class reminder scheduled! You'll receive an in-app alert for "${app.tuitionTitle}".`
+      );
+    } catch {
+      toast.info("Class reminder active on your platform dashboard.");
+    }
+  };
+
+  const handleDownloadIcs = (app: Application, dayName: string) => {
+    try {
+      downloadIcsFile({
+        title: `MentorLagbe: ${app.tuitionTitle} (${app.subject})`,
+        description: `Class session with ${app.tutorName || "tutor"}.\nTuition: ${app.tuitionTitle}\nSubject: ${app.subject}`,
+        meetLink: app.meetLink,
+        scheduleText: app.preferredSchedule,
+        dayName,
+      });
+      toast.success("📅 Class schedule (.ics) downloaded!");
+    } catch {
+      toast.error("Could not export .ics calendar file.");
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -234,6 +290,84 @@ export default function StudentSessionsPage() {
       {error && (
         <div className="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 p-4 text-xs font-semibold text-red-700 dark:text-red-300">
           {error}
+        </div>
+      )}
+
+      {/* Live Urgent Class Alert Banner */}
+      {urgentSession && (
+        <div
+          className={`rounded-2xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs transition-all ${
+            urgentSession.info.isToday
+              ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-[#15231B] text-emerald-950 dark:text-emerald-100"
+              : "border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-[#231E15] text-amber-950 dark:text-amber-100"
+          }`}
+        >
+          <div className="flex items-start sm:items-center gap-3">
+            <div
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                urgentSession.info.isToday
+                  ? "bg-emerald-600 text-white animate-pulse"
+                  : "bg-amber-500 text-white"
+              }`}
+            >
+              <BellRing className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    urgentSession.info.isToday
+                      ? "bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200"
+                      : "bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-200"
+                  }`}
+                >
+                  {urgentSession.info.isToday ? "Class Today!" : "Class Tomorrow"}
+                </span>
+                <span className="text-xs font-bold opacity-80">
+                  {urgentSession.info.timeString}
+                </span>
+              </div>
+              <h3 className="text-sm font-extrabold mt-1">
+                {urgentSession.app.tuitionTitle} ({urgentSession.app.subject})
+              </h3>
+              <p className="text-xs opacity-75 mt-0.5">
+                Tutor: {urgentSession.app.tutorName || urgentSession.app.tutorEmail} &bull; Next class {urgentSession.info.displayText}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {urgentSession.app.meetLink ? (
+              <a
+                href={
+                  urgentSession.app.meetLink.startsWith("http")
+                    ? urgentSession.app.meetLink
+                    : `https://${urgentSession.app.meetLink}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-forest dark:bg-[#8EE0BA] text-white dark:text-[#0C130F] px-3.5 py-2 text-xs font-bold shadow-xs hover:bg-forest/90"
+              >
+                <Video className="h-4 w-4" />
+                <span>Join Meet Now</span>
+              </a>
+            ) : null}
+            <a
+              href={getGoogleCalendarUrl({
+                title: `MentorLagbe: ${urgentSession.app.tuitionTitle}`,
+                description: `Live Class with ${urgentSession.app.tutorName || "Tutor"}.`,
+                meetLink: urgentSession.app.meetLink,
+                scheduleText: urgentSession.app.preferredSchedule,
+                dayName: urgentSession.info.dayName,
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-sage-border bg-white dark:bg-[#141F18] px-3 py-2 text-xs font-semibold text-forest dark:text-[#8EE0BA] hover:bg-sage-bg/60"
+            >
+              <Calendar className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Add to Calendar</span>
+            </a>
+          </div>
         </div>
       )}
 
@@ -536,6 +670,56 @@ export default function StudentSessionsPage() {
                             </Button>
                           </Link>
                         )}
+                      </div>
+                    </div>
+
+                    {/* Google Calendar & Reminder Actions */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-sage-border/60">
+                      <div className="flex items-center gap-1.5 text-xs text-muted dark:text-[#9DB3A6]">
+                        <Bell className="h-3.5 w-3.5 text-clay" />
+                        <span>Calendar sync &amp; alerts:</span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSetReminder(app, nextClass.displayText)}
+                          className="h-8 gap-1.5 text-xs font-semibold cursor-pointer"
+                        >
+                          <BellRing className="h-3.5 w-3.5 text-clay" />
+                          <span>Set Alert</span>
+                        </Button>
+
+                        <a
+                          href={getGoogleCalendarUrl({
+                            title: `MentorLagbe: ${app.tuitionTitle} (${app.subject})`,
+                            description: `Live Class with ${app.tutorName || "Tutor"}.\nTuition: ${app.tuitionTitle}`,
+                            meetLink: app.meetLink,
+                            scheduleText: app.preferredSchedule,
+                            dayName: nextClass.dayName,
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-sage-border bg-white dark:bg-[#141F18] px-3 py-1.5 text-xs font-semibold text-forest dark:text-[#8EE0BA] hover:bg-sage-bg/60 dark:hover:bg-[#1C2B22] transition-colors"
+                        >
+                          <Calendar className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <span>Google Calendar</span>
+                          <ExternalLink className="h-3 w-3 opacity-60" />
+                        </a>
+
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDownloadIcs(app, nextClass.dayName)}
+                          className="h-8 gap-1.5 text-xs font-semibold cursor-pointer"
+                          title="Download standard .ics file for Apple & Outlook Calendar"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          <span>.ics</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
