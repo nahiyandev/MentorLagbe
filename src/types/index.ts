@@ -382,3 +382,32 @@ export interface CouponRecord {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface AdminAnalyticsData {
+  revenueTrends: {
+    label: string;
+    year: number;
+    month: number;
+    usd: number;
+    bdt: number;
+    totalUsdEquivalent: number;
+  }[];
+  paymentMethods: {
+    method: string;
+    total: number;
+    count: number;
+  }[];
+  userGrowth: {
+    label: string;
+    year: number;
+    month: number;
+    students: number;
+    tutors: number;
+    total: number;
+  }[];
+  popularSubjects: {
+    subject: string;
+    tuitions: number;
+    applications: number;
+  }[];
+}

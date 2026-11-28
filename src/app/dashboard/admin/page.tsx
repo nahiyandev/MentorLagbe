@@ -11,11 +11,17 @@ import {
   Receipt,
   Star,
   TicketPercent,
+  TrendingUp,
   Users,
 } from "lucide-react";
-import type { AdminStats } from "@/types";
+import type { AdminAnalyticsData, AdminStats } from "@/types";
 import { ApiError, apiFetch } from "@/lib/api";
 import { StatCard } from "@/components/dashboard/stat-card";
+import {
+  PopularSubjectsChart,
+  RevenueTrendsChart,
+  UserGrowthChart,
+} from "@/components/dashboard/admin-charts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,6 +37,7 @@ const EMPTY_STATS: AdminStats = {
 
 export default function AdminOverviewPage() {
   const [stats, setStats] = React.useState<AdminStats>(EMPTY_STATS);
+  const [analytics, setAnalytics] = React.useState<AdminAnalyticsData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -38,16 +45,22 @@ export default function AdminOverviewPage() {
     let active = true;
     async function load() {
       try {
-        const res = await apiFetch<AdminStats | { data?: AdminStats }>(
-          "/api/admin/stats"
-        );
-        const parsed =
-          res && typeof res === "object" && "totalUsers" in res
-            ? (res as AdminStats)
-            : (res as { data?: AdminStats })?.data || EMPTY_STATS;
-        if (active) setStats(parsed);
-      } catch (err) {
-        if (active) {
+        const [statsResult, analyticsResult] = await Promise.allSettled([
+          apiFetch<AdminStats | { data?: AdminStats }>("/api/admin/stats"),
+          apiFetch<AdminAnalyticsData>("/api/admin/analytics"),
+        ]);
+
+        if (!active) return;
+
+        if (statsResult.status === "fulfilled") {
+          const res = statsResult.value;
+          const parsed =
+            res && typeof res === "object" && "totalUsers" in res
+              ? (res as AdminStats)
+              : (res as { data?: AdminStats })?.data || EMPTY_STATS;
+          setStats(parsed);
+        } else {
+          const err = statsResult.reason;
           if (err instanceof ApiError && err.status === 401) {
             setError(
               "Backend JWT token is missing or expired. Once POST /api/auth/jwt is live on the server, sign in again to load admin analytics."
@@ -61,6 +74,10 @@ export default function AdminOverviewPage() {
                 : "Could not load platform statistics."
             );
           }
+        }
+
+        if (analyticsResult.status === "fulfilled") {
+          setAnalytics(analyticsResult.value);
         }
       } finally {
         if (active) setLoading(false);
@@ -156,6 +173,50 @@ export default function AdminOverviewPage() {
           })()}
         </div>
       )}
+
+      {/* Visual Analytics Charts Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between border-b border-sage-border pb-3">
+          <div>
+            <h2 className="text-xl font-extrabold text-forest dark:text-[#8EE0BA] flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-clay" />
+              <span>Platform Analytics &amp; Visual Trends</span>
+            </h2>
+            <p className="text-xs text-muted dark:text-[#9DB3A6] mt-0.5">
+              Live revenue trajectory, monthly user growth, and curriculum demand
+            </p>
+          </div>
+        </div>
+
+        {loading || !analytics ? (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7">
+              <Skeleton className="h-72 w-full rounded-2xl" />
+            </div>
+            <div className="lg:col-span-5">
+              <Skeleton className="h-72 w-full rounded-2xl" />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-7">
+                <RevenueTrendsChart
+                  data={analytics.revenueTrends}
+                  paymentMethods={analytics.paymentMethods}
+                />
+              </div>
+              <div className="lg:col-span-5">
+                <UserGrowthChart data={analytics.userGrowth} />
+              </div>
+            </div>
+
+            <div>
+              <PopularSubjectsChart data={analytics.popularSubjects} />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Quick Admin Actions — 5-Column Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
