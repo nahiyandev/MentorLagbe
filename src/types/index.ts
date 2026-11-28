@@ -298,6 +298,20 @@ export interface StudentProfileData {
   }[];
 }
 
+export interface TutorBookedSlot {
+  _id: string;
+  tuitionId: string;
+  tuitionTitle: string;
+  subject: string;
+  studentName: string;
+  studentEmail: string;
+  studentPhone: string;
+  slot: string;
+  selectedSlots?: string[];
+  meetLink?: string;
+  bookedAt?: string;
+}
+
 export interface AdminUserSummary {
   applicationsTotal: number;
   applicationsAccepted: number;

@@ -11,6 +11,7 @@ import {
   ExternalLink,
   MessageCircle,
   RefreshCw,
+  Sparkles,
   Star,
   User,
   Video,
@@ -345,8 +346,14 @@ export default function StudentSessionsPage() {
                 >
                   {/* Top Status Header */}
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-sage-border bg-sage-bg/50 dark:bg-[#1C2B22]/50 px-5 py-3 text-xs">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="success">Enrolled & Active</Badge>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="success">Enrolled &amp; Active</Badge>
+                      {(app.selectedSlots && app.selectedSlots.length > 0 || app.preferredSchedule) && (
+                        <Badge variant="clay" className="gap-1 text-[11px] font-bold">
+                          <Sparkles className="h-2.5 w-2.5" />
+                          Booked Slot: {app.selectedSlots && app.selectedSlots.length > 0 ? app.selectedSlots[0] : app.preferredSchedule}
+                        </Badge>
+                      )}
                       <span className="text-muted dark:text-[#9DB3A6] text-[11px]">
                         Enrolled on {formatDate(app.decidedAt || app.appliedAt || "")}
                       </span>

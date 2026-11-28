@@ -385,12 +385,31 @@ export default function TuitionDetailsPage({
                     </p>
                   </div>
 
-                  {/* Tutor Availability Calendar */}
+                  {/* Tutor Availability Calendar & Slot Booking */}
                   <div className="mt-8 border-t border-sage-border pt-6">
                     <TutorAvailabilityCalendar
                       availability={tuition.tutorAvailability}
                       daysPerWeek={tuition.daysPerWeek}
                       tutorName={tuition.tutorName}
+                      tuitionId={tuition._id}
+                      tuitionTitle={tuition.title}
+                      monthlyFee={tuition.monthlyFee}
+                      bookedSlots={tuition.bookedSlots || []}
+                      onSlotBooked={(slotKey) => {
+                        setTuition((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                bookedSlots: [...(prev.bookedSlots || []), slotKey],
+                                remainingSeats: Math.max(
+                                  0,
+                                  (prev.remainingSeats ?? prev.seatLimit ?? 5) - 1
+                                ),
+                              }
+                            : prev
+                        );
+                        setApplied(true);
+                      }}
                     />
                   </div>
 

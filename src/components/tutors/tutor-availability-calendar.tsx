@@ -1,14 +1,20 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, CheckCircle2, XCircle } from "lucide-react";
+import { CalendarDays, CheckCircle2, Lock, PlusCircle, XCircle } from "lucide-react";
 import type { TutorAvailabilitySlot } from "@/types";
 import { Badge } from "@/components/ui/badge";
+import { BookSlotDialog } from "@/components/tuitions/book-slot-dialog";
 
 interface TutorAvailabilityCalendarProps {
   availability?: TutorAvailabilitySlot[];
   daysPerWeek?: number;
   tutorName?: string;
+  tuitionId?: string;
+  tuitionTitle?: string;
+  monthlyFee?: number;
+  bookedSlots?: string[];
+  onSlotBooked?: (slotKey: string) => void;
 }
 
 const DEFAULT_DAYS: TutorAvailabilitySlot[] = [
@@ -65,11 +71,32 @@ export function TutorAvailabilityCalendar({
   availability,
   daysPerWeek,
   tutorName = "Tutor",
+  tuitionId,
+  tuitionTitle = "Tuition Class",
+  monthlyFee,
+  bookedSlots = [],
+  onSlotBooked,
 }: TutorAvailabilityCalendarProps) {
   const schedule =
     availability && availability.length > 0 ? availability : DEFAULT_DAYS;
 
   const availableDaysCount = schedule.filter((s) => s.isAvailable).length;
+
+  const [bookingSlot, setBookingSlot] = React.useState<{
+    day: string;
+    slot: string;
+  } | null>(null);
+
+  const handleSlotClick = (day: string, slot: string) => {
+    if (!tuitionId) return; // Read-only mode if no tuition context
+    const slotKey = `${day.slice(0, 3)}: ${slot.trim()}`;
+    if (bookedSlots.includes(slotKey)) return; // already booked
+    setBookingSlot({ day, slot });
+  };
+
+  const handleBookingSuccess = (slotKey: string) => {
+    if (onSlotBooked) onSlotBooked(slotKey);
+  };
 
   return (
     <div className="rounded-2xl border border-sage-border bg-white dark:bg-[#141F18] p-4 sm:p-5 shadow-xs">
@@ -78,10 +105,10 @@ export function TutorAvailabilityCalendar({
         <div>
           <h3 className="flex items-center gap-2 text-sm font-bold text-forest dark:text-[#8EE0BA]">
             <CalendarDays className="h-4 w-4 text-clay" />
-            Weekly Availability Calendar
+            Weekly Class Slots &amp; Availability
           </h3>
           <p className="text-xs text-muted dark:text-[#9DB3A6] mt-0.5">
-            {tutorName}&apos;s weekly schedule and open teaching hours
+            {tutorName}&apos;s weekly schedule. {tuitionId ? "Click any available slot to book directly." : "Open teaching hours."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -148,10 +175,23 @@ export function TutorAvailabilityCalendar({
                   ) : (
                     item.slots.map((slot, sIdx) => {
                       const { start, end } = parseSlot(slot);
+                      const slotKey = `${item.day.slice(0, 3)}: ${slot.trim()}`;
+                      const isBooked = bookedSlots.includes(slotKey);
+                      const canBook = Boolean(tuitionId) && !isBooked;
+
                       return (
                         <div
                           key={sIdx}
-                          className="rounded-lg bg-white dark:bg-[#18261E] border border-sage-border/90 px-1 py-1.5 text-center shadow-2xs"
+                          onClick={() => {
+                            if (canBook) handleSlotClick(item.day, slot);
+                          }}
+                          className={`rounded-lg border px-1 py-1.5 text-center shadow-2xs transition-all ${
+                            isBooked
+                              ? "bg-sage-bg/80 dark:bg-[#101A14] border-red-200 dark:border-red-900/60 opacity-80 cursor-not-allowed"
+                              : canBook
+                              ? "bg-white dark:bg-[#18261E] border-emerald-300 dark:border-emerald-700 hover:border-forest dark:hover:border-[#8EE0BA] hover:ring-2 hover:ring-forest/20 cursor-pointer group"
+                              : "bg-white dark:bg-[#18261E] border-sage-border/90"
+                          }`}
                         >
                           <span className="block text-[11px] font-bold text-forest dark:text-[#8EE0BA] leading-tight">
                             {start}
@@ -161,6 +201,17 @@ export function TutorAvailabilityCalendar({
                               to {end}
                             </span>
                           )}
+
+                          {/* Direct Booking Badge / Indicator */}
+                          {isBooked ? (
+                            <span className="mt-1 inline-flex items-center gap-0.5 rounded-sm bg-red-100 dark:bg-red-950/60 px-1 py-0.2 text-[8px] font-black text-red-700 dark:text-red-400">
+                              <Lock className="h-2 w-2" /> Booked
+                            </span>
+                          ) : canBook ? (
+                            <span className="mt-1 inline-flex items-center gap-0.5 rounded-sm bg-emerald-100 dark:bg-emerald-950/60 px-1 py-0.2 text-[8px] font-extrabold text-emerald-800 dark:text-emerald-300 group-hover:bg-forest group-hover:text-white transition-colors">
+                              <PlusCircle className="h-2 w-2" /> Book Slot
+                            </span>
+                          ) : null}
                         </div>
                       );
                     })
@@ -173,8 +224,23 @@ export function TutorAvailabilityCalendar({
       </div>
 
       <p className="mt-3.5 text-center text-[11px] text-muted dark:text-[#9DB3A6]">
-        * Times are in Bangladesh Standard Time (BST, UTC+6). Specific batch hours can be agreed upon after applying.
+        * Times are in Bangladesh Standard Time (BST, UTC+6). {tuitionId ? "Clicking an open slot reserves that specific weekly time." : "Select preferred slots when booking."}
       </p>
+
+      {/* Slot Booking Dialog */}
+      {tuitionId && bookingSlot && (
+        <BookSlotDialog
+          open={Boolean(bookingSlot)}
+          onClose={() => setBookingSlot(null)}
+          tuitionId={tuitionId}
+          tuitionTitle={tuitionTitle}
+          tutorName={tutorName}
+          slotDay={bookingSlot.day}
+          slotTime={bookingSlot.slot}
+          monthlyFee={monthlyFee}
+          onSuccess={handleBookingSuccess}
+        />
+      )}
     </div>
   );
 }
