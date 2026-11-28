@@ -240,11 +240,77 @@ export default function FindTutorPage() {
   const [budget, setBudget] = React.useState<number>(5000);
   const [mode, setMode] = React.useState<string>("");
 
+  const [aiPrompt, setAiPrompt] = React.useState<string>("");
+  const [aiLoading, setAiLoading] = React.useState<boolean>(false);
+  const [aiAnalysis, setAiAnalysis] = React.useState<{
+    extractedPrompt: string;
+    detectedSubject: string;
+    detectedClassLevel: string;
+    detectedBudget: number | null;
+    detectedMode: string;
+    aiSummary: string;
+  } | null>(null);
+  const [showManualFilters, setShowManualFilters] = React.useState<boolean>(false);
+
   const [loading, setLoading] = React.useState<boolean>(false);
   const [hasSearched, setHasSearched] = React.useState<boolean>(false);
   const [matchedResults, setMatchedResults] = React.useState<ScoredTuition[]>([]);
   const [fallbackResults, setFallbackResults] = React.useState<ScoredTuition[]>([]);
   const [error, setError] = React.useState<string | null>(null);
+
+  const handleAiMatch = React.useCallback(async (customPrompt?: string) => {
+    const textToMatch = customPrompt ?? aiPrompt;
+    if (!textToMatch.trim()) {
+      setError("Please describe what kind of tutor or subject you are looking for.");
+      return;
+    }
+
+    setAiLoading(true);
+    setError(null);
+    setHasSearched(true);
+
+    try {
+      const res = await apiFetch<{
+        analysis: {
+          extractedPrompt: string;
+          detectedSubject: string;
+          detectedClassLevel: string;
+          detectedBudget: number | null;
+          detectedMode: string;
+          aiSummary: string;
+        };
+        matches: ScoredTuition[];
+      }>("/api/tuitions/ai-match", {
+        method: "POST",
+        body: JSON.stringify({ prompt: textToMatch.trim() }),
+      });
+
+      if (res?.analysis) {
+        setAiAnalysis(res.analysis);
+        if (res.analysis.detectedSubject && res.analysis.detectedSubject !== "Any Subject") {
+          setSubject(res.analysis.detectedSubject);
+        }
+        if (res.analysis.detectedClassLevel && res.analysis.detectedClassLevel !== "All Classes") {
+          setClassLevel(res.analysis.detectedClassLevel);
+        }
+        if (res.analysis.detectedBudget) {
+          setBudget(res.analysis.detectedBudget);
+        }
+      }
+
+      if (res?.matches && res.matches.length > 0) {
+        setMatchedResults(res.matches);
+        setFallbackResults([]);
+      } else {
+        setMatchedResults([]);
+        setFallbackResults([]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "AI Matching failed.");
+    } finally {
+      setAiLoading(false);
+    }
+  }, [aiPrompt]);
 
   const BUDGET_PRESETS = [3000, 4000, 5000, 7000, 10000, 15000];
 
@@ -474,8 +540,127 @@ export default function FindTutorPage() {
           </div>
         </div>
 
+        {/* AI Natural Language Matcher Card */}
+        <div className="mb-8 rounded-3xl border border-emerald-300 dark:border-emerald-700 bg-linear-to-br from-emerald-500/10 via-forest/5 to-amber-500/10 dark:from-emerald-950/40 dark:to-[#141F18] p-6 sm:p-8 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-sage-border/80 pb-4 mb-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-xs">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-forest dark:text-[#8EE0BA] flex items-center gap-2">
+                  <span>AI Tutor Matcher</span>
+                  <Badge variant="clay" className="text-[10px] font-black uppercase">
+                    Natural Language AI
+                  </Badge>
+                </h2>
+                <p className="text-xs text-muted dark:text-[#9DB3A6] mt-0.5">
+                  Describe what kind of tutor you need in Bangla or English. Our AI analyzes your subject, class level, budget, and schedule to recommend the best mentors.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="relative">
+              <textarea
+                rows={3}
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="e.g. আমি ক্লাস ১০-এর জন্য একজন ফিজিক্স টিউটর খুঁজছি, সপ্তাহে ৩ দিন সন্ধ্যা ৭টায়, বাজেট ৫০০০ টাকার মধ্যে। ধানমন্ডি বা অনলাইনে ভালো শিক্ষক খুঁজছি।"
+                className="w-full rounded-2xl border border-sage-border bg-white dark:bg-[#101A14] p-4 text-xs sm:text-sm text-ink dark:text-[#EFF5F0] placeholder:text-muted/60 focus:border-forest dark:focus:border-[#8EE0BA] focus:outline-hidden focus:ring-2 focus:ring-forest/20 shadow-2xs resize-none"
+              />
+            </div>
+
+            {/* Quick Prompt Suggestions */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-muted dark:text-[#9DB3A6]">
+                💡 Try sample prompts:
+              </span>
+              {[
+                "HSC Physics & Higher Math (Online, ৳6,000)",
+                "SSC Science & Chemistry (Evening, ৳4,500)",
+                "Class 8 English & ICT (Online, ৳3,500)",
+                "Medical / University Admission Physics Expert",
+              ].map((sample) => (
+                <button
+                  key={sample}
+                  type="button"
+                  onClick={() => {
+                    setAiPrompt(sample);
+                    void handleAiMatch(sample);
+                  }}
+                  className="rounded-full border border-sage-border bg-white/80 dark:bg-[#1C2B22]/80 px-2.5 py-1 text-[11px] font-medium text-forest dark:text-[#8EE0BA] hover:bg-forest hover:text-white dark:hover:bg-[#8EE0BA] dark:hover:text-[#0C130F] transition-all cursor-pointer shadow-2xs"
+                >
+                  {sample}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowManualFilters(!showManualFilters)}
+                className="text-xs font-bold text-muted hover:text-forest dark:text-[#9DB3A6] dark:hover:text-[#8EE0BA] underline cursor-pointer"
+              >
+                {showManualFilters
+                  ? "Hide manual filters"
+                  : "Or customize manual filters (Subject, Class, Budget)"}
+              </button>
+
+              <Button
+                size="lg"
+                onClick={() => void handleAiMatch()}
+                disabled={aiLoading}
+                className="gap-2 font-black cursor-pointer shadow-xs bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white"
+              >
+                {aiLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Analyzing &amp; Matching...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    <span>Match Best Tutors with AI</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* AI Analysis Result Ribbon */}
+        {aiAnalysis && (
+          <div className="mb-8 rounded-2xl border border-forest/20 bg-emerald-50/70 dark:bg-[#1C2B22]/60 p-4 sm:p-5 shadow-xs space-y-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-black uppercase tracking-wider text-forest dark:text-[#8EE0BA]">
+                AI Match Analysis
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-ink dark:text-[#EFF5F0]">
+              {aiAnalysis.aiSummary}
+            </p>
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+              <Badge variant="sage">Subject: {aiAnalysis.detectedSubject}</Badge>
+              <Badge variant="sage">Level: {aiAnalysis.detectedClassLevel}</Badge>
+              {aiAnalysis.detectedBudget && (
+                <Badge variant="clay">
+                  Budget: ≤৳{aiAnalysis.detectedBudget.toLocaleString()}
+                </Badge>
+              )}
+              <Badge variant="outline">Mode: {aiAnalysis.detectedMode}</Badge>
+            </div>
+          </div>
+        )}
+
         {/* Matchmaker Interactive Form */}
-        <div className="mb-10 rounded-2xl border border-sage-border bg-white dark:bg-[#141F18] p-6 sm:p-8 shadow-xs">
+        <div
+          className={`mb-10 rounded-2xl border border-sage-border bg-white dark:bg-[#141F18] p-6 sm:p-8 shadow-xs ${
+            showManualFilters ? "block" : "hidden sm:block"
+          }`}
+        >
           <div className="flex items-center gap-2 border-b border-sage-border pb-4 mb-6">
             <Zap className="h-5 w-5 text-clay" />
             <h2 className="text-base sm:text-lg font-bold text-forest dark:text-[#8EE0BA]">
